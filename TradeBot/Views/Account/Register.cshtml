@@ -1,0 +1,45 @@
+﻿
+@{
+    ViewData["Title"] = "Register";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row d-flex justify-content-center">
+    <div class="col-5">
+        <div class="card">
+            <div class="card-body p-4">
+                <div class="d-block text-primary text-uppercase text-center mb-3">
+                    <b>CHỢ BỘT - AAI MUA BỘT, THUÊ BỘT GÌ HÔÔN</b>
+                </div>
+                <form method="post">
+                    <div class="mb-3">
+                        <input type="text" class="form-control" id="name" placeholder="Họ và tên">
+                    </div>
+                    <div class="mb-3">
+                        <input type="email" class="form-control" id="email" placeholder="Email" aria-describedby="emailHelp">
+                    </div>
+                    <div class="mb-3">
+                        <input type="tel" class="form-control" id="tel" placeholder="Số điện thoại">
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" id="password" placeholder="Mật khẩu">
+                    </div>
+                    <div class="mb-3">
+                        <input type="password" class="form-control" id="confirmPassword" placeholder="Xác nhận mật khẩu">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="exampleCheck1">
+                        <label class="form-check-label user-select-none" for="exampleCheck1">Hiện mật khẩu</label>
+                    </div>
+                    <button type="submit" class="mb-3 btn btn-primary w-100">Đăng ký</button>
+                    <div class="d-flex justify-content-between">
+                        <a class="text-decoration-none">Đăng nhập</a>
+                        <a class="text-decoration-none">Quên mật khẩu</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
