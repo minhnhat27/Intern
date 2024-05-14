@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -26,6 +28,31 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    @if (User.Identity!.IsAuthenticated)
+                    {
+                        var user = User.FindFirstValue(ClaimTypes.Name);
+                        if(user != null)
+                        {
+                            <div class="d-flex align-items-center">
+                                <a class="text-decoration-none text-dark">@user</a>
+                                <a asp-controller="Account" asp-action="Logout" class="text-decoration-none btn btn-primary mx-2">Đăng xuất</a>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex align-items-center">
+                                <a class="text-decoration-none text-dark">@User.Identity.Name</a>
+                                <a asp-controller="Account" asp-action="Logout" class="text-decoration-none btn btn-primary mx-2">Đăng xuất</a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="d-flex align-items-center">
+                            <a asp-controller="Account" asp-action="Login" class="text-decoration-none btn btn-primary">Đăng nhập</a>
+                            <a asp-controller="Account" asp-action="Register" class="text-decoration-none btn btn-primary mx-2">Đăng ký</a>
+                        </div>
+                    }
                 </div>
             </div>
         </nav>

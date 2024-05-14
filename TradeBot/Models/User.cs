@@ -5,6 +5,6 @@ namespace TradeBot.Models
 {
     public class User : IdentityUser
     {
-
+        public string Fullname { get; set; }
     }
 }
