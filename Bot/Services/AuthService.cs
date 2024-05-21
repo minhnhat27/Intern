@@ -1,6 +1,7 @@
 ﻿using Bot.DTO;
 using Bot.Models;
 using Bot.Request;
+using Bot.Response;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.DotNet.Scaffolding.Shared;
 using Microsoft.IdentityModel.Tokens;
@@ -50,7 +51,7 @@ namespace Bot.Services
             return new JwtSecurityTokenHandler().WriteToken(jwtToken);
         }
 
-        public async Task<TokenModel?> Login(LoginRequest request)
+        public async Task<JwtResponse?> Login(LoginRequest request)
         {
             var result = await _signInManager.PasswordSignInAsync(request.Username, request.Password, false, false);
             if (result.Succeeded)
@@ -67,10 +68,11 @@ namespace Bot.Services
                     var refresh_token = await _userManager.GenerateUserTokenAsync(user, provider, name);
                     await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
 
-                    return new TokenModel
+                    return new JwtResponse
                     {
                         Access_token = access_token,
-                        Refresh_token = refresh_token
+                        Refresh_token = refresh_token,
+                        Name = user.Fullname,
                     };
                 }
                 return null;
