@@ -20,7 +20,9 @@ builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
-builder.Services.AddIdentity<User, IdentityRole<int>>().AddEntityFrameworkStores<MyDbContext>().AddDefaultTokenProviders();
+builder.Services.AddIdentity<User, IdentityRole<int>>()
+    .AddEntityFrameworkStores<MyDbContext>()
+    .AddTokenProvider("Bot", typeof(DataProtectorTokenProvider<User>));
 
 builder.Services.AddAuthentication(options =>
 {

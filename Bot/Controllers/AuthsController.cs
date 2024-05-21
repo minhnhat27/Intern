@@ -1,9 +1,10 @@
-﻿using Bot.Request;
+﻿using Bot.DTO;
+using Bot.Request;
 using Bot.Services;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis.Scripting;
+using NuGet.Common;
+using System.Security.Claims;
 
 namespace Bot.Controllers
 {
@@ -15,38 +16,101 @@ namespace Bot.Controllers
         public AuthsController(IAuthService authService) => _authService = authService;
 
         [HttpPost("login")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Login(LoginRequest request)
+        public async Task<IActionResult> Login([FromBody] LoginRequest request)
         {
-            var result = await _authService.Login(request);
-            if (result != null)
+            try
             {
-                return Ok(result);
+                var result = await _authService.Login(request);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                else return Unauthorized("Tên tài khoản hoặc mật khẩu không chính xác");
             }
-            else return Unauthorized("Username or password incorrrect");
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpPost("register")]
-        [AllowAnonymous]
-        public async Task<IActionResult> Register(RegisterRequest request)
+        public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {
-            var result = await _authService.Register(request);
-            if (result.Succeeded)
+            try
             {
+                var result = await _authService.Register(request);
+                if (result.Succeeded)
+                {
+                    return Ok();
+                }
+                else return BadRequest(result.Errors);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken([FromBody] TokenModel token)
+        {
+            try
+            {
+                var result = await _authService.RefreshToken(token);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                else return Unauthorized("Invalid attempt!");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("logout")]
+        [Authorize]
+        public async Task<IActionResult> Logout()
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized("User Id claim not found");
+                }
+                await _authService.Logout(userId);
                 return Ok();
             }
-            else return BadRequest(result.Errors);
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
 
         [HttpGet("router")]
-        [AllowAnonymous]
         public IActionResult Router()
         {
-            var fileName = "cbscript.js";
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "Response",fileName);
-            var script = System.IO.File.ReadAllText(path);
+            var referer = Request.Headers["Referer"].ToString();
+            if (string.IsNullOrEmpty(referer))
+            {
+                return BadRequest();
+            }
+            else
+            {
+                var fileName = "cbscript.js";
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", fileName);
+                var script = System.IO.File.ReadAllText(path);
+                return Content(script);
+            }
+        }
 
-            return Content(script);
+
+        [HttpGet("get")]
+        public IActionResult Get()
+        {
+            return Ok(new { ok = "ok" });
         }
     }
 }
