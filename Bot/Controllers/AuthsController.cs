@@ -41,7 +41,7 @@ namespace Bot.Controllers
                 var result = await _authService.Register(request);
                 if (result.Succeeded)
                 {
-                    return Ok();
+                    return NoContent();
                 }
                 else return BadRequest(result.Errors);
             }
@@ -104,13 +104,6 @@ namespace Bot.Controllers
                 var script = System.IO.File.ReadAllText(path);
                 return Content(script);
             }
-        }
-
-
-        [HttpGet("get")]
-        public IActionResult Get()
-        {
-            return Ok(new { ok = "ok" });
         }
     }
 }

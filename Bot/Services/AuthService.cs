@@ -132,7 +132,6 @@ namespace Bot.Services
                 ConcurrencyStamp = Guid.NewGuid().ToString(),
             };
             return await _userManager.CreateAsync(User, request.Password);
-
         }
 
         public async Task Logout(string userId)
