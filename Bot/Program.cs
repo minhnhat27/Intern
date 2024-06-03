@@ -51,6 +51,7 @@ builder.Services.AddCors(opt =>
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBotSignalService, BotSignalService>();
 
 var app = builder.Build();
 
