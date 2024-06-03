@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using NuGet.Common;
 using System.Security.Claims;
+using static System.Net.WebRequestMethods;
 
 namespace Bot.Controllers
 {
@@ -13,7 +14,12 @@ namespace Bot.Controllers
     public class AuthsController : ControllerBase
     {
         private readonly IAuthService _authService;
-        public AuthsController(IAuthService authService) => _authService = authService;
+        private readonly IConfiguration _configuration;
+        public AuthsController(IAuthService authService, IConfiguration configuration)
+        {
+            _authService = authService;
+            _configuration = configuration;
+        }
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginRequest request)
@@ -41,7 +47,7 @@ namespace Bot.Controllers
                 var result = await _authService.Register(request);
                 if (result.Succeeded)
                 {
-                    return Ok();
+                    return NoContent();
                 }
                 else return BadRequest(result.Errors);
             }
@@ -99,18 +105,14 @@ namespace Bot.Controllers
             }
             else
             {
-                var fileName = "cbscript.js";
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", fileName);
+                var telegrambottoken = _configuration.GetSection("TelegramBotToken").Value;
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "cbscript.js");
                 var script = System.IO.File.ReadAllText(path);
-                return Content(script);
+                var newScript = script.Replace("telegrambottoken", telegrambottoken);
+
+                return Content(newScript);
             }
-        }
-
-
-        [HttpGet("get")]
-        public IActionResult Get()
-        {
-            return Ok(new { ok = "ok" });
         }
     }
 }
