@@ -23,7 +23,7 @@ namespace Bot.Services
             _userManager = userManager;
             _config = configuration;
         }
-        private async Task<string> CreateJwtToken(User user, DateTime time)
+        private async Task<string> CreateJwt(User user, DateTime time)
         {
             var roles = await _userManager.GetRolesAsync(user);
             var claims = new List<Claim>
@@ -58,7 +58,7 @@ namespace Bot.Services
                 var user = await _userManager.FindByNameAsync(request.Username);
                 if (user != null)
                 {
-                    var access_token = await CreateJwtToken(user, DateTime.UtcNow.AddMinutes(5));
+                    var access_token = await CreateJwt(user, DateTime.UtcNow.AddMinutes(5));
 
                     var provider = "Bot";
                     var name = "Refresh_Token";
@@ -100,7 +100,7 @@ namespace Bot.Services
             var provider = "Bot";
             var name = "Refresh_Token";
 
-            var access_token = await CreateJwtToken(user, DateTime.UtcNow.AddMinutes(5));
+            var access_token = await CreateJwt(user, DateTime.UtcNow.AddMinutes(5));
             var isValid = await _userManager.VerifyUserTokenAsync(user, provider, name, token.Refresh_token ?? "");
             if (!isValid)
             {

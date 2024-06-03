@@ -38,11 +38,11 @@ function updateCookieValue(cname, newValue) {
     }
 }
 
-const scripts = `<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.js"></script>
-                `
+const scripts = `<script src="https://localhost:7043/assets/js/common.js"></script>`
 
 const packageHtml = `
     <div id='sat-content'>
+        <link rel="stylesheet" href="https://localhost:7043/assets/bootstrap-table.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <style>
@@ -110,571 +110,7 @@ const packageHtml = `
              margin-top: 0.5rem;
          }
      </style>
-     <div id="system-error" class="d-none list-group-item px-1">
-         <div class="alert alert-danger">
-             <span class="system-error-text"></span>
-             <br>
-             Liên hệ
-             <a href="https://zalo.me/g/mgrsyj088" target="_blank">
-                 0786.441.433             </a> để được hỗ trợ
-         </div>
-     </div>
-    </div>
-`
-
-const loginFormHtml = `
-<div id='ext-content' class='list-group-item list-group-item-accent-danger m-0 p-1'>
-        <div id="bot-account-link" class="text-center py-2">
-            <div class="text-center">
-                <div id="cb_loginStatus" class="alert alert-info">
-                    Đăng nhập để liên kết với Tài khoản ...
-                </div>
-            </div>
-            <div class="form-group mb-1">
-                <label for="cb_username">Tên đăng nhập</label><br>
-                <input id="cb_username" type="text" value="" class="form-control">
-            </div>
-            <div class="form-group mb-1">
-                <label for="cb_password">Mật khẩu</label><br>
-                <input id="cb_password" type="password" value="" class="form-control">
-            </div>
-            <div class="form-group mb-1">
-                <input id="cb_showPassword" type="checkbox">
-                <label for="cb_showPassword">Hiện mật khẩu</label>
-            </div>
-            <div class="form-group mb-1">
-                <button id="cb_login" type="button" class="btn btn-primary">Đăng nhập</button>
-            </div>
-            <div class="form-group mb-1">
-                <a href="http://192.168.1.67:3000/register" target="_blank" title="Đăng ký tài khoản mới">
-                    Chưa có tài khoản? Đăng ký tại đây
-                </a>
-            </div>
-            <div class="form-group mb-1">
-                <a href="http://192.168.1.67:3000/forget-password" target="_blank" title="Quên mật khẩu? Click vào đây">
-                    Quên mật khẩu?
-                </a>
-            </div>
-        </div>
-     </div>`
-
-const loggingHtml = `
-         <div class="text-left border-bottom mb-2">
-             <div class="d-flex">
-                 <div class="mr-auto">
-                     <i class="fa fa-copy"></i>
-                     <a href="https://chobot.vn" target="_blank" title="Bot phân tán thực hiện bởi chobot.vn">Chobot.vn</a> <small>231113</small>
-                 </div>
-                 <div class="px-2">
-                     <a href="javascript:void(0)" class="satbot-settings" title="Cài đặt">
-                         <i class="fa fa-cog"></i>
-                     </a>
-                     <a href="javascript:void(0)" class="satbot-logout" title="Đăng xuất">
-                         <i class="fa fa-sign-out"></i>
-                     </a>
-                 </div>
-             </div>
-         </div>
-
-         <div id="ext-test" class="d-none bot-test text-center py-2">
-             <div class="row justify-content-center">
-                 <div class="col">
-                     <button type="button" class="btn btn-success btn-test-buy px-2">BUY</button>
-                     <button type="button" class="btn btn-danger btn-test-sell px-2">SELL</button>
-                     <button type="button" class="btn btn-danger btn-test-short px-2">SHORT</button>
-                     <button type="button" class="btn btn-success btn-test-cover px-2">COVER</button>
-                 </div>
-             </div>
-             <div class="row justify-content-center py-2">
-                 <div class="col">
-                     <button type="button" class="btn btn-warning btn-test-wait px-2">WAIT</button>
-                     <button type="button" class="btn btn-warning btn-test-activate px-2">Kích hoạt</button>
-                     <button type="button" class="btn btn-danger btn-test-reset px-2">Reset</button>
-                 </div>
-             </div>
-         </div>
-
-         <div class="d-none d-block bot-none alert alert-danger text-center">
-             TK chưa thiết lập bot mặc định
-             <br>
-             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
-         </div>
-         <div class="d-none d-block bot-expired alert alert-danger text-center">
-             Bot đã hết hạn sử dụng <br> Vui lòng chọn và kích hoạt lại.
-             <br>
-             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
-         </div>
-
-         <div class="text-left border-bottom d-flex">
-             <div class="mr-auto">
-                 <i class="fa fa-list"></i>
-                 Nhật ký hệ thống
-             </div>
-             <div class="px-2">
-                 <a href="javascript:void(0)" title="Xóa nhật ký" class="bot-history-clear">
-                     <i class="fa fa-trash"></i>
-                 </a>
-             </div>
-         </div>
-         <div class="container-fluid m-0 p-0">
-             <textarea id="bot-logs" class="form-controls w-100" rows="10" readonly="" style="font-size: 0.75rem;font-style:italic;border-color:#c8ced3;color:var(--gray-700) !important;"></textarea>
-         </div>
-    `
-
-const tabExtContent = `
-<div id="tab-ext" class="div-tab tab-pane fade in text-white" role="tabpanel">
-    <div id="ext-tab-content">
-         <div id="bot-test" class="d-none container-fluid m-0 p-2 bot-section">
-             <div class="row">
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-success test-trigger-long">
-                         Trigger LONG
-                     </button>
-                 </div>
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-danger test-trigger-short">
-                         Trigger SHORT
-                     </button>
-                 </div>
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-warning test-cancel-all">
-                         Hủy tất cả
-                     </button>
-                 </div>
-             </div>
-         </div>
-         <div id="bot-settings" class="container-fluid m-0 p-2 bot-section">
-             <div class="row border-bottom ">
-                 <div class="col d-flex align-items-center">
-                     <i class="fa fa-list mr-1"></i>
-                     <b>Bot giao dịch</b>
-                 </div>
-             </div>
-             <div class="row my-2">
-                 <div class="col">
-                     <input id="bot-name" type="text" class="form-control w-100" value="" placeholder="Chọn bot để giao dịch" readonly="">
-                 </div>
-                 <div class="col-auto">
-                     <button type="button" data-toggle="modal" class="btn btn-primary btn-select-bot">Chọn bot</button>
-                 </div>
-             </div>
-             <div class="row border-bottom ">
-                 <div class="col d-flex align-items-center">
-                     <i class="fa fa-list mr-1"></i>
-                     <b>Hỗ trợ Đặt lệnh</b>
-                 </div>
-                 <div class="col text-right">
-                     <label class="switch switch-label switch-label-panel switch-pill switch-success switch-sm float-right">
-                         <input class="switch-input st-bot-config bot-settings" name="bot-auto-order" id="bot-auto-order" type="checkbox" checked="checked">
-                         <span class="switch-slider" data-checked="On" data-unchecked="Off" id="bot-auto-order_sl"></span>
-                     </label>
-                 </div>
-             </div>
-             <div id="bot-settings-content" class="m-0 p-0">
-                 <div class="row my-1 pr-2">
-                     <label for="bot-trendTypes">Khi có trend</label>
-                     <select id="bot-trendTypes" class="custom-select bot-settings">
-                         <option value="0" selected="">LONG hoặc SHORT</option>
-                         <option value="1">chỉ LONG</option>
-                         <option value="2">chỉ SHORT</option>
-                     </select>
-                 </div>
-                 <div>
-                     Bot đóng vị thế
-                 </div>
-                 <div class="row my-1 pr-2">
-                     <div class="col">
-                         <select id="bot-close" class="custom-select bot-settings">
-                             <option value="0"> Không làm gì </option>
-                             <option value="1" selected=""> Đóng vị thế ngược chiều </option>
-                         </select>
-                     </div>
-                     <div class="col-4 m-0 p-0 pl-2">
-                         <select id="bot-close-price" class="custom-select bot-settings">
-                             <option value="0" selected=""> MTL </option>
-                             <option value="1"> Trần/Sàn </option>
-                         </select>
-                     </div>
-                 </div>
-                 <div>
-                     Bot mở vị thế mới
-                 </div>
-                 <div class="row my-1 pr-2">
-                     <div class="col">
-                         <select id="bot-open" class="custom-select bot-settings">
-                             <option value="0"> Không mở vị thế </option>
-                             <option value="1" selected=""> Mở vị thế mới</option>
-                         </select>
-                     </div>
-                     <div class="col-4 m-0 p-0 pl-2">
-                         <select id="bot-open-price" class="custom-select bot-settings">
-                             <option value="0" selected=""> MTL </option>
-                             <option value="1"> Trần/Sàn </option>
-                             <option value="2"> Tín hiệu </option>
-                         </select>
-                     </div>
-                 </div>
-                 <div>
-                     với Số hợp đồng là
-                 </div>
-                 <div class="row my-1 pr-2">
-                     <div class="col">
-                         <select id="bot-volume" class="custom-select bot-settings">
-                             <option value="0" selected="">Full Sức mua</option>
-                             <option value="1"> Số HĐ =</option>
-                         </select>
-                     </div>
-                     <div class="col-4 m-0 p-0 pl-2">
-                         <input type="number" class="form-control formatDouble bot-settings" id="bot-volume-value" step="1" min="1" value="" placeholder="Số HĐ">
-                     </div>
-                 </div>
-                 <div class="row my-1 mt-2">
-                     <div class="col">
-                         <div class="custom-control custom-checkbox mx-2">
-                             <input id="bot-atoc-order" type="checkbox" class="custom-control-input bot-settings">
-                             <label for="bot-atoc-order" class="custom-control-label" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC">Đặt lệnh ATO/ATC
-                                 <i class="fa fa-info-circle text-info" aria-hidden="true" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC"></i>
-                         </label></div>
-                     </div>
-                 </div>
-             </div>
-         </div>
-
-         <div id="bot-signal" class="container m-0 p-2">
-             <div class="row text-left border-bottom m-0 p-0">
-                 <div class="col p-0">
-                     <i class="fa fa-list"></i>
-                     <b>Tín hiệu Bot</b>
-                 </div>
-                 <div class="col text-right">
-                     <a href="javascript:void(0)" class="bot-signal-refresh" title="Click để tải lại">
-                         <i class="fa fa-refresh"></i>
-                     </a>
-                 </div>
-             </div>
-             <div class="row container-fluid m-0 p-0">
-                 <table id="bot-tbl-signals" class="table table-sm">
-                     <thead>
-                         <tr>
-                             <th class="text-left">Ngày</th>
-                             <th class="text-left">Thời gian</th>
-                             <th class="text-center">Tín hiệu</th>
-                             <th class="text-right">Giá</th>
-                         </tr>
-                     </thead>
-                     <tbody>
-                         <tr class="d-none template">
-                             <td class="text-left">
-                                 <em><span class="date"></span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time"></span></b>
-                             </td>
-                             <td class="signal text-center">
-                                 <span class="signal"></span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center=""></span>
-                             </td>
-                         </tr>
-                     <tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-17</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:40:00</span></b>
-                             </td>
-                             <td class="signal text-center cover">
-                                 <span class="signal">COVER</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1303.9</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-17</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:30:00</span></b>
-                             </td>
-                             <td class="signal text-center short">
-                                 <span class="signal">SHORT</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1302.5</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-16</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">13:05:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1307.2</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-16</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">09:40:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1295.8</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-15</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:10:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1287.5</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-14</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:25:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1276.3</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-14</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:45:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1273</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-14</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">09:45:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1275.7</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-13</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:15:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1265.4</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-13</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">13:35:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1272.5</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-13</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">13:15:00</span></b>
-                             </td>
-                             <td class="signal text-center cover">
-                                 <span class="signal">COVER</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1269.6</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-13</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:40:00</span></b>
-                             </td>
-                             <td class="signal text-center short">
-                                 <span class="signal">SHORT</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1267.9</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-10</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:10:00</span></b>
-                             </td>
-                             <td class="signal text-center cover">
-                                 <span class="signal">COVER</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1266.7</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-10</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:55:00</span></b>
-                             </td>
-                             <td class="signal text-center short">
-                                 <span class="signal">SHORT</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1273.5</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-10</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:30:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1276.4</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-10</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">09:35:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1278.4</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-09</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:15:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1271.2</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-09</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:00:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1276.6</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-09</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:25:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1278.5</span>
-                             </td>
-                         </tr></tbody>
-                 </table>
-             </div>
-         </div>
-     </div>
-    </div>`
-
-const modelBot = `
-<div id="global">
-    <div class="modal fade" id="satbot-settings" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" data-backdrop="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Semi-AutoBot Cài đặt</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form class="container">
-                        <div class="d-none row my-2 form-group w-100">
-                            <label class="form-label" for="ext-chart">Biểu đồ Bot</label>
-                            <select id="ext-chart" class="form-control">
-                                <option value="0">Mặc định</option>
-                                <!-- <option value="1" data-url="">SmartTrading</option> -->
-                                <option value="3" data-url="">Fansi AutoBot 1M++</option>
-                                <option value="2">Link chỉ định</option>
-                            </select>
-                        </div>
-                        <div class="d-none row my-2 form-group w-100">
-                            <input type="text" class="form-control w-100" id="ext-chart-link"
-                                placeholder="Nhập đường link đến biểu đồ">
-                        </div>
-
-                        <div class="row my-2 form-group w-100">
-                            <div class="form-group">
-                                <input type="checkbox" id="ext-json-debug" class="form-checkbox">
-                                <label for="ext-json-debug">Log dữ liệu nâng cao</label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer d-flex flex-nowrap">
-                    <button type="button" class="btn btn-dark btnCloseModal" data-dismiss="modal">Bỏ qua</button>
-                    <button type="button" class="btn btn-success satbot-settings-save">Cập nhật</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- select bot version 3.0 -->
-    <style>
+     <style>
         td.bot-img,
         td.bot-img img {
             width: 80px;
@@ -795,8 +231,309 @@ const modelBot = `
             max-height: 50vh !important;
         }
     </style>
+     <div id="system-error" class="d-none list-group-item px-1">
+         <div class="alert alert-danger">
+             <span class="system-error-text"></span>
+             <br>
+             Liên hệ
+             <a href="https://zalo.me/g/mgrsyj088" target="_blank">
+                 0786.441.433             </a> để được hỗ trợ
+         </div>
+     </div>
+    </div>
+`
 
-    <script src="//chobot.vn/assets/js/common.js"></script>
+const loginFormHtml = `
+<div id='ext-content' class='list-group-item list-group-item-accent-danger m-0 p-1'>
+        <div id="bot-account-link" class="text-center py-2">
+            <div class="text-center">
+                <div id="cb_loginStatus" class="alert alert-info">
+                    Đăng nhập để liên kết với Tài khoản ...
+                </div>
+            </div>
+            <div class="form-group mb-1">
+                <label for="cb_username">Tên đăng nhập</label><br>
+                <input id="cb_username" type="text" value="" class="form-control">
+            </div>
+            <div class="form-group mb-1">
+                <label for="cb_password">Mật khẩu</label><br>
+                <input id="cb_password" type="password" value="" class="form-control">
+            </div>
+            <div class="form-group mb-1">
+                <input id="cb_showPassword" type="checkbox">
+                <label for="cb_showPassword">Hiện mật khẩu</label>
+            </div>
+            <div class="form-group mb-1">
+                <button id="cb_login" type="button" class="btn btn-primary">Đăng nhập</button>
+            </div>
+            <div class="form-group mb-1">
+                <a href="http://192.168.1.127:3000/register" target="_blank" title="Đăng ký tài khoản mới">
+                    Chưa có tài khoản? Đăng ký tại đây
+                </a>
+            </div>
+            <div class="form-group mb-1">
+                <a href="http://192.168.1.127:3000/forget-password" target="_blank" title="Quên mật khẩu? Click vào đây">
+                    Quên mật khẩu?
+                </a>
+            </div>
+        </div>
+     </div>`
+
+const loggingHtml = `
+         <div class="text-left border-bottom mb-2">
+             <div class="d-flex">
+                 <div class="mr-auto">
+                     <i class="fa fa-copy"></i>
+                     <a href="https://chobot.vn" target="_blank" title="Bot phân tán thực hiện bởi chobot.vn">Chobot.vn</a> <small>231113</small>
+                 </div>
+                 <div class="px-2">
+                     <a href="javascript:void(0)" class="satbot-settings" title="Cài đặt">
+                         <i class="fa fa-cog"></i>
+                     </a>
+                     <a href="javascript:void(0)" class="satbot-logout" title="Đăng xuất">
+                         <i class="fa fa-sign-out"></i>
+                     </a>
+                 </div>
+             </div>
+         </div>
+
+         <div id="ext-test" class="d-none bot-test text-center py-2">
+             <div class="row justify-content-center">
+                 <div class="col">
+                     <button type="button" class="btn btn-success btn-test-buy px-2">BUY</button>
+                     <button type="button" class="btn btn-danger btn-test-sell px-2">SELL</button>
+                     <button type="button" class="btn btn-danger btn-test-short px-2">SHORT</button>
+                     <button type="button" class="btn btn-success btn-test-cover px-2">COVER</button>
+                 </div>
+             </div>
+             <div class="row justify-content-center py-2">
+                 <div class="col">
+                     <button type="button" class="btn btn-warning btn-test-wait px-2">WAIT</button>
+                     <button type="button" class="btn btn-warning btn-test-activate px-2">Kích hoạt</button>
+                     <button type="button" class="btn btn-danger btn-test-reset px-2">Reset</button>
+                 </div>
+             </div>
+         </div>
+
+         <div class="d-none bot-none alert alert-danger text-center">
+             TK chưa thiết lập bot mặc định
+             <br>
+             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
+         </div>
+         <div class="d-none bot-expired alert alert-danger text-center">
+             Bot đã hết hạn sử dụng <br> Vui lòng chọn và kích hoạt lại.
+             <br>
+             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
+         </div>
+
+         <div class="text-left border-bottom d-flex">
+             <div class="mr-auto">
+                 <i class="fa fa-list"></i>
+                 Nhật ký hệ thống
+             </div>
+             <div class="px-2">
+                 <a href="javascript:void(0)" title="Xóa nhật ký" class="bot-history-clear">
+                     <i class="fa fa-trash"></i>
+                 </a>
+             </div>
+         </div>
+         <div class="container-fluid m-0 p-0">
+             <textarea id="bot-logs" class="form-controls w-100" rows="10" readonly="" style="font-size: 0.75rem;font-style:italic;border-color:#c8ced3;color:var(--gray-700) !important;"></textarea>
+         </div>
+    `
+
+const tabExtContent = `
+<div id="tab-ext" class="div-tab tab-pane fade in text-white" role="tabpanel">
+    <div id="ext-tab-content">
+         <div id="bot-test" class="d-none container-fluid m-0 p-2 bot-section">
+             <div class="row">
+                 <div class="col text-center">
+                     <button type="button" class="btn btn-success test-trigger-long">
+                         Trigger LONG
+                     </button>
+                 </div>
+                 <div class="col text-center">
+                     <button type="button" class="btn btn-danger test-trigger-short">
+                         Trigger SHORT
+                     </button>
+                 </div>
+                 <div class="col text-center">
+                     <button type="button" class="btn btn-warning test-cancel-all">
+                         Hủy tất cả
+                     </button>
+                 </div>
+             </div>
+         </div>
+         <div id="bot-settings" class="container-fluid m-0 p-2 bot-section">
+             <div class="row border-bottom ">
+                 <div class="col d-flex align-items-center">
+                     <i class="fa fa-list mr-1"></i>
+                     <b>Bot giao dịch</b>
+                 </div>
+             </div>
+             <div class="row my-2">
+                 <div class="col">
+                     <input id="bot-name" type="text" class="form-control w-100" value="" placeholder="Chọn bot để giao dịch" readonly="">
+                 </div>
+                 <div class="col-auto">
+                     <button type="button" data-toggle="modal" class="btn btn-primary btn-select-bot">Chọn bot</button>
+                 </div>
+             </div>
+             <div class="row border-bottom ">
+                 <div class="col d-flex align-items-center">
+                     <i class="fa fa-list mr-1"></i>
+                     <b>Hỗ trợ Đặt lệnh</b>
+                 </div>
+                 <div class="col text-right">
+                     <label class="switch switch-label switch-label-panel switch-pill switch-success switch-sm float-right">
+                         <input class="switch-input st-bot-config bot-settings" name="bot-auto-order" id="bot-auto-order" type="checkbox">
+                         <span class="switch-slider" data-checked="On" data-unchecked="Off" id="bot-auto-order_sl"></span>
+                     </label>
+                 </div>
+             </div>
+             <div id="bot-settings-content" class="m-0 p-0">
+                 <div class="row my-1 pr-2">
+                     <label for="bot-trendTypes">Khi có trend</label>
+                     <select id="bot-trendTypes" class="custom-select bot-settings">
+                         <option value="0" selected="">LONG hoặc SHORT</option>
+                         <option value="1">chỉ LONG</option>
+                         <option value="2">chỉ SHORT</option>
+                     </select>
+                 </div>
+                 <div>
+                     Bot đóng vị thế
+                 </div>
+                 <div class="row my-1 pr-2">
+                     <div class="col">
+                         <select id="bot-close" class="custom-select bot-settings">
+                             <option value="0"> Không làm gì </option>
+                             <option value="1" selected=""> Đóng vị thế ngược chiều </option>
+                         </select>
+                     </div>
+                     <div class="col-4 m-0 p-0 pl-2">
+                         <select id="bot-close-price" class="custom-select bot-settings">
+                             <option value="0" selected=""> MTL </option>
+                             <option value="1"> Trần/Sàn </option>
+                         </select>
+                     </div>
+                 </div>
+                 <div>
+                     Bot mở vị thế mới
+                 </div>
+                 <div class="row my-1 pr-2">
+                     <div class="col">
+                         <select id="bot-open" class="custom-select bot-settings">
+                             <option value="0"> Không mở vị thế </option>
+                             <option value="1" selected=""> Mở vị thế mới</option>
+                         </select>
+                     </div>
+                     <div class="col-4 m-0 p-0 pl-2">
+                         <select id="bot-open-price" class="custom-select bot-settings">
+                             <option value="0" selected=""> MTL </option>
+                             <option value="1"> Trần/Sàn </option>
+                             <option value="2"> Tín hiệu </option>
+                         </select>
+                     </div>
+                 </div>
+                 <div>
+                     với Số hợp đồng là
+                 </div>
+                 <div class="row my-1 pr-2">
+                     <div class="col">
+                         <select id="bot-volume" class="custom-select bot-settings">
+                             <option value="0" selected="">Full Sức mua</option>
+                             <option value="1">Số HĐ =</option>
+                         </select>
+                     </div>
+                     <div class="col-4 m-0 p-0 pl-2">
+                         <input type="number" class="form-control formatDouble bot-settings" id="bot-volume-value" step="1" min="1" value="" placeholder="Số HĐ">
+                     </div>
+                 </div>
+                 <div class="row my-1 mt-2">
+                     <div class="col">
+                         <div class="custom-control custom-checkbox mx-2">
+                             <input id="bot-atoc-order" type="checkbox" class="custom-control-input bot-settings">
+                             <label for="bot-atoc-order" class="custom-control-label" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC">Đặt lệnh ATO/ATC
+                                 <i class="fa fa-info-circle text-info" aria-hidden="true" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC"></i>
+                         </label></div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+         <div id="bot-signal" class="container m-0 p-2">
+             <div class="row text-left border-bottom m-0 p-0">
+                 <div class="col p-0">
+                     <i class="fa fa-list"></i>
+                     <b>Tín hiệu Bot</b>
+                 </div>
+                 <div class="col text-right">
+                     <a href="javascript:void(0)" class="bot-signal-refresh" title="Click để tải lại">
+                         <i class="fa fa-refresh"></i>
+                     </a>
+                 </div>
+             </div>
+             <div class="row container-fluid m-0 p-0">
+                 <table id="bot-tbl-signals" class="table table-sm">
+                     <thead>
+                         <tr>
+                             <th class="text-left">Ngày</th>
+                             <th class="text-left">Thời gian</th>
+                             <th class="text-center">Tín hiệu</th>
+                             <th class="text-right">Giá</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                     </tbody>
+                 </table>
+             </div>
+         </div>
+     </div>
+    </div>`
+
+const modelBot = `
+<div id="global">
+    <div class="modal fade" id="satbot-settings" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" data-backdrop="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Semi-AutoBot Cài đặt</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="container">
+                        <div class="d-none row my-2 form-group w-100">
+                            <label class="form-label" for="ext-chart">Biểu đồ Bot</label>
+                            <select id="ext-chart" class="form-control">
+                                <option value="0">Mặc định</option>
+                                <!-- <option value="1" data-url="">SmartTrading</option> -->
+                                <option value="3" data-url="">Fansi AutoBot 1M++</option>
+                                <option value="2">Link chỉ định</option>
+                            </select>
+                        </div>
+                        <div class="d-none row my-2 form-group w-100">
+                            <input type="text" class="form-control w-100" id="ext-chart-link"
+                                placeholder="Nhập đường link đến biểu đồ">
+                        </div>
+
+                        <div class="row my-2 form-group w-100">
+                            <div class="form-group">
+                                <input type="checkbox" id="ext-json-debug" class="form-checkbox">
+                                <label for="ext-json-debug">Log dữ liệu nâng cao</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer d-flex flex-nowrap">
+                    <button type="button" class="btn btn-dark btnCloseModal" data-dismiss="modal">Bỏ qua</button>
+                    <button type="button" class="btn btn-success satbot-settings-save">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- select bot version 3.0 -->
 
     <div class="modal fade" id="bot-select" tabindex="-1" role="dialog" data-backdrop="static" data-backdrop="false">
         <div class="modal-dialog modal-lg">
@@ -826,8 +563,7 @@ const modelBot = `
                     <div class="tab-content">
                         <div class="tab-pane active show" id="tabChobot" role="tabpanel" aria-labelledby="chobot-tab">
                             <div class="table-responsive">
-                                <div class="bootstrap-table bootstrap4">
-                                    <table id="table-bots" data-classes="table table-hover" data-toggle="table"
+                                <table id="table-bots" data-classes="table table-hover" data-toggle="table"
                                     data-locale="vi-VN" data-search="true" data-search-align="left" data-height="550"
                                     data-smartdisplay="true" data-pagination="true" data-page-size="4"
                                     data-side-pagination="server" data-show-header="false" data-filter-control="false"
@@ -848,14 +584,12 @@ const modelBot = `
                                             </tr>
                                         </thead>
                                     </table>
-                                </div>
                             </div>
                         </div>
                         <div class="tab-pane" id="tabRentBots" role="tabpanel" aria-labelledby="myBots-tab">
                             <div class="table-responsive pt-4">
                                 <div class="bootstrap-table bootstrap4">
                                     <div class="fixed-table-toolbar"></div>
-
                                     <div class="fixed-table-container fixed-height"
                                         style="height: 500px; padding-bottom: 0px;">
                                         <div class="fixed-table-header" style="display: none;">
@@ -1421,7 +1155,6 @@ const modelBot = `
             </div>
         </div>
     </div>
-
     <script type="text/javascript">
         $(document).ready(() => {
             $("#lnk-bots").on("click", (e) => {
@@ -1551,10 +1284,18 @@ const modelBot = `
             });
         });
     </script>
+    <script src="https://localhost:7043/assets/js/plugins/bootstrap-table.min.js"></script>
  </div>`
+
+
+$(document).ready(() => {
+    $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white bg-warning")
+})
+
 
 $(window).on('load', () => {
     const api_url = "https://localhost:7043/api/auth"
+    var isDemo = window.location.href.includes("smarteasy.vps.com.vn");
 
     const web = $("div#orderPS.tab-pane.active")
     const root = $(packageHtml)
@@ -1562,13 +1303,24 @@ $(window).on('load', () => {
     root.append(loginFormHtml)
 
     const satContent = $("#sat-content")
+    satContent.append(modelBot)
+    satContent.append(scripts)
+
+    /*console.log($.fn.bootstrapTable.locales)*/
+
+    //$('#bot-select').on('shown.bs.modal', function () {
+    //    console.log("shown.bs.modal")
+    //    console.log($.fn.bootstrapTable.locales)
+    //})
 
     const add_logs = (text) => {
+        var now = new Date()
+        text = now.toLocaleTimeString('en-GB') + ": " + text
         const bot_logs = $("#bot-logs");
-        !bot_logs.val() ? bot_logs.val(text) : bot_logs.val(bot_logs.val() + '\n' + text);
+        !bot_logs.text() ? bot_logs.text(text) : bot_logs.text(bot_logs.text() + '\n' + text);
     }
 
-    function logging() {
+    function loggingAndBot() {
         const extContent = $("#ext-content")
         extContent.children().replaceWith(loggingHtml)
 
@@ -1582,170 +1334,301 @@ $(window).on('load', () => {
         ulPanel.append(liPanel)
         ulPanel.find('li').css('white-space', 'nowrap');
 
-        $(".tab-content").eq(1).append(tabExtContent)
-        satContent.append(modelBot)
-        satContent.append(scripts)
+        $(".tab-content").eq(2).append(tabExtContent)
 
-        var now = new Date()
-        add_logs(now.toLocaleTimeString('en-GB') + ": Khởi động hệ thống")
-        add_logs(now.toLocaleTimeString('en-GB') + ": Hệ thống sẳn sàng")
-        
+        add_logs("Khởi động hệ thống")
+        add_logs("Hệ thống sẳn sàng")
+
+        $(".bot-history-clear").on("click", function () {
+            $("#bot-logs").text('')
+        })
+
         const botVolume = $("#bot-volume")
         const botVolumeValue = $("#bot-volume-value")
-        const sucMua = $("#sucmua-int");
-        var checkedAutoBot = $("#bot-auto-order").is(":checked")
+        const botAutoOrder = $("#bot-auto-order")
+        const sucMua = $("#sucmua-int")
         var sohodong = $("#sohopdong")
-
-        botVolumeValue.attr("max", sucMua.text())
-        botVolumeValue.val(sucMua.text())
         
-        botVolume.on("change", function() {
-            if ($(this).val() === "0") {
-                botVolumeValue.val(sucMua.text())
+        var botSettings = {
+            enable: false,
+            trendType: "0",
+            volume: {
+                type: "0",
+                value: 0
+            }
+        }
+        var settings = () => localStorage.getItem("autoBotSettings") && JSON.parse(localStorage.getItem("autoBotSettings"))
 
-                if ($("#bot-auto-order").is(":checked")) {
+        const st = settings()
+        if (st) {
+            botAutoOrder.attr("checked", st.enable)
+            $("#bot-trendTypes").val(st.trendType)
+            botVolume.val(st.volume.type)
+            botVolumeValue.val(st.volume.value)
+        } else {
+            botVolumeValue.val(parseInt(sucMua.text()))
+            botAutoOrder.attr("checked", false)
+        }
+        botVolumeValue.attr("max", sucMua.text())
+
+        botVolume.on("change", function () {
+            if ($(this).val() === "0") {
+                botVolumeValue.val(parseInt(sucMua.text()))
+                if (botAutoOrder.is(":checked")) {
                     sohodong.val(botVolumeValue.val())
                 }
             }
         })
-        botVolumeValue.on("input", function() {
+        botVolumeValue.on("input", function () {
             let value = parseInt($(this).val());
             if (value > parseInt($(this).attr('max'))) {
                 $(this).val($(this).attr('max'));
             }
             botVolume.val("1")
-            if ($("#bot-auto-order").is(":checked")) {
+            if (botAutoOrder.is(":checked")) {
                 sohodong.val($(this).val())
             }
+
+            localStorage.setItem("autoBotSettings", JSON.stringify({
+                ...settings() ?? botSettings,
+                volume: {
+                    type: botVolume.val(),
+                    value: $(this).val()
+                }
+            }))
         })
         const observer = new MutationObserver(function (mutationsList) {
             for (let mutation of mutationsList) {
                 if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                    botVolumeValue.val(sucMua.text())
+                    var newValue = parseInt(sucMua.text())
+                    if (newValue < botVolumeValue.val()) {
+                        botVolumeValue.val(newValue)
+                        if (botAutoOrder.is(":checked")) {
+                            sohodong.val(botVolumeValue.val())
+                        }
+                    }
+                    botVolumeValue.attr("max", newValue)
+                    localStorage.setItem("autoBotSettings", JSON.stringify({
+                        ...settings() ?? botSettings,
+                        volume: {
+                            type: botVolume.val(),
+                            value: botVolumeValue.val()
+                        }
+                    }))
+
                 }
             }
         });
         observer.observe(document.getElementById("sucmua-int"), { characterData: true, childList: true, subtree: true });
 
-        const autoClick = (tinhieu) => {
-            if (tinhieu === "Tin hieu short: Manh") {
-                $(".btn-update").eq(0).click()
-                setTimeout(() => $("#acceptCreateOrder").click(), 500)
+        const stopOrder = (target) => {
+            if (!$("div.mySlides").eq(0).hasClass("hidden")) {
+                $(".list-group-item.list-group-item-accent-warning.ck-ps").eq(0).children().eq(1).click()
             }
-            else if (tinhieu === "Tin hieu long: Manh") {
-                $(".btn-update").eq(1).click()
-                setTimeout(() => $("#acceptCreateOrder").click(), 500)
+            setTimeout(() => {
+                if (!$("#use_stopOrder").is(":checked")) {
+                    $("#use_stopOrder").next().click()
+                    $("#use_stopOrder").attr("checked", true)
+                }
+
+                $("#selStopOrderType").val("SOU")
+                $("#soIndex").val(target)
+            }, 200)
+        }
+
+        const sLTP = (target1, target2) => {
+            if (!$("div.mySlides").eq(1).hasClass("hidden")) {
+                $(".list-group-item.list-group-item-accent-warning.ck-ps").eq(0).children().eq(0).click()
+            }
+            setTimeout(() => {
+                if (!$("#use_sltp").is(":checked")) {
+                    $("#use_sltp").next().click()
+                    $("#use_sltp").attr("checked", true)
+                }
+                $("#stopLost").val(target1)
+                $("#textProfit").val(target2)
+            }, 200)
+        }
+
+        const stopOrder_PRO = (target) => {
+            $("#select_condition_order_wrapper").click()
+            setTimeout(() => {
+                $("#select_order_type").children().eq(1).click()
+                $("#right_selStopOrderType").val("SOU")
+                $("#right_stopOrderIndex").val(target)
+            }, 200)
+        }
+
+        const sLTP_PRO = (target1, target2) => {
+            $("#select_condition_order_wrapper").click()
+            setTimeout(() => $("#select_order_type").children().eq(0).click(), 200)
+
+            setTimeout(() => $("#custom_select_sltp_type_price").click(), 300)
+            setTimeout(() => {
+                $("#stopLostTrailing").val(target1)
+                //$("#textProfitTrailing").val(target2)
+            }, 400)
+        }
+
+        const closeOrder = () => {
+
+        }
+
+        const runBot = (tinhieu) => {
+            const giadat = parseFloat(tinhieu[2].split(':').pop().trim());
+
+            const stopLossValue = parseFloat(tinhieu[7].split(':').pop().trim()).toFixed(1);
+            const takeProfitValue = parseFloat(tinhieu[6].split(':').pop().trim()).toFixed(1);
+            const stopOrderValue = parseFloat(tinhieu[6].split(':').pop().trim()).toFixed(1);
+            
+            $("#right_price").val(giadat)
+            if (isDemo) {
+                sLTP(stopLossValue, takeProfitValue)
+                //stopOrder(stopOrderValue)
+
+                if (tinhieu[1] === "Tin hieu short: Manh") {
+                    setTimeout(() => $(".btn-update").eq(0).click(), 500)
+                    setTimeout(() => $("#acceptCreateOrder").click(), 600)
+                }
+                else if (tinhieu[1] === "Tin hieu long: Manh") {
+                    setTimeout(() => $(".btn-update").eq(1).click(), 500)
+                    setTimeout(() => $("#acceptCreateOrder").click(), 600)
+                }
+            }
+            else {
+                sLTP_PRO(stopLossValue, takeProfitValue)
+                //stopOrder_PRO(stopOrderValue)
+
+                if (tinhieu[1] === "Tin hieu short: Manh") {
+                    setTimeout(() => $("#btn_short").click(), 500)
+                    setTimeout(() => $("#acceptCreateOrderNew").click(), 600)
+                }
+                else if (tinhieu[1] === "Tin hieu long: Manh") {
+                    setTimeout(() => $("#btn_long").click(), 500)
+                    setTimeout(() => $("#acceptCreateOrderNew").click(), 600)
+                }
             }
         }
 
-        if (checkedAutoBot) {
+        if (botAutoOrder.is(":checked")) {
             sohodong.val(botVolumeValue.val())
         }
-        $("#bot-auto-order").on("change", function () {
+        botAutoOrder.on("change", function () {
             if ($(this).is(":checked")) {
                 sohodong.val(botVolumeValue.val())
+                add_logs("Đã bật bot hỗ trợ đặt lệnh")
                 console.log("Đã bật bot hỗ trợ đặt lệnh");
             }
             else {
                 sohodong.val(1)
+                add_logs("Đã tắt bot hỗ trợ đặt lệnh")
                 console.log("Đã tắt bot hỗ trợ đặt lệnh");
             }
+            localStorage.setItem("autoBotSettings", JSON.stringify({
+                enable: $(this).is(":checked"),
+                trendType: $("#bot-trendTypes").val(),
+                volume: {
+                    type: botVolume.val(),
+                    value: botVolumeValue.val()
+                }
+            }))
         })
+
+        $("#bot-trendTypes").on("change", function () {
+            add_logs("Khi có trend " + $(this).find(":selected").text())
+            localStorage.setItem("autoBotSettings", JSON.stringify({
+                ...settings() ?? botSettings,
+                trendType: $(this).val()
+            }))
+        })
+        botVolume.on("change", function () {
+            add_logs("Số hợp đồng " + $(this).find(":selected").text() + " " + botVolumeValue.val())
+            localStorage.setItem("autoBotSettings", JSON.stringify({
+                ...settings() ?? botSettings,
+                volume: {
+                    type: $(this).val(),
+                    value: botVolumeValue.val()
+                }
+            }))
+        })
+
+        const botAutoClick = (tinhieu) => {
+            const trendType = $("#bot-trendTypes").val()
+            if ((trendType == "1" && tinhieu[1] == "Tin hieu long: Manh") || (trendType == "2" && tinhieu[1] == "Tin hieu short: Manh")) {
+                runBot(tinhieu)
+            }
+            else if (trendType == "0") runBot(tinhieu)
+        }
+
+        const showTinHieu = (tinhieu) => {
+            const tbody = $("#bot-tbl-signals tbody")
+            var date = tinhieu[0].split(" ")[2]
+            var time = tinhieu[0].split(" ")[3]
+            var signal = tinhieu[1].split(" ")[2]
+            var price = tinhieu[2].split(':').pop().trim()
+
+            var template = `<tr class="d-none template">
+                                <td class="text-left">
+                                    <em><span class="date">${date}</span></em>
+                                </td>
+                                <td class="text-left">
+                                    <b><span class="time">${time}</span></b>
+                                </td>
+                                <td class="signal text-center ${signal}">
+                                    <span class="signal">${signal.toUpperCase()}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span class="price" text-center="">${price}</span>
+                                </td>
+                            </tr>`;
+            tbody.append(template)
+        }
         
-        function fetchUpdates(offset) {
-            const url = "https://api.telegram.org/bot6997755588:AAEBWIUz0q9shVf3lu1q5Kqp-r9BU5sUu00/getUpdates?offset=" + offset;
+        function fetchDataUpdates(offset) {
+            const url = "https://api.telegram.org/telegrambottoken/getUpdates?offset=" + offset;
             fetch(url)
-                .then((response) => {
-                    return response.json();
-                })
+                .then((response) => response.json())
                 .then((data) => {
-                    if (data.result && data.result.length > 0 && $("#bot-auto-order").is(":checked")) {
+                    console.log(data);
+
+                    if (data.result && data.result.length > 0) {
                         data.result.forEach(update => {
                             if (update.channel_post) {
-                                console.log('-------------------------------------------------------Tin hieu moi nhat-------------------------------------------------------');
-                                console.log(update.channel_post.text.split("\n"));
+                                console.log(update.channel_post.text);
+
+                                //showTinHieu(update.channel_post.text.split("\n").map(line => line.trim()))
+                            }
+                        });
+                    }
+
+                    if (data.result && data.result.length > 0 && botAutoOrder.is(":checked")) {
+                        data.result.forEach(update => {
+                            if (update.channel_post) {
+                                console.log('--------------------------Tin hieu moi nhat--------------------------------------');
+                                console.log(update.channel_post.text.split("\n").map(line => line.trim()));
                                 console.log('Suc mua: ' + sucMua.text())
 
-                                autoClick(update.channel_post.text.split("\n").map(line => line.trim())[1])
+                                botAutoClick(update.channel_post.text.split("\n").map(line => line.trim()))
                             }
                         });
 
                         // Cập nhật offset đến update_id mới nhất + 1
                         const latestUpdateId = data.result[data.result.length - 1].update_id;
-                        fetchUpdates(latestUpdateId + 1);
+                        fetchDataUpdates(latestUpdateId + 1);
                     }
                     else {
                         setTimeout(() => {
-                            console.log("Tracking...")
-                            fetchUpdates(offset)
+                            console.log("Tracking...");
+                            fetchDataUpdates(offset);
                         }, 3000)
                     }
                 })
                 .catch((error) => {
                     console.error("Có lỗi xảy ra trong quá trình fetch:", error);
-                    // Thử lại sau một khoảng thời gian ngắn nếu có lỗi
-                    setTimeout(() => fetchUpdates(offset), 5000);
+                    setTimeout(() => fetchDataUpdates(offset), 5000);
                 });
         }
-        fetchUpdates(0);
-
-        //function fetchUpdates(offset) {
-        //    const url = "https://api.telegram.org/bot6790958982:AAFUJrjxhbLRyX7CDpypvbEM1XQT2_INAfc/getUpdates?offset=" + offset;
-        //    fetch(url)
-        //        .then((response) => {
-        //            return response.json();
-        //        })
-        //        .then((data) => {
-        //            if (data.result && data.result.length > 0) {
-        //                // Xử lý các cập nhật ở đây
-        //                console.log(data);
-
-        //                // Ví dụ: Hiển thị nội dung tin nhắn mới nhất từ channel
-        //                data.result.forEach(update => {
-        //                    if (update.channel_post) {
-        //                        console.log('-------------------------------------------------------Tin hieu moi nhat-------------------------------------------------------');
-        //                        console.log(update.channel_post.text.split("\n"));
-
-        //                        const tinhieu = update.channel_post.text.split("\n").map(line => line.trim())[1];
-        //                        if (tinhieu === "Tin hieu short: Manh") {
-        //                            $(".btn-update").eq(0).click()
-        //                            setTimeout(() => $("#acceptCreateOrder").click(), 500)
-        //                        }
-        //                        else if (tinhieu === "Tin hieu long: Manh") {
-        //                            $(".btn-update").eq(1).click()
-        //                            setTimeout(() => $("#acceptCreateOrder").click(), 500)
-        //                        }
-
-        //                        //lấy sức mua
-        //                        const sucMua = $("#sucmua-int");
-        //                        const select = $("#bot-volume")
-        //                        const opt = $("#bot-volume-value")
-        //                        if (select.val() === 0) {
-        //                            opt.text(sucMua.innerText)
-        //                        }
-        //                        //select.find(":selected")
-
-        //                        console.log('Suc mua: ' + sucMua.innerText)
-        //                    }
-        //                });
-
-        //                // Cập nhật offset đến update_id mới nhất + 1
-        //                const latestUpdateId = data.result[data.result.length - 1].update_id;
-        //                fetchUpdates(latestUpdateId + 1);
-        //            } else {
-        //                // Không có cập nhật mới, gọi lại với cùng offset
-        //                fetchUpdates(offset);
-        //            }
-        //        })
-        //        .catch((error) => {
-        //            console.error("Có lỗi xảy ra trong quá trình fetch:", error);
-        //            // Thử lại sau một khoảng thời gian ngắn nếu có lỗi
-        //            setTimeout(() => fetchUpdates(offset), 5000);
-        //        });
-        //}
-
-        //// Bắt đầu gọi cập nhật với offset ban đầu là 0
-        //fetchUpdates(0);
+        //fetchDataUpdates(0)
 
         $(".satbot-logout").on("click", () => {
             if (confirm("Nhấn Ok để xác nhận Hủy liên kết, No để trở lại")) {
@@ -1798,7 +1681,7 @@ $(window).on('load', () => {
 
     const loggedIn = getCookie("auth_refresh_token");
     if (loggedIn) {
-        logging()
+        loggingAndBot()
     }
     else {
         $('#cb_showPassword').on('change', function () {
@@ -1830,7 +1713,7 @@ $(window).on('load', () => {
                         if (data.access_token) {
                             setCookie("auth_token", data.access_token, 7 * 24 * 60);
                             setCookie("auth_refresh_token", data.refresh_token, 7 * 24 * 60);
-                            logging();
+                            loggingAndBot();
                         } else {
                             $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger');
                         }
@@ -1857,3 +1740,11 @@ $(window).on('load', () => {
 //MFI: 37.16677
 //    % Gia thay doi: -1.715388"
 
+//"#VN30F1M Ngay 30/05/2024 2:13:48 CH bot web",
+//    "Tin hieu short: Manh",
+//    "Gia mua: 1277.5",
+//    "Target 1: 1273.7",
+//    "Target 2: 1269.8",
+//    "Target 3: 1263.4",
+//    "Target 4: 1257.1",
+//    "Cat lo : 1273.667"
