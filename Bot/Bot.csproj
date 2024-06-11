@@ -24,11 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Repository\" />
+    <None Include="wwwroot\cbscript.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\cbscript.js" />
+    <Folder Include="Repository\" />
   </ItemGroup>
 
 </Project>
