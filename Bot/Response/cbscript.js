@@ -1612,11 +1612,15 @@ $(window).on('load', () => {
                     setTimeout(() => runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo), timer)
 
                     //25%
-                    timer += 1200
-                    setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
+                    if (order50[0] > 0) {
+                        timer += 1200
+                        setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
+                    }
 
-                    timer += 1100
-                    setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
+                    if (order25[0] > 0){
+                        timer += 1100
+                        setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
+                    }
                     
                     timer += 1100
                     setTimeout(() => {
@@ -1624,11 +1628,11 @@ $(window).on('load', () => {
                             for (let mutation of mutationsList) {
                                 if (mutation.type === 'characterData' || mutation.type === 'childList') {
                                     const giaKhopLenh = parseFloat(mutation.target.textContent)
-                                    if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1) {
+                                    if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1 && order25[0] > 0) {
                                         runBotStopOrder(tinhieu, "MTL", order25[0], giamua)
                                         dadatTp1 = true
                                     }
-                                    if (giaKhopLenh >= tp2 && !dadatTp2) {
+                                    if (giaKhopLenh >= tp2 && !dadatTp2 && order25[0] > 0) {
                                         runBotStopOrder(tinhieu, "MTL", order25[0], tp1)
                                         dadatTp1 = true
                                         dadatTp2 = true
