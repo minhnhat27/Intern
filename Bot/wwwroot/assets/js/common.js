@@ -1,4 +1,43 @@
-﻿var aBeep = new Audio("https://chobot.vn/assets/sound/beep.wav");
+﻿function setCookie(cname, cvalue, exMinutes) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exMinutes * 60 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return null;
+}
+function updateCookieValue(cname, newValue) {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+        let cookie = cookies[i].trim();
+        if (cookie.startsWith(cname + "=")) {
+            let updatedCookie = cname + "=" + newValue + ";";
+            let cookieParts = cookie.split(';');
+            for (let j = 1; j < cookieParts.length; j++) {
+                if (!cookieParts[j].trim().startsWith("expires=")) {
+                    updatedCookie += cookieParts[j] + ";";
+                }
+            }
+            document.cookie = updatedCookie;
+            break;
+        }
+    }
+}
+
+var aBeep = new Audio("https://chobot.vn/assets/sound/beep.wav");
 var aTick = new Audio("https://chobot.vn/assets/sound/tick.wav");
 
 var UTC_OFFSET = 25200;
@@ -212,4 +251,83 @@ function queryString(name, def = "") {
 function isIterable(obj) {
     return (object) => object != null && typeof object[Symbol.iterator] === "function";
 }
+
+const runBot = (tinhieu, giadat, hopdong, stopOrderValue = 0) => {
+    $("#right_price").val(giadat)
+    $("#sohopdong").val(hopdong)
+
+    var timer = 50
+    if (isDemo) {
+        if (stopOrderValue > 0) {
+            timer += 400
+            stopOrder(tinhieu, stopOrderValue)
+        }
+        else chuyenLenhThuong(timer)
+
+        if (stopOrderValue > 0) {
+            tinhieu === "LONG"
+                ? tinhieu = "SHORT"
+                : tinhieu = "LONG"
+        }
+        tinhieu === "SHORT"
+            ? setTimeout(() => $(".btn-update").eq(0).click(), timer)
+            : setTimeout(() => $(".btn-update").eq(1).click(), timer)
+
+        timer += 400
+        //setTimeout(() => $("#acceptCreateOrder").click(), timer)
+        setTimeout(() => $("#close_modal").click(), timer)
+
+        timer += 200
+        chuyenLenhThuong(timer)
+    }
+    else {
+        if (stopOrderValue > 0) {
+            timer += 400
+            stopOrder_PRO(tinhieu, stopOrderValue)
+        }
+        else chuyenLenhThuong_PRO(timer)
+
+        if (stopOrderValue > 0) {
+            tinhieu === "LONG"
+                ? tinhieu = "SHORT"
+                : tinhieu = "LONG"
+        }
+        tinhieu === "SHORT"
+            ? setTimeout(() => $("#btn_short").click(), timer)
+            : setTimeout(() => $("#btn_long").click(), timer)
+
+        timer += 400
+        //setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
+        setTimeout(() => $("#close_modal").click(), timer)
+
+        timer += 100
+        chuyenLenhThuong_PRO(timer)
+    }
+}
+
+const sLTP = (stopLost, takeProfit) => {
+    if (!$("div.mySlides").eq(1).hasClass("hidden")) {
+        $(".list-group-item.list-group-item-accent-warning.ck-ps").eq(0).children().eq(0).click()
+    }
+    setTimeout(() => {
+        if (!$("#use_sltp").is(":checked")) {
+            $("#use_sltp").next().click()
+            $("#use_sltp").attr("checked", true)
+        }
+        $("#stopLost").val(stopLost)
+        $("#textProfit").val(takeProfit)
+    }, 200)
+}
+
+const sLTP_PRO = (stopLoss, takeProfit) => {
+    $("#select_condition_order_wrapper").click()
+    setTimeout(() => $("#select_order_type").children().eq(0).click(), 200)
+
+    setTimeout(() => $("#custom_select_sltp_type_price").click(), 300)
+    setTimeout(() => {
+        $("#textProfitTrailing").val(takeProfit)
+        $("#stopLostTrailing").val(stopLoss)
+    }, 400)
+}
+
 

@@ -60,12 +60,13 @@ namespace Bot.Services
                 if (user != null)
                 {
                     var access_token = await CreateJwt(user, DateTime.UtcNow.AddMinutes(5));
+                    var refresh_token = await CreateJwt(user, DateTime.UtcNow.AddDays(30));
 
                     var provider = "Bot";
                     var name = "Refresh_Token";
 
                     await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
-                    var refresh_token = await _userManager.GenerateUserTokenAsync(user, provider, name);
+                    //var refresh_token = await _userManager.GenerateUserTokenAsync(user, provider, name);
                     await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
 
                     return new JwtResponse
@@ -75,12 +76,12 @@ namespace Bot.Services
                         Name = user.Fullname,
                     };
                 }
-                return null;
+                throw new ArgumentNullException();
             }
             return null;
         }
 
-        public async Task<TokenModel?> RefreshToken(TokenModel token)
+        private string? ValidateToken(string token, out JwtSecurityToken jwtSecurityToken)
         {
             var parameters = new TokenValidationParameters
             {
@@ -92,25 +93,35 @@ namespace Bot.Services
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["JWT:Key"] ?? ""))
             };
             var tokenHandler = new JwtSecurityTokenHandler();
-            var principal = tokenHandler.ValidateToken(token.Access_token, parameters, out SecurityToken securityToken);
-            var jwtSecurityToken = securityToken as JwtSecurityToken;
+            var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken securityToken);
+            jwtSecurityToken = (JwtSecurityToken) securityToken;
 
-            var user = await _userManager.FindByIdAsync(principal.FindFirstValue(ClaimTypes.NameIdentifier) ?? "");
-            if (user == null || jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                throw new SecurityTokenException("Invalid access token");
+            if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                throw new SecurityTokenException("Invalid Refresh token");
+
+            return principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        }
+
+        public async Task<TokenModel?> RefreshToken(TokenModel token)
+        {
+            var userId = ValidateToken(token.Refresh_token, out JwtSecurityToken jwtSecurityToken);
+            if (userId == null)
+            {
+                throw new ArgumentNullException();
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new ArgumentNullException();
+            }
 
             var provider = "Bot";
             var name = "Refresh_Token";
 
             var access_token = await CreateJwt(user, DateTime.UtcNow.AddMinutes(5));
-            var isValid = await _userManager.VerifyUserTokenAsync(user, provider, name, token.Refresh_token ?? "");
-            if (!isValid)
-            {
-                throw new SecurityTokenException("Invalid refresh token");
-            }
+            var refresh_token = await CreateJwt(user, jwtSecurityToken.ValidTo);
 
             await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
-            var refresh_token = await _userManager.GenerateUserTokenAsync(user, provider, name);
             await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
 
             return new TokenModel
@@ -136,12 +147,17 @@ namespace Bot.Services
             return await _userManager.CreateAsync(User, request.Password);
         }
 
-        public async Task Logout(string userId)
+        public async Task Logout(TokenModel token)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-            if(user == null)
+            var userId = ValidateToken(token.Refresh_token, out JwtSecurityToken jwtSecurityToken);
+            if (userId == null)
             {
-                throw new Exception("User not found");
+                throw new ArgumentNullException();
+            }
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new ArgumentNullException();
             }
             var provider = "Bot";
             var name = "Refresh_Token";

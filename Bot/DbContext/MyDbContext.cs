@@ -8,6 +8,6 @@ namespace Bot.Data
     public class MyDbContext : IdentityDbContext<User, IdentityRole<int>, int>
     {
         public MyDbContext(DbContextOptions<MyDbContext> options) : base(options) { }
-        public virtual DbSet<Order> Orders { get; set; }
+        public virtual DbSet<BotSignal> BotSignals { get; set; }
     }
 }

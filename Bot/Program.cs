@@ -1,4 +1,4 @@
-using Bot.Data;
+﻿using Bot.Data;
 using Bot.Models;
 using Bot.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -51,6 +51,7 @@ builder.Services.AddCors(opt =>
 });
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IBotSignalService, BotSignalService>();
 
 var app = builder.Build();
 
