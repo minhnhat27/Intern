@@ -10,6 +10,6 @@ namespace Bot.Services
         Task<JwtResponse?> Login(LoginRequest request);
         Task<IdentityResult> Register(RegisterRequest request);
         Task<TokenModel?> RefreshToken(TokenModel token);
-        Task Logout(string userId);
+        Task Logout(TokenModel token);
     }
 }

@@ -76,17 +76,11 @@ namespace Bot.Controllers
         }
 
         [HttpPost("logout")]
-        [Authorize]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout([FromBody] TokenModel token)
         {
             try
             {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (string.IsNullOrEmpty(userId))
-                {
-                    return Unauthorized("User Id claim not found");
-                }
-                await _authService.Logout(userId);
+                await _authService.Logout(token);
                 return Ok();
             }
             catch (Exception ex)

@@ -1,44 +1,4 @@
-﻿function setCookie(cname, cvalue, exMinutes) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exMinutes * 60 * 1000));
-    let expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-function getCookie(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return null;
-}
-
-function updateCookieValue(cname, newValue) {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i].trim();
-        if (cookie.startsWith(cname + "=")) {
-            let updatedCookie = cname + "=" + newValue + ";";
-            let cookieParts = cookie.split(';');
-            for (let j = 1; j < cookieParts.length; j++) {
-                if (!cookieParts[j].trim().startsWith("expires=")) {
-                    updatedCookie += cookieParts[j] + ";";
-                }
-            }
-            document.cookie = updatedCookie;
-            break;
-        }
-    }
-}
-
-const scripts = `<script src="https://localhost:7043/assets/js/common.js"></script>`
+﻿const scripts = `<script src="https://localhost:7043/assets/js/common.js"></script>`
 
 const packageHtml = `
     <div id='sat-content'>
@@ -1287,16 +1247,13 @@ const modelBot = `
     <script src="https://localhost:7043/assets/js/plugins/bootstrap-table.min.js"></script>
  </div>`
 
-
-$(document).ready(() => {
-    $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white bg-warning")
-})
-
-
 $(window).on('load', () => {
     const api_url = "https://localhost:7043/api/auth"
     var isDemo = window.location.href.includes("smarteasy.vps.com.vn");
 
+    isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
+        : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
+        
     const web = $("div#orderPS.tab-pane.active")
     const root = $(packageHtml)
     web.append(root)
@@ -1306,13 +1263,6 @@ $(window).on('load', () => {
     satContent.append(modelBot)
     satContent.append(scripts)
 
-    /*console.log($.fn.bootstrapTable.locales)*/
-
-    //$('#bot-select').on('shown.bs.modal', function () {
-    //    console.log("shown.bs.modal")
-    //    console.log($.fn.bootstrapTable.locales)
-    //})
-
     const add_logs = (text) => {
         var now = new Date()
         text = now.toLocaleTimeString('en-GB') + ": " + text
@@ -1320,35 +1270,60 @@ $(window).on('load', () => {
         !bot_logs.text() ? bot_logs.text(text) : bot_logs.text(bot_logs.text() + '\n' + text);
     }
 
-    function loggingAndBot() {
+    function loggingAndBot(name = '') {
         const extContent = $("#ext-content")
         extContent.children().replaceWith(loggingHtml)
 
-        const ulPanel = $("#ulPanel");
+        const ulPanel = $("#ulPanel")
         ulPanel.addClass("flex-nowrap")
         const liPanel = `<li class="nav-item text-center">
-                        <a class="nav-link tab-copytrade flex-nowrap" data-toggle="tab" href="#tab-ext" role="tab" aria-controls="tab-copytrade" aria-selected="false">
+                        <a class="nav-link tab-copytrade" data-toggle="tab" href="#tab-ext" role="tab" aria-controls="tab-copytrade" aria-selected="false">
                                 AUTO BOT
                         </a>
                     </li>`
         ulPanel.append(liPanel)
-        ulPanel.find('li').css('white-space', 'nowrap');
 
-        $(".tab-content").eq(2).append(tabExtContent)
+        $("#ngiaIndex").after(tabExtContent)
 
         add_logs("Khởi động hệ thống")
         add_logs("Hệ thống sẳn sàng")
 
+        name && add_logs("Xin chào: " + name)
+
         $(".bot-history-clear").on("click", function () {
             $("#bot-logs").text('')
         })
+
+        const showTinHieu = (tinhieu) => {
+            const tbody = $("#bot-tbl-signals tbody")
+            var date = tinhieu[0].split(" ")[2]
+            var time = tinhieu[0].split(" ")[3]
+            var signal = tinhieu[1].split(" ")[2].slice(0, -1);
+            var price = parseFloat(tinhieu[2].split(':').pop().trim()).toFixed(2)
+
+            var template = `<tr>
+                                <td class="text-left">
+                                    <em><span class="date">${date}</span></em>
+                                </td>
+                                <td class="text-left">
+                                    <b><span class="time">${time}</span></b>
+                                </td>
+                                <td class="signal text-center ${signal}">
+                                    <span class="signal">${signal.toUpperCase()}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span class="price" text-center="">${price}</span>
+                                </td>
+                            </tr>`;
+            tbody.append(template)
+        }
 
         const botVolume = $("#bot-volume")
         const botVolumeValue = $("#bot-volume-value")
         const botAutoOrder = $("#bot-auto-order")
         const sucMua = $("#sucmua-int")
         var sohodong = $("#sohopdong")
-        
+
         var botSettings = {
             enable: false,
             trendType: "0",
@@ -1379,10 +1354,12 @@ $(window).on('load', () => {
                 }
             }
         })
+
         botVolumeValue.on("input", function () {
-            let value = parseInt($(this).val());
-            if (value > parseInt($(this).attr('max'))) {
-                $(this).val($(this).attr('max'));
+            let value = $(this).val()
+            var max = parseInt($(this).attr('max'))
+            if (value > max) {
+                $(this).val(max)
             }
             botVolume.val("1")
             if (botAutoOrder.is(":checked")) {
@@ -1397,118 +1374,279 @@ $(window).on('load', () => {
                 }
             }))
         })
-        const observer = new MutationObserver(function (mutationsList) {
-            for (let mutation of mutationsList) {
-                if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                    var newValue = parseInt(sucMua.text())
-                    if (newValue < botVolumeValue.val()) {
-                        botVolumeValue.val(newValue)
-                        if (botAutoOrder.is(":checked")) {
+
+        setTimeout(() => {
+            const observer = new MutationObserver(function (mutationsList) {
+                for (let mutation of mutationsList) {
+                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                        var newValue = parseInt(sucMua.text()) //mutation.target.textContent
+
+                        botVolumeValue.attr("max", newValue)
+                        if (newValue < botVolumeValue.val()) {
+                            botVolumeValue.val(newValue)
+                        }
+                        else if (botVolume.val() === "0") {
+                            botVolumeValue.val(newValue)
+                        }
+
+                        const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
+                        if (vithe === "-" && botAutoOrder.is(":checked") && botVolume.val() === "0") {
                             sohodong.val(botVolumeValue.val())
                         }
+                        
+                        localStorage.setItem("autoBotSettings", JSON.stringify({
+                            ...settings() ?? botSettings,
+                            volume: {
+                                type: botVolume.val(),
+                                value: botVolumeValue.val()
+                            }
+                        }))
+
                     }
-                    botVolumeValue.attr("max", newValue)
-                    localStorage.setItem("autoBotSettings", JSON.stringify({
-                        ...settings() ?? botSettings,
-                        volume: {
-                            type: botVolume.val(),
-                            value: botVolumeValue.val()
-                        }
-                    }))
-
                 }
-            }
-        });
-        observer.observe(document.getElementById("sucmua-int"), { characterData: true, childList: true, subtree: true });
-
-        const stopOrder = (target) => {
+            });
+            observer.observe(document.getElementById("sucmua-int"), { characterData: true, childList: true, subtree: true });
+        }, 500)
+        
+        const stopOrder = (tinhieu, stopOrderValue) => {
             if (!$("div.mySlides").eq(0).hasClass("hidden")) {
                 $(".list-group-item.list-group-item-accent-warning.ck-ps").eq(0).children().eq(1).click()
             }
             setTimeout(() => {
                 if (!$("#use_stopOrder").is(":checked")) {
                     $("#use_stopOrder").next().click()
-                    $("#use_stopOrder").attr("checked", true)
                 }
 
-                $("#selStopOrderType").val("SOU")
-                $("#soIndex").val(target)
+                tinhieu === "SHORT" ? $("#selStopOrderType").val("SOL") : $("#selStopOrderType").val("SOU")
+                $("#soIndex").val(stopOrderValue)
             }, 200)
         }
 
-        const sLTP = (target1, target2) => {
-            if (!$("div.mySlides").eq(1).hasClass("hidden")) {
-                $(".list-group-item.list-group-item-accent-warning.ck-ps").eq(0).children().eq(0).click()
-            }
-            setTimeout(() => {
-                if (!$("#use_sltp").is(":checked")) {
-                    $("#use_sltp").next().click()
-                    $("#use_sltp").attr("checked", true)
-                }
-                $("#stopLost").val(target1)
-                $("#textProfit").val(target2)
-            }, 200)
-        }
-
-        const stopOrder_PRO = (target) => {
+        const stopOrder_PRO = (tinhieu, stopOrderValue) => {
             $("#select_condition_order_wrapper").click()
             setTimeout(() => {
                 $("#select_order_type").children().eq(1).click()
-                $("#right_selStopOrderType").val("SOU")
-                $("#right_stopOrderIndex").val(target)
+
+                tinhieu === "SHORT" ? $("#right_selStopOrderType").val("SOL") : $("#right_selStopOrderType").val("SOU")
+                $("#right_stopOrderIndex").val(stopOrderValue)
             }, 200)
         }
 
-        const sLTP_PRO = (target1, target2) => {
-            $("#select_condition_order_wrapper").click()
-            setTimeout(() => $("#select_order_type").children().eq(0).click(), 200)
+        const convertFloat = (value) => parseFloat(value.split(':').pop().trim())
+        const convertFloatToFixed = (value, fix = 1) => parseFloat(parseFloat(value.split(':').pop().trim()).toFixed(fix));
 
-            setTimeout(() => $("#custom_select_sltp_type_price").click(), 300)
-            setTimeout(() => {
-                $("#stopLostTrailing").val(target1)
-                //$("#textProfitTrailing").val(target2)
-            }, 400)
+        const divideNumberBy2FloorToArray = (value) => {
+            var a = Math.floor(parseInt(value) / 2)
+            var b = value - a
+            return [a, b]
+        }
+        const divideNumberBy2CeilToArray = (value) => {
+            var a = Math.ceil(parseInt(value) / 2)
+            var b = value - a
+            return [a, b]
+        }
+        
+        const chuyenLenhThuong_PRO = (timer = 0) => {
+            timer
+                ? setTimeout(() => $("#select_normal_order").click(), timer)
+                : $("#select_normal_order").click()
         }
 
-        const closeOrder = () => {
-
-        }
-
-        const runBot = (tinhieu) => {
-            const giadat = parseFloat(tinhieu[2].split(':').pop().trim());
-
-            const stopLossValue = parseFloat(tinhieu[7].split(':').pop().trim()).toFixed(1);
-            const takeProfitValue = parseFloat(tinhieu[6].split(':').pop().trim()).toFixed(1);
-            const stopOrderValue = parseFloat(tinhieu[6].split(':').pop().trim()).toFixed(1);
-            
-            $("#right_price").val(giadat)
-            if (isDemo) {
-                sLTP(stopLossValue, takeProfitValue)
-                //stopOrder(stopOrderValue)
-
-                if (tinhieu[1] === "Tin hieu short: Manh") {
-                    setTimeout(() => $(".btn-update").eq(0).click(), 500)
-                    setTimeout(() => $("#acceptCreateOrder").click(), 600)
-                }
-                else if (tinhieu[1] === "Tin hieu long: Manh") {
-                    setTimeout(() => $(".btn-update").eq(1).click(), 500)
-                    setTimeout(() => $("#acceptCreateOrder").click(), 600)
-                }
+        const chuyenLenhThuong = (timer = 0) => {
+            if (timer) {
+                setTimeout(() => {
+                    if ($("#use_stopOrder").is(":checked")) {
+                        $("#use_stopOrder").next().click()
+                    }
+                    if ($("#use_sltp").is(":checked")) {
+                        $("#use_sltp").next().click()
+                    }
+                }, timer)
             }
             else {
-                sLTP_PRO(stopLossValue, takeProfitValue)
-                //stopOrder_PRO(stopOrderValue)
-
-                if (tinhieu[1] === "Tin hieu short: Manh") {
-                    setTimeout(() => $("#btn_short").click(), 500)
-                    setTimeout(() => $("#acceptCreateOrderNew").click(), 600)
+                if ($("#use_stopOrder").is(":checked")) {
+                    $("#use_stopOrder").next().click()
                 }
-                else if (tinhieu[1] === "Tin hieu long: Manh") {
-                    setTimeout(() => $("#btn_long").click(), 500)
-                    setTimeout(() => $("#acceptCreateOrderNew").click(), 600)
+                if ($("#use_sltp").is(":checked")) {
+                    $("#use_sltp").next().click()
                 }
             }
         }
+
+        //1100ms
+        const runBotNormal = (tinhieu, giadat, hopdong) => {
+            $("#right_price").val(giadat)
+            $("#sohopdong").val(hopdong)
+
+            var timer = 100
+            if (isDemo) {
+                chuyenLenhThuong()
+
+                tinhieu === "SHORT"
+                    ? setTimeout(() => $(".btn-update").eq(0).click(), timer)
+                    : setTimeout(() => $(".btn-update").eq(1).click(), timer)
+
+                timer += 400
+                //setTimeout(() => $("#acceptCreateOrder").click(), timer)
+                setTimeout(() => $("#close_modal").click(), timer)
+
+                timer += 100
+                chuyenLenhThuong(timer)
+            }
+            else {
+                chuyenLenhThuong_PRO()
+
+                tinhieu === "SHORT"
+                    ? setTimeout(() => $("#btn_short").click(), timer)
+                    : setTimeout(() => $("#btn_long").click(), timer)
+
+                timer += 400
+                //setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
+                setTimeout(() => $("#close_modal").click(), timer)
+
+                timer += 100
+                chuyenLenhThuong_PRO(timer)
+            }
+            add_logs(`Đã đặt lệnh ${tinhieu} giá ${giadat} với ${hopdong} hợp đồng`)
+        }
+        
+        //1200mss
+        const runBotStopOrder = (tinhieu, giadat, hopdong, stopOrderValue) => {
+            $("#right_price").val(giadat)
+            $("#sohopdong").val(hopdong)
+
+            var timer = 0
+            if (isDemo) {
+                stopOrder(tinhieu, stopOrderValue)
+
+                timer += 300
+                tinhieu === "SHORT"
+                    ? setTimeout(() => $(".btn-update").eq(0).click(), timer)
+                    : setTimeout(() => $(".btn-update").eq(1).click(), timer)
+
+                timer += 400
+                //setTimeout(() => $("#acceptCreateOrder").click(), timer)
+                setTimeout(() => $("#close_modal").click(), timer)
+            }
+            else {
+                stopOrder_PRO(tinhieu, stopOrderValue)
+
+                timer += 300
+                tinhieu === "SHORT"
+                    ? setTimeout(() => $("#btn_short").click(), timer)
+                    : setTimeout(() => $("#btn_long").click(), timer)
+
+                timer += 400
+                //setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
+                setTimeout(() => $("#close_modal").click(), timer)
+            }
+            add_logs(`Đã đặt lệnh ${tinhieu} Stop Order: ${stopOrderValue}, giá đặt ${giadat} với ${hopdong} hợp đồng`)
+        }
+
+        const cancelAllOrder = (timer) => {
+            if (isDemo) {
+                setTimeout(() => $(".btn-cancel-all").eq(0).click(), timer)
+                setTimeout(() => $("#acceptCreateOrder").click(), timer + 200)
+                //setTimeout(() => $("#close_modal").click(), 1400)
+            }
+            else {
+                setTimeout(() => $("#button_cancel_all_order_normal").click(), timer)
+                setTimeout(() => $("#acceptCreateOrderNew").click(), timer + 200)
+            }
+        }
+
+        const getPreviousSignal = () => localStorage.getItem("previousSignal") ?? ""
+        const setPreviousSignal = (signal) => localStorage.setItem("previousSignal", signal)
+
+        const botAutoClick = (arr) => {
+            let tinhieu
+            var dadatTp1 = false
+            var dadatTp2 = false
+
+            if (arr[1] === "Tin hieu long: Manh") {
+                tinhieu = "LONG"
+            }
+            else if (arr[1] === "Tin hieu short: Manh") {
+                tinhieu = "SHORT"
+            }
+
+            if (getPreviousSignal() !== "" && getPreviousSignal() !== tinhieu) {
+                const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
+                add_logs("Đảo chiều chốt hết lệnh!!!")
+
+                runBotNormal(tinhieu, "MTL", Math.abs(parseInt(vithe)))
+                cancelAllOrder(1100)
+
+                dadatTp1 = false
+                dadatTp2 = false
+
+                setPreviousSignal("")
+            }
+            else {
+                setPreviousSignal(tinhieu)
+
+                const giamua = convertFloatToFixed(arr[2])
+                const fullHopdong = sohodong.val()
+                let catLo = convertFloatToFixed(arr[7])
+
+                tinhieu === "LONG"
+                    ? catLo -= 0.3
+                    : catLo += 0.3
+                catLo = catLo.toFixed(1)
+
+                const trendType = $("#bot-trendTypes").val()
+                if (((trendType == "1" && tinhieu == "LONG") || (trendType == "2" && tinhieu == "SHORT") || trendType == "0")
+                    && botVolumeValue.val() > 0) {
+                    const tp1 = convertFloatToFixed(arr[3])
+                    const tp2 = convertFloatToFixed(arr[4])
+
+                    const order50 = divideNumberBy2CeilToArray(fullHopdong)
+                    const order25 = divideNumberBy2CeilToArray(order50[1])
+                    
+                    //50%
+                    runBotNormal(tinhieu, giamua, fullHopdong)
+
+                    tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
+
+                    let timer = 1100
+                    setTimeout(() => runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo), timer)
+
+                    //25%
+                    timer += 1200
+                    setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
+
+                    timer += 1100
+                    setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
+                    
+                    timer += 1100
+                    setTimeout(() => {
+                        const ob = new MutationObserver(function (mutationsList) {
+                            for (let mutation of mutationsList) {
+                                if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                    const giaKhopLenh = parseFloat(mutation.target.textContent)
+                                    if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1) {
+                                        runBotStopOrder(tinhieu, "MTL", order25[0], giamua)
+                                        dadatTp1 = true
+                                    }
+                                    if (giaKhopLenh >= tp2 && !dadatTp2) {
+                                        runBotStopOrder(tinhieu, "MTL", order25[0], tp1)
+                                        dadatTp1 = true
+                                        dadatTp2 = true
+                                    }
+                                }
+                            }
+                        });
+                        ob.observe(document.getElementById("tbodyPhaisinhContent").childNodes[0].childNodes[10], { characterData: true, childList: true, subtree: true })
+                    }, timer)
+                }
+            }
+        }
+
+        //const test = `#VN30F1M Ngay 30/05/2024 2:13:48 CH bot web\nTin hieu long: Manh\nGia mua: 1311.4\nTarget 1: 1314.1\nTarget 2: 1317.0\nTarget 3: 1320.4\nTarget 4: 1323.1\nCat lo : 1308.3`.split("\n").map(line => line.trim())
+        //showTinHieu(test)
+        //botVolumeValue.attr("max", 30)
+        //botVolumeValue.val(6)
+        //setTimeout(() => botAutoClick(test), 3000)
 
         if (botAutoOrder.is(":checked")) {
             sohodong.val(botVolumeValue.val())
@@ -1525,12 +1663,8 @@ $(window).on('load', () => {
                 console.log("Đã tắt bot hỗ trợ đặt lệnh");
             }
             localStorage.setItem("autoBotSettings", JSON.stringify({
-                enable: $(this).is(":checked"),
-                trendType: $("#bot-trendTypes").val(),
-                volume: {
-                    type: botVolume.val(),
-                    value: botVolumeValue.val()
-                }
+                ...settings() ?? botSettings,
+                enable: $(this).is(":checked")
             }))
         })
 
@@ -1541,8 +1675,9 @@ $(window).on('load', () => {
                 trendType: $(this).val()
             }))
         })
+
         botVolume.on("change", function () {
-            add_logs("Số hợp đồng " + $(this).find(":selected").text() + " " + botVolumeValue.val())
+            add_logs($(this).find(":selected").text() + " " + botVolumeValue.val())
             localStorage.setItem("autoBotSettings", JSON.stringify({
                 ...settings() ?? botSettings,
                 volume: {
@@ -1551,68 +1686,32 @@ $(window).on('load', () => {
                 }
             }))
         })
-
-        const botAutoClick = (tinhieu) => {
-            const trendType = $("#bot-trendTypes").val()
-            if ((trendType == "1" && tinhieu[1] == "Tin hieu long: Manh") || (trendType == "2" && tinhieu[1] == "Tin hieu short: Manh")) {
-                runBot(tinhieu)
-            }
-            else if (trendType == "0") runBot(tinhieu)
-        }
-
-        const showTinHieu = (tinhieu) => {
-            const tbody = $("#bot-tbl-signals tbody")
-            var date = tinhieu[0].split(" ")[2]
-            var time = tinhieu[0].split(" ")[3]
-            var signal = tinhieu[1].split(" ")[2]
-            var price = tinhieu[2].split(':').pop().trim()
-
-            var template = `<tr class="d-none template">
-                                <td class="text-left">
-                                    <em><span class="date">${date}</span></em>
-                                </td>
-                                <td class="text-left">
-                                    <b><span class="time">${time}</span></b>
-                                </td>
-                                <td class="signal text-center ${signal}">
-                                    <span class="signal">${signal.toUpperCase()}</span>
-                                </td>
-                                <td class="text-right">
-                                    <span class="price" text-center="">${price}</span>
-                                </td>
-                            </tr>`;
-            tbody.append(template)
-        }
         
         function fetchDataUpdates(offset) {
             const url = "https://api.telegram.org/telegrambottoken/getUpdates?offset=" + offset;
             fetch(url)
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data);
-
                     if (data.result && data.result.length > 0) {
                         data.result.forEach(update => {
                             if (update.channel_post) {
-                                console.log(update.channel_post.text);
+                                console.log(update.channel_post.text.split("\n").map(line => line.trim()))
 
-                                //showTinHieu(update.channel_post.text.split("\n").map(line => line.trim()))
+                                showTinHieu(update.channel_post.text.split("\n").map(line => line.trim()))
+                                if (botAutoOrder.is(":checked")) {
+                                    botAutoClick(update.channel_post.text.split("\n").map(line => line.trim()))
+                                }
                             }
                         });
-                    }
+                        if (data.result.length > 1) {
+                            //console.log(data.result[0].channel_post.text.split("\n").map(line => line.trim()))
 
-                    if (data.result && data.result.length > 0 && botAutoOrder.is(":checked")) {
-                        data.result.forEach(update => {
-                            if (update.channel_post) {
-                                console.log('--------------------------Tin hieu moi nhat--------------------------------------');
-                                console.log(update.channel_post.text.split("\n").map(line => line.trim()));
-                                console.log('Suc mua: ' + sucMua.text())
+                            showTinHieu(data.result[0].channel_post.text.split("\n").map(line => line.trim()))
+                            //if (botAutoOrder.is(":checked")) {
+                            //    botAutoClick(data.result[0].channel_post.text.split("\n").map(line => line.trim()))
+                            //}
+                        }
 
-                                botAutoClick(update.channel_post.text.split("\n").map(line => line.trim()))
-                            }
-                        });
-
-                        // Cập nhật offset đến update_id mới nhất + 1
                         const latestUpdateId = data.result[data.result.length - 1].update_id;
                         fetchDataUpdates(latestUpdateId + 1);
                     }
@@ -1620,7 +1719,7 @@ $(window).on('load', () => {
                         setTimeout(() => {
                             console.log("Tracking...");
                             fetchDataUpdates(offset);
-                        }, 3000)
+                        }, 5000)
                     }
                 })
                 .catch((error) => {
@@ -1628,41 +1727,38 @@ $(window).on('load', () => {
                     setTimeout(() => fetchDataUpdates(offset), 5000);
                 });
         }
-        //fetchDataUpdates(0)
+        fetchDataUpdates(0)
 
         $(".satbot-logout").on("click", () => {
             if (confirm("Nhấn Ok để xác nhận Hủy liên kết, No để trở lại")) {
                 logout()
-                setCookie("auth_token", "", -1)
-                setCookie("auth_refresh_token", "", -1)
-                window.location.reload();
             }
         })
     }
 
     const logout = () => {
-        const acccess_token = "Bearer " + getCookie("auth_token");
+        const refresh_token = getCookie("auth_refresh_token");
+        const json = JSON.stringify({ refresh_token })
         $.ajax({
             url: api_url + "/logout",
             method: "POST",
-            headers: {
-                "Authorization": acccess_token
-            },
+            data: json,
             contentType: 'application/json',
             success: () => {
                 console.log("Logout success")
+                setCookie("auth_token", "", -1)
+                setCookie("auth_refresh_token", "", -1)
+                add_logs("Đã đăng xuất, trang sẽ được tải lại")
+                window.location.reload();
             },
-            error: (e) => {
-                console.log(e);
-            }
+            error: (e) => console.log(e)
         });
     }
 
 
     const refreshToken = () => {
-        var access_token = getCookie("auth_token");
         var refresh_token = getCookie("auth_refresh_token");
-        const json = JSON.stringify({ access_token, refresh_token })
+        const json = JSON.stringify({ refresh_token })
 
         $.ajax({
             url: api_url + "/refresh-token",
@@ -1671,7 +1767,7 @@ $(window).on('load', () => {
             contentType: 'application/json',
             success: (data) => {
                 if (data.access_token && data.refresh_token) {
-                    setCookie("auth_token", data.access_token, 4);
+                    setCookie("auth_token", data.access_token, 5);
                     updateCookieValue("auth_refresh_token", data.access_token);
                 }
             },
@@ -1711,16 +1807,12 @@ $(window).on('load', () => {
                     contentType: 'application/json',
                     success: (data) => {
                         if (data.access_token) {
-                            setCookie("auth_token", data.access_token, 7 * 24 * 60);
-                            setCookie("auth_refresh_token", data.refresh_token, 7 * 24 * 60);
-                            loggingAndBot();
-                        } else {
-                            $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger');
-                        }
+                            setCookie("auth_token", data.access_token, 5);
+                            setCookie("auth_refresh_token", data.refresh_token, 30 * 24 * 60);
+                            loggingAndBot(data.name);
+                        } else $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger')
                     },
-                    error: (e) => {
-                        $statusElement.text(e.responseText).removeClass('alert-info').addClass('alert-danger');
-                    }
+                    error: (e) => $statusElement.text(e.responseText).removeClass('alert-info').addClass('alert-danger')
                 });
             } catch (error) {
                 $statusElement.text(error.message).removeClass('alert-info').addClass('alert-danger');
@@ -1738,9 +1830,10 @@ $(window).on('load', () => {
 // Cat lo 3: 1188.261
 //RSI: 51.20752
 //MFI: 37.16677
-//    % Gia thay doi: -1.715388"
+//% Gia thay doi: -1.715388"
 
-//"#VN30F1M Ngay 30/05/2024 2:13:48 CH bot web",
+
+//    "#VN30F1M Ngay 30/05/2024 2:13:48 CH bot web",
 //    "Tin hieu short: Manh",
 //    "Gia mua: 1277.5",
 //    "Target 1: 1273.7",
