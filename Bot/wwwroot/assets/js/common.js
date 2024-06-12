@@ -37,6 +37,9 @@ function updateCookieValue(cname, newValue) {
     }
 }
 
+
+
+
 var aBeep = new Audio("https://chobot.vn/assets/sound/beep.wav");
 var aTick = new Audio("https://chobot.vn/assets/sound/tick.wav");
 

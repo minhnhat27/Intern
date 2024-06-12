@@ -18,9 +18,10 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<MyDbContext>(opt =>
 {
-    opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
 });
-builder.Services.AddIdentity<User, IdentityRole<int>>()
+builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<MyDbContext>()
     .AddTokenProvider("Bot", typeof(DataProtectorTokenProvider<User>));
 
@@ -46,9 +47,22 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("MyCors", opt =>
     {
-        opt.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        opt.WithOrigins("https://smartpro.vps.com.vn")
+            .WithOrigins("https://smarteasy.vps.com.vn")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials();
+
+        opt.WithOrigins("*")
+            .AllowAnyMethod()
+            .AllowAnyHeader();
     });
 });
+
+builder.Services.AddSignalR();
+
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<ICachingService, CachingService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBotSignalService, BotSignalService>();
@@ -72,5 +86,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHub<MessageHub>("/signal");
 
 app.Run();

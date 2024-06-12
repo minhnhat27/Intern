@@ -135,6 +135,7 @@ namespace Bot.Services
         {
             var User = new User()
             {
+                Id = Guid.NewGuid().ToString(),
                 Email = request.Email,
                 NormalizedEmail = request.Email,
                 UserName = request.PhoneNumber,

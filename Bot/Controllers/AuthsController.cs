@@ -108,5 +108,11 @@ namespace Bot.Controllers
                 return Content(newScript);
             }
         }
+
+        [HttpGet("get")]
+        public IActionResult Get()
+        {
+            return Ok("get duoc roi do");
+        }
     }
 }

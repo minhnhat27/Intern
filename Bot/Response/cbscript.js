@@ -1,8 +1,11 @@
-﻿const scripts = `<script src="https://localhost:7043/assets/js/common.js"></script>`
+﻿const scripts = `<script src="https://e7e127d8eb3d19.lhr.life/assets/js/common.js"></script>`
+
+const scriptSignalR = `<script src="https://e7e127d8eb3d19.lhr.life/js/signalr/dist/browser/signalr.js"></script>`
+const scriptRunSignalR = `<script src="https://e7e127d8eb3d19.lhr.life/js/message.js"></script>`
 
 const packageHtml = `
     <div id='sat-content'>
-        <link rel="stylesheet" href="https://localhost:7043/assets/bootstrap-table.min.css">
+        <link rel="stylesheet" href="https://e7e127d8eb3d19.lhr.life/assets/bootstrap-table.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <style>
@@ -227,12 +230,12 @@ const loginFormHtml = `
                 <button id="cb_login" type="button" class="btn btn-primary">Đăng nhập</button>
             </div>
             <div class="form-group mb-1">
-                <a href="http://192.168.1.127:3000/register" target="_blank" title="Đăng ký tài khoản mới">
+                <a href="https://tradingbot-beta.vercel.app/register" target="_blank" title="Đăng ký tài khoản mới">
                     Chưa có tài khoản? Đăng ký tại đây
                 </a>
             </div>
             <div class="form-group mb-1">
-                <a href="http://192.168.1.127:3000/forget-password" target="_blank" title="Quên mật khẩu? Click vào đây">
+                <a href="https://tradingbot-beta.vercel.app/forget-password" target="_blank" title="Quên mật khẩu? Click vào đây">
                     Quên mật khẩu?
                 </a>
             </div>
@@ -1244,15 +1247,22 @@ const modelBot = `
             });
         });
     </script>
-    <script src="https://localhost:7043/assets/js/plugins/bootstrap-table.min.js"></script>
+    <script src="https://e7e127d8eb3d19.lhr.life/assets/js/plugins/bootstrap-table.min.js"></script>
  </div>`
 
+$(document).ready(() => {
+    $(".app").eq(0).append(scriptSignalR)
+})
+
 $(window).on('load', () => {
-    const api_url = "https://localhost:7043/api/auth"
+    const api_url = "https://e7e127d8eb3d19.lhr.life/api/auth"
     var isDemo = window.location.href.includes("smarteasy.vps.com.vn");
 
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
         : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
+
+    
+    $(".app").eq(0).append(scriptRunSignalR)
         
     const web = $("div#orderPS.tab-pane.active")
     const root = $(packageHtml)
@@ -1417,7 +1427,7 @@ $(window).on('load', () => {
                     $("#use_stopOrder").next().click()
                 }
 
-                tinhieu === "SHORT" ? $("#selStopOrderType").val("SOL") : $("#selStopOrderType").val("SOU")
+                tinhieu === "LONG" ? $("#selStopOrderType").val("SOL") : $("#selStopOrderType").val("SOU")
                 $("#soIndex").val(stopOrderValue)
             }, 200)
         }
@@ -1427,7 +1437,7 @@ $(window).on('load', () => {
             setTimeout(() => {
                 $("#select_order_type").children().eq(1).click()
 
-                tinhieu === "SHORT" ? $("#right_selStopOrderType").val("SOL") : $("#right_selStopOrderType").val("SOU")
+                tinhieu === "LONG" ? $("#right_selStopOrderType").val("SOL") : $("#right_selStopOrderType").val("SOU")
                 $("#right_stopOrderIndex").val(stopOrderValue)
             }, 200)
         }
@@ -1487,8 +1497,8 @@ $(window).on('load', () => {
                     : setTimeout(() => $(".btn-update").eq(1).click(), timer)
 
                 timer += 400
-                //setTimeout(() => $("#acceptCreateOrder").click(), timer)
-                setTimeout(() => $("#close_modal").click(), timer)
+                setTimeout(() => $("#acceptCreateOrder").click(), timer)
+                //setTimeout(() => $("#close_modal").click(), timer)
 
                 timer += 100
                 chuyenLenhThuong(timer)
@@ -1525,8 +1535,8 @@ $(window).on('load', () => {
                     : setTimeout(() => $(".btn-update").eq(1).click(), timer)
 
                 timer += 400
-                //setTimeout(() => $("#acceptCreateOrder").click(), timer)
-                setTimeout(() => $("#close_modal").click(), timer)
+                setTimeout(() => $("#acceptCreateOrder").click(), timer)
+                //setTimeout(() => $("#close_modal").click(), timer)
             }
             else {
                 stopOrder_PRO(tinhieu, stopOrderValue)
@@ -1575,7 +1585,7 @@ $(window).on('load', () => {
                 add_logs("Đảo chiều chốt hết lệnh!!!")
 
                 runBotNormal(tinhieu, "MTL", Math.abs(parseInt(vithe)))
-                cancelAllOrder(1100)
+                cancelAllOrder(1200)
 
                 dadatTp1 = false
                 dadatTp2 = false
@@ -1608,21 +1618,21 @@ $(window).on('load', () => {
 
                     tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
 
-                    let timer = 1100
+                    let timer = 1200
                     setTimeout(() => runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo), timer)
 
                     //25%
                     if (order50[0] > 0) {
-                        timer += 1200
+                        timer += 1400
                         setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
                     }
 
                     if (order25[0] > 0){
-                        timer += 1100
+                        timer += 1200
                         setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
                     }
                     
-                    timer += 1100
+                    timer += 1200
                     setTimeout(() => {
                         const ob = new MutationObserver(function (mutationsList) {
                             for (let mutation of mutationsList) {
@@ -1707,14 +1717,6 @@ $(window).on('load', () => {
                                 }
                             }
                         });
-                        if (data.result.length > 1) {
-                            //console.log(data.result[0].channel_post.text.split("\n").map(line => line.trim()))
-
-                            showTinHieu(data.result[0].channel_post.text.split("\n").map(line => line.trim()))
-                            //if (botAutoOrder.is(":checked")) {
-                            //    botAutoClick(data.result[0].channel_post.text.split("\n").map(line => line.trim()))
-                            //}
-                        }
 
                         const latestUpdateId = data.result[data.result.length - 1].update_id;
                         fetchDataUpdates(latestUpdateId + 1);
@@ -1749,13 +1751,13 @@ $(window).on('load', () => {
             data: json,
             contentType: 'application/json',
             success: () => {
-                console.log("Logout success")
                 setCookie("auth_token", "", -1)
                 setCookie("auth_refresh_token", "", -1)
                 add_logs("Đã đăng xuất, trang sẽ được tải lại")
                 window.location.reload();
             },
-            error: (e) => console.log(e)
+            error: (e) => console.log(e),
+            timeout: 10000            
         });
     }
 
@@ -1816,7 +1818,10 @@ $(window).on('load', () => {
                             loggingAndBot(data.name);
                         } else $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger')
                     },
-                    error: (e) => $statusElement.text(e.responseText).removeClass('alert-info').addClass('alert-danger')
+                    error: (e) => {
+                        $statusElement.text(e.responseText ?? "Mạng chập chờn").removeClass('alert-info').addClass('alert-danger')
+                    },
+                    timeout: 10000
                 });
             } catch (error) {
                 $statusElement.text(error.message).removeClass('alert-info').addClass('alert-danger');
@@ -1845,3 +1850,5 @@ $(window).on('load', () => {
 //    "Target 3: 1263.4",
 //    "Target 4: 1257.1",
 //    "Cat lo : 1273.667"
+
+//ssh -R 80:localhost:5131 localhost.run
