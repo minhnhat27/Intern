@@ -1,11 +1,19 @@
-﻿const scripts = `<script src="https://180638be7100f9.lhr.life/assets/js/common.js"></script>`
+﻿"use strict";
 
-const scriptSignalR = `<script src="https://180638be7100f9.lhr.life/js/signalr/dist/browser/signalr.js"></script>`
-const scriptRunSignalR = `<script src="https://180638be7100f9.lhr.life/js/message.js"></script>`
+const baseURL = "https://894f79e8e970c0.lhr.life"
+
+const api_auth = `${baseURL}/api/auth`
+const api_signal = `${baseURL}/api/signal`
+
+var isDemo = window.location.href.includes("smarteasy.vps.com.vn")
+
+const scripts = `<script src="${baseURL}/assets/js/common.js"></script>`
+
+const scriptSignalR = `<script src="${baseURL}/js/signalr/dist/browser/signalr.js"></script>`
 
 const packageHtml = `
     <div id='sat-content'>
-        <link rel="stylesheet" href="https://180638be7100f9.lhr.life/assets/bootstrap-table.min.css">
+        <link rel="stylesheet" href="${baseURL}/assets/bootstrap-table.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <style>
@@ -1247,22 +1255,121 @@ const modelBot = `
             });
         });
     </script>
-    <script src="https://180638be7100f9.lhr.life/assets/js/plugins/bootstrap-table.min.js"></script>
+    <script src="${baseURL}/assets/js/plugins/bootstrap-table.min.js"></script>
  </div>`
+
+const add_logs = (text) => {
+    var now = new Date()
+    text = now.toLocaleTimeString('en-GB') + ": " + text
+    const bot_logs = $("#bot-logs");
+    !bot_logs.text() ? bot_logs.text(text) : bot_logs.text(bot_logs.text() + '\n' + text);
+}
+
+const showTinHieu = (tinhieu) => {
+    const tbody = $("#bot-tbl-signals tbody")
+    var date = tinhieu[0].split(" ")[2]
+    var time = tinhieu[0].split(" ")[3]
+    var signal = tinhieu[1].split(" ")[2].slice(0, -1);
+    var price = parseFloat(tinhieu[2].split(':').pop().trim()).toFixed(2)
+
+    var template = `<tr>
+                        <td class="text-left">
+                            <em><span class="date">${date}</span></em>
+                        </td>
+                        <td class="text-left">
+                            <b><span class="time">${time}</span></b>
+                        </td>
+                        <td class="signal text-center ${signal}">
+                            <span class="signal">${signal.toUpperCase()}</span>
+                        </td>
+                        <td class="text-right">
+                            <span class="price" text-center="">${price}</span>
+                        </td>
+                    </tr>`;
+    tbody.append(template)
+}
+
+const getBotSignal = () => {
+    $.get(api_signal, (data) => {
+        const tbody = $("#bot-tbl-signals tbody")
+        if (data.length > 0) {
+            data.map((sig) => {
+                var dateTime = sig.dateTime.split(' ')
+                var date = dateTime[0]
+                var time = dateTime[1]
+                var signal = sig.signal;
+                var price = sig.price;
+
+                var template = `<tr>
+                        <td class="text-left">
+                            <em><span class="date">${date}</span></em>
+                        </td>
+                        <td class="text-left">
+                            <b><span class="time">${time}</span></b>
+                        </td>
+                        <td class="signal text-center ${signal.toLowerCase()}">
+                            <span class="signal">${signal.toUpperCase()}</span>
+                        </td>
+                        <td class="text-right">
+                            <span class="price" text-center="">${price}</span>
+                        </td>
+                    </tr>`;
+                tbody.append(template)
+            })
+        }
+    })
+}
+
+const logout = () => {
+    const refresh_token = getCookie("auth_refresh_token");
+    const json = JSON.stringify({ refresh_token })
+    $.ajax({
+        url: api_auth + "/logout",
+        method: "POST",
+        data: json,
+        contentType: 'application/json',
+        timeout: 10000
+    }).done(() => {
+        setCookie("auth_token", "", -1)
+        setCookie("auth_refresh_token", "", -1)
+        add_logs("Đã đăng xuất, trang sẽ được tải lại")
+        window.location.reload();
+    }).fail((_, error) => {
+        error === 'timeout'
+            ? add_logs("Mạng yếu, vui lòng thử lại.")
+            : add_logs(error)
+    })
+}
+
+const refreshToken = () => {
+    var refresh_token = getCookie("auth_refresh_token");
+    const json = JSON.stringify({ refresh_token })
+
+    $.ajax({
+        url: api_auth + "/refresh-token",
+        method: "POST",
+        data: json,
+        contentType: 'application/json',
+        timeout: 10000
+    }).done((data) => {
+        if (data.access_token && data.refresh_token) {
+            setCookie("auth_token", data.access_token, 5);
+            updateCookieValue("auth_refresh_token", data.access_token);
+        }
+    }).fail((_, error) => {
+        error === 'timeout'
+            ? add_logs("Mạng yếu, vui lòng thử lại.")
+            : add_logs(error)
+    })
+}
 
 $(document).ready(() => {
     $(".app").eq(0).append(scriptSignalR)
 })
 
 $(window).on('load', () => {
-    const api_url = "https://180638be7100f9.lhr.life/api/auth"
-    var isDemo = window.location.href.includes("smarteasy.vps.com.vn");
-
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
         : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
-
-    
-    $(".app").eq(0).append(scriptRunSignalR)
         
     const web = $("div#orderPS.tab-pane.active")
     const root = $(packageHtml)
@@ -1272,13 +1379,6 @@ $(window).on('load', () => {
     const satContent = $("#sat-content")
     satContent.append(modelBot)
     satContent.append(scripts)
-
-    const add_logs = (text) => {
-        var now = new Date()
-        text = now.toLocaleTimeString('en-GB') + ": " + text
-        const bot_logs = $("#bot-logs");
-        !bot_logs.text() ? bot_logs.text(text) : bot_logs.text(bot_logs.text() + '\n' + text);
-    }
 
     function loggingAndBot(name = '') {
         const extContent = $("#ext-content")
@@ -1299,6 +1399,8 @@ $(window).on('load', () => {
         add_logs("Hệ thống sẳn sàng")
 
         name && add_logs("Xin chào: " + name)
+
+        getBotSignal()
 
         $(".bot-history-clear").on("click", function () {
             $("#bot-logs").text('')
@@ -1682,45 +1784,20 @@ $(window).on('load', () => {
                 logout()
             }
         })
-    }
 
-    const logout = () => {
-        const refresh_token = getCookie("auth_refresh_token");
-        const json = JSON.stringify({ refresh_token })
-        $.ajax({
-            url: api_url + "/logout",
-            method: "POST",
-            data: json,
-            contentType: 'application/json',
-            success: () => {
-                setCookie("auth_token", "", -1)
-                setCookie("auth_refresh_token", "", -1)
-                add_logs("Đã đăng xuất, trang sẽ được tải lại")
-                window.location.reload();
-            },
-            error: (e) => console.log(e),
-            timeout: 10000            
+
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl(`${baseURL}/signal`)
+            .withAutomaticReconnect()
+            .build();
+        connection.on("Signal", function (message) {
+            const tinhieu = message.split("\n").map(line => line.trim())
+            showTinHieu(tinhieu)
+            if ($("#bot-auto-order").is(":checked")) {
+                botAutoClick(tinhieu)
+            }
         });
-    }
-
-
-    const refreshToken = () => {
-        var refresh_token = getCookie("auth_refresh_token");
-        const json = JSON.stringify({ refresh_token })
-
-        $.ajax({
-            url: api_url + "/refresh-token",
-            method: "POST",
-            data: json,
-            contentType: 'application/json',
-            success: (data) => {
-                if (data.access_token && data.refresh_token) {
-                    setCookie("auth_token", data.access_token, 5);
-                    updateCookieValue("auth_refresh_token", data.access_token);
-                }
-            },
-            error: (e) => console.log(e)
-        });
+        connection.start().catch((err) => console.error(err.toString()))
     }
 
     const loggedIn = getCookie("auth_refresh_token");
@@ -1749,22 +1826,24 @@ $(window).on('load', () => {
                 $statusElement.removeClass('alert-danger').addClass('alert-info').text('Đang đăng nhập...');
 
                 $.ajax({
-                    url: api_url + "/login",
+                    url: api_auth + "/login",
                     method: "POST",
                     data: json,
                     contentType: 'application/json',
-                    success: (data) => {
-                        if (data.access_token) {
-                            setCookie("auth_token", data.access_token, 5);
-                            setCookie("auth_refresh_token", data.refresh_token, 30 * 24 * 60);
-                            loggingAndBot(data.name);
-                        } else $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger')
-                    },
-                    error: (e) => {
-                        $statusElement.text(e.responseText ?? "Mạng chập chờn").removeClass('alert-info').addClass('alert-danger')
-                    },
                     timeout: 10000
-                });
+                }).done((data) => {
+                    if (data.access_token) {
+                        setCookie("auth_token", data.access_token, 5);
+                        setCookie("auth_refresh_token", data.refresh_token, 30 * 24 * 60);
+                        loggingAndBot(data.name);
+                    } else $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger')
+                }).fail((e, error) => {
+                    error === 'timeout'
+                        ? $statusElement.text("Mạng yếu, vui lòng thử lại.").removeClass('alert-info').addClass('alert-danger')
+                        : $statusElement.text(e.responseText).removeClass('alert-info').addClass('alert-danger')
+
+                })
+
             } catch (error) {
                 $statusElement.text(error.message).removeClass('alert-info').addClass('alert-danger');
             }

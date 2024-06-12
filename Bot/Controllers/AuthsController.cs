@@ -101,18 +101,12 @@ namespace Bot.Controllers
             {
                 var telegrambottoken = _configuration.GetSection("TelegramBotToken").Value;
 
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "cbscript.js");
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
                 var script = System.IO.File.ReadAllText(path);
                 var newScript = script.Replace("telegrambottoken", telegrambottoken);
 
                 return Content(newScript);
             }
-        }
-
-        [HttpGet("get")]
-        public IActionResult Get()
-        {
-            return Ok("get duoc roi do");
         }
     }
 }

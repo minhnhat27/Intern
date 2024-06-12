@@ -8,8 +8,7 @@ namespace Bot.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int SignalID { get; set; }
-        public DateOnly Date { get; set; }
-        public TimeOnly Time { get; set; }
+        public DateTime DateTime { get; set; }
         public string Signal { get; set; }
 
         [Range(0, double.MaxValue)]
