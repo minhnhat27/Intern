@@ -1,13 +1,12 @@
-﻿using Bot.Models;
+﻿using Bot.Data;
 using Bot.Request;
 using Bot.Services;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Bot.Controllers
 {
-    [Route("api/botsignal")]
+    [Route("api/signal")]
     [ApiController]
     public class BotSignalsController : ControllerBase
     {
@@ -29,7 +28,7 @@ namespace Bot.Controllers
         {
             return Ok(await _botSignalService.GetSignals());
         }
-        [HttpPost("signal")]
+        [HttpPost("addSignal")]
         public async Task<IActionResult> AddSignal(AddSignalRequest request)
         {
             var result = await _botSignalService.AddSignal(request);
@@ -39,7 +38,7 @@ namespace Bot.Controllers
             }
             return BadRequest(result);
         }
-        [HttpPost("signals")]
+        [HttpPost("addSignals")]
         public async Task<IActionResult> AddSignals(List<AddSignalRequest> requests)
         {
             var result = await _botSignalService.AddSignals(requests);
