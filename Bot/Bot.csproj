@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\cbscript.js" />
+    <Content Remove="wwwroot\script.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\cbscript.js" />
+    <None Include="wwwroot\script.js" />
   </ItemGroup>
 
   <ItemGroup>

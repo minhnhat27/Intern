@@ -47,15 +47,10 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("MyCors", opt =>
     {
-        opt.WithOrigins("https://smartpro.vps.com.vn")
-            .WithOrigins("https://smarteasy.vps.com.vn")
+        opt.WithOrigins("https://smartpro.vps.com.vn", "https://smarteasy.vps.com.vn", "http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
-
-        opt.WithOrigins("*")
-            .AllowAnyMethod()
-            .AllowAnyHeader();
     });
 });
 
@@ -87,5 +82,6 @@ app.UseAuthorization();
 
 app.MapControllers();
 app.MapHub<MessageHub>("/signal");
+app.MapGet("/", () => "Hello World!");
 
 app.Run();

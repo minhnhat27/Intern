@@ -54,20 +54,9 @@ namespace Bot.Controllers
         {
             Console.WriteLine(text);
             await _hubContext.Clients.All.SendAsync("Signal", text);
+            await _botSignalService.AddSignal(text);
 
             return Ok();
         }
-
-
-        /*
-        #VN30F1M Ngay 6/7/2024 9:15:00 AM bot web
-         Tin hieu long: Manh
-         Gia ban: 1308
-         Target 1: 1304.1
-         Target 2: 1300.2
-         Target 3: 1293.6
-         Target 4: 1287.1
-         Cat lo: 1311.9 
-        */
     }
 }
