@@ -1,48 +1,12 @@
-﻿function setCookie(cname, cvalue, exMinutes) {
-    const d = new Date();
-    d.setTime(d.getTime() + (exMinutes * 60 * 1000));
-    let expires = "expires=" + d.toUTCString();
-    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-}
-function getCookie(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) == ' ') {
-            c = c.substring(1);
-        }
-        if (c.indexOf(name) == 0) {
-            return c.substring(name.length, c.length);
-        }
-    }
-    return null;
-}
+﻿const scripts = `<script src="https://180638be7100f9.lhr.life/assets/js/common.js"></script>`
 
-function updateCookieValue(cname, newValue) {
-    const cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        let cookie = cookies[i].trim();
-        if (cookie.startsWith(cname + "=")) {
-            let updatedCookie = cname + "=" + newValue + ";";
-            let cookieParts = cookie.split(';');
-            for (let j = 1; j < cookieParts.length; j++) {
-                if (!cookieParts[j].trim().startsWith("expires=")) {
-                    updatedCookie += cookieParts[j] + ";";
-                }
-            }
-            document.cookie = updatedCookie;
-            break;
-        }
-    }
-}
-
-const scripts = `<script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.21.4/dist/bootstrap-table.min.js"></script>`
+const scriptSignalR = `<script src="https://180638be7100f9.lhr.life/js/signalr/dist/browser/signalr.js"></script>`
+const scriptRunSignalR = `<script src="https://180638be7100f9.lhr.life/js/message.js"></script>`
 
 const packageHtml = `
     <div id='sat-content'>
-        <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.21.4/dist/bootstrap-table.min.css">
+        <link rel="stylesheet" href="https://180638be7100f9.lhr.life/assets/bootstrap-table.min.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.22.6/dist/bootstrap-table.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
         <style>
             .modal-backdrop {
@@ -109,571 +73,7 @@ const packageHtml = `
              margin-top: 0.5rem;
          }
      </style>
-     <div id="system-error" class="d-none list-group-item px-1">
-         <div class="alert alert-danger">
-             <span class="system-error-text"></span>
-             <br>
-             Liên hệ
-             <a href="https://zalo.me/g/mgrsyj088" target="_blank">
-                 0786.441.433             </a> để được hỗ trợ
-         </div>
-     </div>
-    </div>
-`
-
-const loginFormHtml = `
-<div id='ext-content' class='list-group-item list-group-item-accent-danger m-0 p-1'>
-        <div id="bot-account-link" class="text-center py-2">
-            <div class="text-center">
-                <div id="cb_loginStatus" class="alert alert-info">
-                    Đăng nhập để liên kết với Tài khoản ...
-                </div>
-            </div>
-            <div class="form-group mb-1">
-                <label for="cb_username">Tên đăng nhập</label><br>
-                <input id="cb_username" type="text" value="" class="form-control">
-            </div>
-            <div class="form-group mb-1">
-                <label for="cb_password">Mật khẩu</label><br>
-                <input id="cb_password" type="password" value="" class="form-control">
-            </div>
-            <div class="form-group mb-1">
-                <input id="cb_showPassword" type="checkbox">
-                <label for="cb_showPassword">Hiện mật khẩu</label>
-            </div>
-            <div class="form-group mb-1">
-                <button id="cb_login" type="button" class="btn btn-primary">Đăng nhập</button>
-            </div>
-            <div class="form-group mb-1">
-                <a href="http://192.168.1.67:3000/register" target="_blank" title="Đăng ký tài khoản mới">
-                    Chưa có tài khoản? Đăng ký tại đây
-                </a>
-            </div>
-            <div class="form-group mb-1">
-                <a href="http://192.168.1.67:3000/forget-password" target="_blank" title="Quên mật khẩu? Click vào đây">
-                    Quên mật khẩu?
-                </a>
-            </div>
-        </div>
-     </div>`
-
-const loggingHtml = `
-         <div class="text-left border-bottom mb-2">
-             <div class="d-flex">
-                 <div class="mr-auto">
-                     <i class="fa fa-copy"></i>
-                     <a href="https://chobot.vn" target="_blank" title="Bot phân tán thực hiện bởi chobot.vn">Chobot.vn</a> <small>231113</small>
-                 </div>
-                 <div class="px-2">
-                     <a href="javascript:void(0)" class="satbot-settings" title="Cài đặt">
-                         <i class="fa fa-cog"></i>
-                     </a>
-                     <a href="javascript:void(0)" class="satbot-logout" title="Đăng xuất">
-                         <i class="fa fa-sign-out"></i>
-                     </a>
-                 </div>
-             </div>
-         </div>
-
-         <div id="ext-test" class="d-none bot-test text-center py-2">
-             <div class="row justify-content-center">
-                 <div class="col">
-                     <button type="button" class="btn btn-success btn-test-buy px-2">BUY</button>
-                     <button type="button" class="btn btn-danger btn-test-sell px-2">SELL</button>
-                     <button type="button" class="btn btn-danger btn-test-short px-2">SHORT</button>
-                     <button type="button" class="btn btn-success btn-test-cover px-2">COVER</button>
-                 </div>
-             </div>
-             <div class="row justify-content-center py-2">
-                 <div class="col">
-                     <button type="button" class="btn btn-warning btn-test-wait px-2">WAIT</button>
-                     <button type="button" class="btn btn-warning btn-test-activate px-2">Kích hoạt</button>
-                     <button type="button" class="btn btn-danger btn-test-reset px-2">Reset</button>
-                 </div>
-             </div>
-         </div>
-
-         <div class="d-none d-block bot-none alert alert-danger text-center">
-             TK chưa thiết lập bot mặc định
-             <br>
-             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
-         </div>
-         <div class="d-none d-block bot-expired alert alert-danger text-center">
-             Bot đã hết hạn sử dụng <br> Vui lòng chọn và kích hoạt lại.
-             <br>
-             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
-         </div>
-
-         <div class="text-left border-bottom d-flex">
-             <div class="mr-auto">
-                 <i class="fa fa-list"></i>
-                 Nhật ký hệ thống
-             </div>
-             <div class="px-2">
-                 <a href="javascript:void(0)" title="Xóa nhật ký" class="bot-history-clear">
-                     <i class="fa fa-trash"></i>
-                 </a>
-             </div>
-         </div>
-         <div class="container-fluid m-0 p-0">
-             <textarea id="bot-logs" class="form-controls w-100" rows="10" readonly="" style="font-size: 0.75rem;font-style:italic;border-color:#c8ced3;color:var(--gray-700) !important;"></textarea>
-         </div>
-    `
-
-const tabExtContent = `
-<div id="tab-ext" class="div-tab tab-pane fade in text-white" role="tabpanel">
-    <div id="ext-tab-content">
-         <div id="bot-test" class="d-none container-fluid m-0 p-2 bot-section">
-             <div class="row">
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-success test-trigger-long">
-                         Trigger LONG
-                     </button>
-                 </div>
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-danger test-trigger-short">
-                         Trigger SHORT
-                     </button>
-                 </div>
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-warning test-cancel-all">
-                         Hủy tất cả
-                     </button>
-                 </div>
-             </div>
-         </div>
-         <div id="bot-settings" class="container-fluid m-0 p-2 bot-section">
-             <div class="row border-bottom ">
-                 <div class="col d-flex align-items-center">
-                     <i class="fa fa-list mr-1"></i>
-                     <b>Bot giao dịch</b>
-                 </div>
-             </div>
-             <div class="row my-2">
-                 <div class="col">
-                     <input id="bot-name" type="text" class="form-control w-100" value="" placeholder="Chọn bot để giao dịch" readonly="">
-                 </div>
-                 <div class="col-auto">
-                     <button type="button" data-toggle="modal" class="btn btn-primary btn-select-bot">Chọn bot</button>
-                 </div>
-             </div>
-             <div class="row border-bottom ">
-                 <div class="col d-flex align-items-center">
-                     <i class="fa fa-list mr-1"></i>
-                     <b>Hỗ trợ Đặt lệnh</b>
-                 </div>
-                 <div class="col text-right">
-                     <label class="switch switch-label switch-label-panel switch-pill switch-success switch-sm float-right">
-                         <input class="switch-input st-bot-config bot-settings" name="bot-auto-order" id="bot-auto-order" type="checkbox" checked="checked">
-                         <span class="switch-slider" data-checked="On" data-unchecked="Off" id="bot-auto-order_sl"></span>
-                     </label>
-                 </div>
-             </div>
-             <div id="bot-settings-content" class="m-0 p-0">
-                 <div class="row my-1 pr-2">
-                     <label for="bot-trendTypes">Khi có trend</label>
-                     <select id="bot-trendTypes" class="custom-select bot-settings">
-                         <option value="0" selected="">LONG hoặc SHORT</option>
-                         <option value="1">chỉ LONG</option>
-                         <option value="2">chỉ SHORT</option>
-                     </select>
-                 </div>
-                 <div>
-                     Bot đóng vị thế
-                 </div>
-                 <div class="row my-1 pr-2">
-                     <div class="col">
-                         <select id="bot-close" class="custom-select bot-settings">
-                             <option value="0"> Không làm gì </option>
-                             <option value="1" selected=""> Đóng vị thế ngược chiều </option>
-                         </select>
-                     </div>
-                     <div class="col-4 m-0 p-0 pl-2">
-                         <select id="bot-close-price" class="custom-select bot-settings">
-                             <option value="0" selected=""> MTL </option>
-                             <option value="1"> Trần/Sàn </option>
-                         </select>
-                     </div>
-                 </div>
-                 <div>
-                     Bot mở vị thế mới
-                 </div>
-                 <div class="row my-1 pr-2">
-                     <div class="col">
-                         <select id="bot-open" class="custom-select bot-settings">
-                             <option value="0"> Không mở vị thế </option>
-                             <option value="1" selected=""> Mở vị thế mới</option>
-                         </select>
-                     </div>
-                     <div class="col-4 m-0 p-0 pl-2">
-                         <select id="bot-open-price" class="custom-select bot-settings">
-                             <option value="0" selected=""> MTL </option>
-                             <option value="1"> Trần/Sàn </option>
-                             <option value="2"> Tín hiệu </option>
-                         </select>
-                     </div>
-                 </div>
-                 <div>
-                     với Số hợp đồng là
-                 </div>
-                 <div class="row my-1 pr-2">
-                     <div class="col">
-                         <select id="bot-volume" class="custom-select bot-settings">
-                             <option value="0" selected=""> Full Sức mua</option>
-                             <option value="1"> Số HĐ =</option>
-                         </select>
-                     </div>
-                     <div class="col-4 m-0 p-0 pl-2">
-                         <input type="text" class="form-control formatDouble bot-settings" id="bot-volume-value" step="1" min="1" value="1" placeholder="Số HĐ">
-                     </div>
-                 </div>
-                 <div class="row my-1 mt-2">
-                     <div class="col">
-                         <div class="custom-control custom-checkbox mx-2">
-                             <input id="bot-atoc-order" type="checkbox" class="custom-control-input bot-settings">
-                             <label for="bot-atoc-order" class="custom-control-label" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC">Đặt lệnh ATO/ATC
-                                 <i class="fa fa-info-circle text-info" aria-hidden="true" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC"></i>
-                         </label></div>
-                     </div>
-                 </div>
-             </div>
-         </div>
-
-         <div id="bot-signal" class="container m-0 p-2">
-             <div class="row text-left border-bottom m-0 p-0">
-                 <div class="col p-0">
-                     <i class="fa fa-list"></i>
-                     <b>Tín hiệu Bot</b>
-                 </div>
-                 <div class="col text-right">
-                     <a href="javascript:void(0)" class="bot-signal-refresh" title="Click để tải lại">
-                         <i class="fa fa-refresh"></i>
-                     </a>
-                 </div>
-             </div>
-             <div class="row container-fluid m-0 p-0">
-                 <table id="bot-tbl-signals" class="table table-sm">
-                     <thead>
-                         <tr>
-                             <th class="text-left">Ngày</th>
-                             <th class="text-left">Thời gian</th>
-                             <th class="text-center">Tín hiệu</th>
-                             <th class="text-right">Giá</th>
-                         </tr>
-                     </thead>
-                     <tbody>
-                         <tr class="d-none template">
-                             <td class="text-left">
-                                 <em><span class="date"></span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time"></span></b>
-                             </td>
-                             <td class="signal text-center">
-                                 <span class="signal"></span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center=""></span>
-                             </td>
-                         </tr>
-                     <tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-17</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:40:00</span></b>
-                             </td>
-                             <td class="signal text-center cover">
-                                 <span class="signal">COVER</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1303.9</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-17</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:30:00</span></b>
-                             </td>
-                             <td class="signal text-center short">
-                                 <span class="signal">SHORT</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1302.5</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-16</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">13:05:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1307.2</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-16</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">09:40:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1295.8</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-15</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:10:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1287.5</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-14</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:25:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1276.3</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-14</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:45:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1273</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-14</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">09:45:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1275.7</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-13</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:15:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1265.4</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-13</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">13:35:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1272.5</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-13</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">13:15:00</span></b>
-                             </td>
-                             <td class="signal text-center cover">
-                                 <span class="signal">COVER</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1269.6</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-13</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:40:00</span></b>
-                             </td>
-                             <td class="signal text-center short">
-                                 <span class="signal">SHORT</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1267.9</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-10</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:10:00</span></b>
-                             </td>
-                             <td class="signal text-center cover">
-                                 <span class="signal">COVER</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1266.7</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-10</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:55:00</span></b>
-                             </td>
-                             <td class="signal text-center short">
-                                 <span class="signal">SHORT</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1273.5</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-10</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:30:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1276.4</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-10</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">09:35:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1278.4</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-09</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:15:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1271.2</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-09</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">14:00:00</span></b>
-                             </td>
-                             <td class="signal text-center buy">
-                                 <span class="signal">BUY</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1276.6</span>
-                             </td>
-                         </tr><tr class="">
-                             <td class="text-left">
-                                 <em><span class="date">2024-05-09</span></em>
-                             </td>
-                             <td class="text-left">
-                                 <b><span class="time">10:25:00</span></b>
-                             </td>
-                             <td class="signal text-center sell">
-                                 <span class="signal">SELL</span>
-                             </td>
-                             <td class="text-right">
-                                 <span class="price" text-center="">1278.5</span>
-                             </td>
-                         </tr></tbody>
-                 </table>
-             </div>
-         </div>
-     </div>
-    </div>`
-
-const modelBot = `
-<div id="global">
-    <div class="modal fade" id="satbot-settings" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" data-backdrop="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Semi-AutoBot Cài đặt</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form class="container">
-                        <div class="d-none row my-2 form-group w-100">
-                            <label class="form-label" for="ext-chart">Biểu đồ Bot</label>
-                            <select id="ext-chart" class="form-control">
-                                <option value="0">Mặc định</option>
-                                <!-- <option value="1" data-url="">SmartTrading</option> -->
-                                <option value="3" data-url="">Fansi AutoBot 1M++</option>
-                                <option value="2">Link chỉ định</option>
-                            </select>
-                        </div>
-                        <div class="d-none row my-2 form-group w-100">
-                            <input type="text" class="form-control w-100" id="ext-chart-link"
-                                placeholder="Nhập đường link đến biểu đồ">
-                        </div>
-
-                        <div class="row my-2 form-group w-100">
-                            <div class="form-group">
-                                <input type="checkbox" id="ext-json-debug" class="form-checkbox">
-                                <label for="ext-json-debug">Log dữ liệu nâng cao</label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer d-flex flex-nowrap">
-                    <button type="button" class="btn btn-dark btnCloseModal" data-dismiss="modal">Bỏ qua</button>
-                    <button type="button" class="btn btn-success satbot-settings-save">Cập nhật</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- select bot version 3.0 -->
-    <style>
+     <style>
         td.bot-img,
         td.bot-img img {
             width: 80px;
@@ -794,8 +194,309 @@ const modelBot = `
             max-height: 50vh !important;
         }
     </style>
+     <div id="system-error" class="d-none list-group-item px-1">
+         <div class="alert alert-danger">
+             <span class="system-error-text"></span>
+             <br>
+             Liên hệ
+             <a href="https://zalo.me/g/mgrsyj088" target="_blank">
+                 0786.441.433             </a> để được hỗ trợ
+         </div>
+     </div>
+    </div>
+`
 
-    <script src="//chobot.vn/assets/js/common.js"></script>
+const loginFormHtml = `
+<div id='ext-content' class='list-group-item list-group-item-accent-danger m-0 p-1'>
+        <div id="bot-account-link" class="text-center py-2">
+            <div class="text-center">
+                <div id="cb_loginStatus" class="alert alert-info">
+                    Đăng nhập để liên kết với Tài khoản ...
+                </div>
+            </div>
+            <div class="form-group mb-1">
+                <label for="cb_username">Tên đăng nhập</label><br>
+                <input id="cb_username" type="text" value="" class="form-control">
+            </div>
+            <div class="form-group mb-1">
+                <label for="cb_password">Mật khẩu</label><br>
+                <input id="cb_password" type="password" value="" class="form-control">
+            </div>
+            <div class="form-group mb-1">
+                <input id="cb_showPassword" type="checkbox">
+                <label for="cb_showPassword">Hiện mật khẩu</label>
+            </div>
+            <div class="form-group mb-1">
+                <button id="cb_login" type="button" class="btn btn-primary">Đăng nhập</button>
+            </div>
+            <div class="form-group mb-1">
+                <a href="https://tradingbot-beta.vercel.app/register" target="_blank" title="Đăng ký tài khoản mới">
+                    Chưa có tài khoản? Đăng ký tại đây
+                </a>
+            </div>
+            <div class="form-group mb-1">
+                <a href="https://tradingbot-beta.vercel.app/forget-password" target="_blank" title="Quên mật khẩu? Click vào đây">
+                    Quên mật khẩu?
+                </a>
+            </div>
+        </div>
+     </div>`
+
+const loggingHtml = `
+         <div class="text-left border-bottom mb-2">
+             <div class="d-flex">
+                 <div class="mr-auto">
+                     <i class="fa fa-copy"></i>
+                     <a href="https://chobot.vn" target="_blank" title="Bot phân tán thực hiện bởi chobot.vn">Chobot.vn</a> <small>231113</small>
+                 </div>
+                 <div class="px-2">
+                     <a href="javascript:void(0)" class="satbot-settings" title="Cài đặt">
+                         <i class="fa fa-cog"></i>
+                     </a>
+                     <a href="javascript:void(0)" class="satbot-logout" title="Đăng xuất">
+                         <i class="fa fa-sign-out"></i>
+                     </a>
+                 </div>
+             </div>
+         </div>
+
+         <div id="ext-test" class="d-none bot-test text-center py-2">
+             <div class="row justify-content-center">
+                 <div class="col">
+                     <button type="button" class="btn btn-success btn-test-buy px-2">BUY</button>
+                     <button type="button" class="btn btn-danger btn-test-sell px-2">SELL</button>
+                     <button type="button" class="btn btn-danger btn-test-short px-2">SHORT</button>
+                     <button type="button" class="btn btn-success btn-test-cover px-2">COVER</button>
+                 </div>
+             </div>
+             <div class="row justify-content-center py-2">
+                 <div class="col">
+                     <button type="button" class="btn btn-warning btn-test-wait px-2">WAIT</button>
+                     <button type="button" class="btn btn-warning btn-test-activate px-2">Kích hoạt</button>
+                     <button type="button" class="btn btn-danger btn-test-reset px-2">Reset</button>
+                 </div>
+             </div>
+         </div>
+
+         <div class="d-none bot-none alert alert-danger text-center">
+             TK chưa thiết lập bot mặc định
+             <br>
+             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
+         </div>
+         <div class="d-none bot-expired alert alert-danger text-center">
+             Bot đã hết hạn sử dụng <br> Vui lòng chọn và kích hoạt lại.
+             <br>
+             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
+         </div>
+
+         <div class="text-left border-bottom d-flex">
+             <div class="mr-auto">
+                 <i class="fa fa-list"></i>
+                 Nhật ký hệ thống
+             </div>
+             <div class="px-2">
+                 <a href="javascript:void(0)" title="Xóa nhật ký" class="bot-history-clear">
+                     <i class="fa fa-trash"></i>
+                 </a>
+             </div>
+         </div>
+         <div class="container-fluid m-0 p-0">
+             <textarea id="bot-logs" class="form-controls w-100" rows="10" readonly="" style="font-size: 0.75rem;font-style:italic;border-color:#c8ced3;color:var(--gray-700) !important;"></textarea>
+         </div>
+    `
+
+const tabExtContent = `
+<div id="tab-ext" class="div-tab tab-pane fade in text-white" role="tabpanel">
+    <div id="ext-tab-content">
+         <div id="bot-test" class="d-none container-fluid m-0 p-2 bot-section">
+             <div class="row">
+                 <div class="col text-center">
+                     <button type="button" class="btn btn-success test-trigger-long">
+                         Trigger LONG
+                     </button>
+                 </div>
+                 <div class="col text-center">
+                     <button type="button" class="btn btn-danger test-trigger-short">
+                         Trigger SHORT
+                     </button>
+                 </div>
+                 <div class="col text-center">
+                     <button type="button" class="btn btn-warning test-cancel-all">
+                         Hủy tất cả
+                     </button>
+                 </div>
+             </div>
+         </div>
+         <div id="bot-settings" class="container-fluid m-0 p-2 bot-section">
+             <div class="row border-bottom ">
+                 <div class="col d-flex align-items-center">
+                     <i class="fa fa-list mr-1"></i>
+                     <b>Bot giao dịch</b>
+                 </div>
+             </div>
+             <div class="row my-2">
+                 <div class="col">
+                     <input id="bot-name" type="text" class="form-control w-100" value="" placeholder="Chọn bot để giao dịch" readonly="">
+                 </div>
+                 <div class="col-auto">
+                     <button type="button" data-toggle="modal" class="btn btn-primary btn-select-bot">Chọn bot</button>
+                 </div>
+             </div>
+             <div class="row border-bottom ">
+                 <div class="col d-flex align-items-center">
+                     <i class="fa fa-list mr-1"></i>
+                     <b>Hỗ trợ Đặt lệnh</b>
+                 </div>
+                 <div class="col text-right">
+                     <label class="switch switch-label switch-label-panel switch-pill switch-success switch-sm float-right">
+                         <input class="switch-input st-bot-config bot-settings" name="bot-auto-order" id="bot-auto-order" type="checkbox">
+                         <span class="switch-slider" data-checked="On" data-unchecked="Off" id="bot-auto-order_sl"></span>
+                     </label>
+                 </div>
+             </div>
+             <div id="bot-settings-content" class="m-0 p-0">
+                 <div class="row my-1 pr-2">
+                     <label for="bot-trendTypes">Khi có trend</label>
+                     <select id="bot-trendTypes" class="custom-select bot-settings">
+                         <option value="0" selected="">LONG hoặc SHORT</option>
+                         <option value="1">chỉ LONG</option>
+                         <option value="2">chỉ SHORT</option>
+                     </select>
+                 </div>
+                 <div>
+                     Bot đóng vị thế
+                 </div>
+                 <div class="row my-1 pr-2">
+                     <div class="col">
+                         <select id="bot-close" class="custom-select bot-settings">
+                             <option value="0"> Không làm gì </option>
+                             <option value="1" selected=""> Đóng vị thế ngược chiều </option>
+                         </select>
+                     </div>
+                     <div class="col-4 m-0 p-0 pl-2">
+                         <select id="bot-close-price" class="custom-select bot-settings">
+                             <option value="0" selected=""> MTL </option>
+                             <option value="1"> Trần/Sàn </option>
+                         </select>
+                     </div>
+                 </div>
+                 <div>
+                     Bot mở vị thế mới
+                 </div>
+                 <div class="row my-1 pr-2">
+                     <div class="col">
+                         <select id="bot-open" class="custom-select bot-settings">
+                             <option value="0"> Không mở vị thế </option>
+                             <option value="1" selected=""> Mở vị thế mới</option>
+                         </select>
+                     </div>
+                     <div class="col-4 m-0 p-0 pl-2">
+                         <select id="bot-open-price" class="custom-select bot-settings">
+                             <option value="0" selected=""> MTL </option>
+                             <option value="1"> Trần/Sàn </option>
+                             <option value="2"> Tín hiệu </option>
+                         </select>
+                     </div>
+                 </div>
+                 <div>
+                     với Số hợp đồng là
+                 </div>
+                 <div class="row my-1 pr-2">
+                     <div class="col">
+                         <select id="bot-volume" class="custom-select bot-settings">
+                             <option value="0" selected="">Full Sức mua</option>
+                             <option value="1">Số HĐ =</option>
+                         </select>
+                     </div>
+                     <div class="col-4 m-0 p-0 pl-2">
+                         <input type="number" class="form-control formatDouble bot-settings" id="bot-volume-value" step="1" min="1" value="" placeholder="Số HĐ">
+                     </div>
+                 </div>
+                 <div class="row my-1 mt-2">
+                     <div class="col">
+                         <div class="custom-control custom-checkbox mx-2">
+                             <input id="bot-atoc-order" type="checkbox" class="custom-control-input bot-settings">
+                             <label for="bot-atoc-order" class="custom-control-label" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC">Đặt lệnh ATO/ATC
+                                 <i class="fa fa-info-circle text-info" aria-hidden="true" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC"></i>
+                         </label></div>
+                     </div>
+                 </div>
+             </div>
+         </div>
+
+         <div id="bot-signal" class="container m-0 p-2">
+             <div class="row text-left border-bottom m-0 p-0">
+                 <div class="col p-0">
+                     <i class="fa fa-list"></i>
+                     <b>Tín hiệu Bot</b>
+                 </div>
+                 <div class="col text-right">
+                     <a href="javascript:void(0)" class="bot-signal-refresh" title="Click để tải lại">
+                         <i class="fa fa-refresh"></i>
+                     </a>
+                 </div>
+             </div>
+             <div class="row container-fluid m-0 p-0">
+                 <table id="bot-tbl-signals" class="table table-sm">
+                     <thead>
+                         <tr>
+                             <th class="text-left">Ngày</th>
+                             <th class="text-left">Thời gian</th>
+                             <th class="text-center">Tín hiệu</th>
+                             <th class="text-right">Giá</th>
+                         </tr>
+                     </thead>
+                     <tbody>
+                     </tbody>
+                 </table>
+             </div>
+         </div>
+     </div>
+    </div>`
+
+const modelBot = `
+<div id="global">
+    <div class="modal fade" id="satbot-settings" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" data-backdrop="false">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Semi-AutoBot Cài đặt</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="container">
+                        <div class="d-none row my-2 form-group w-100">
+                            <label class="form-label" for="ext-chart">Biểu đồ Bot</label>
+                            <select id="ext-chart" class="form-control">
+                                <option value="0">Mặc định</option>
+                                <!-- <option value="1" data-url="">SmartTrading</option> -->
+                                <option value="3" data-url="">Fansi AutoBot 1M++</option>
+                                <option value="2">Link chỉ định</option>
+                            </select>
+                        </div>
+                        <div class="d-none row my-2 form-group w-100">
+                            <input type="text" class="form-control w-100" id="ext-chart-link"
+                                placeholder="Nhập đường link đến biểu đồ">
+                        </div>
+
+                        <div class="row my-2 form-group w-100">
+                            <div class="form-group">
+                                <input type="checkbox" id="ext-json-debug" class="form-checkbox">
+                                <label for="ext-json-debug">Log dữ liệu nâng cao</label>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer d-flex flex-nowrap">
+                    <button type="button" class="btn btn-dark btnCloseModal" data-dismiss="modal">Bỏ qua</button>
+                    <button type="button" class="btn btn-success satbot-settings-save">Cập nhật</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- select bot version 3.0 -->
 
     <div class="modal fade" id="bot-select" tabindex="-1" role="dialog" data-backdrop="static" data-backdrop="false">
         <div class="modal-dialog modal-lg">
@@ -825,988 +526,33 @@ const modelBot = `
                     <div class="tab-content">
                         <div class="tab-pane active show" id="tabChobot" role="tabpanel" aria-labelledby="chobot-tab">
                             <div class="table-responsive">
-                                <div class="bootstrap-table bootstrap4">
-                                    <div class="fixed-table-toolbar">
-                                        <div class="float-left search btn-group">
-                                            <input class="form-control search-input" type="search" placeholder="Tìm kiếm" autocomplete="off">
-                                        </div>
-                                    </div>
-
-                                    <div class="fixed-table-container fixed-height"
-                                        style="height: 440px; padding-bottom: 0px;">
-                                        <div class="fixed-table-header" style="display: none;">
-                                            <table></table>
-                                        </div>
-                                        <div class="fixed-table-body">
-                                            <div class="fixed-table-loading table table-hover" style="top: 0px;">
-                                                <span class="loading-wrap">
-                                                    <span class="loading-text" style="font-size: 12px;">Đang tải</span>
-                                                    <span class="animation-wrap"><span
-                                                            class="animation-dot"></span></span>
-                                                </span>
-
-                                            </div>
-                                            <table id="table-bots" data-classes="table table-hover" data-toggle="table"
-                                                data-locale="vi-VN" data-search="true" data-search-align="left"
-                                                data-height="550" data-smartdisplay="true" data-pagination="true"
-                                                data-page-size="4" data-side-pagination="server"
-                                                data-show-header="false" data-filter-control="false"
-                                                data-single-select="true" data-click-to-select="true"
-                                                data-query-params="botListQueryParam"
-                                                data-repsonse-handler="responseHandler"
-                                                data-url="https://chobot.vn/satbot/3.0/common/bot"
-                                                class="table table-hover">
-                                                <thead style="display: none;">
-                                                    <tr>
-                                                        <th class="bs-checkbox " style="width: 36px; "
-                                                            data-field="state">
-                                                            <div class="th-inner "></div>
-                                                            <div class="fht-cell"></div>
-                                                        </th>
-                                                        <th class="bot-item" style="" data-field="id">
-                                                            <div class="th-inner "></div>
-                                                            <div class="fht-cell"></div>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr data-index="0">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="0" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=6fad660a-9ba7-4ca2-bbf5-931148003e48"
-                                                                        target="_blank">
-                                                                        <img src="https://www.shutterstock.com/image-illustration/shining-dove-rays-on-dark-600w-2169730247.jpg"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=6fad660a-9ba7-4ca2-bbf5-931148003e48"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">Antam bot
-                                                                                    3M V3.2</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>Đỗ Quốc Toản</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>3 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">482</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">1215.6</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">53.5%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=6fad660a-9ba7-4ca2-bbf5-931148003e48"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=6fad660a-9ba7-4ca2-bbf5-931148003e48"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="1">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="1" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=442a0053-ace1-481f-846f-66d0cc7189c9"
-                                                                        target="_blank">
-                                                                        <img src="https://www.shutterstock.com/image-illustration/shining-dove-rays-on-dark-600w-2169730247.jpg"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=442a0053-ace1-481f-846f-66d0cc7189c9"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">AnTam
-                                                                                    Robot 3M V3.1</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>Đỗ Quốc Toản</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>3 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">418</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">1056.2</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">50.5%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=442a0053-ace1-481f-846f-66d0cc7189c9"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=442a0053-ace1-481f-846f-66d0cc7189c9"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="2">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="2" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=55936971-2e70-43cd-9500-ed865f7efcf1"
-                                                                        target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1065.png"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=55936971-2e70-43cd-9500-ed865f7efcf1"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">Chicken
-                                                                                    Rock V3.3</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>ai dinh</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>15 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">336</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">927.3</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">50.3%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=55936971-2e70-43cd-9500-ed865f7efcf1"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=55936971-2e70-43cd-9500-ed865f7efcf1"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="3">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="3" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=f5001f79-d9ef-440a-87de-ec1e6440a0c8"
-                                                                        target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1065.png"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=f5001f79-d9ef-440a-87de-ec1e6440a0c8"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">Chicken
-                                                                                    Rock2 V2.7(Close ATC)</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>ai dinh</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>15 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">397</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">801.5</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">46.6%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=f5001f79-d9ef-440a-87de-ec1e6440a0c8"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=f5001f79-d9ef-440a-87de-ec1e6440a0c8"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="4">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="4" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=281f9ca5-c2c7-4311-aa9c-1386394ba17a"
-                                                                        target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1065.png"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=281f9ca5-c2c7-4311-aa9c-1386394ba17a"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">Chicken
-                                                                                    Rock 2 V2.5</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>ai dinh</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>15 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">332</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">751.4</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">46.7%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=281f9ca5-c2c7-4311-aa9c-1386394ba17a"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=281f9ca5-c2c7-4311-aa9c-1386394ba17a"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="5">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="5" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=2a9e8d54-730e-45fe-95b7-77bec09f59df"
-                                                                        target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1065.png"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=2a9e8d54-730e-45fe-95b7-77bec09f59df"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">Chicken
-                                                                                    Rock 2 V2.2</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>ai dinh</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>15 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">217</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">747.4</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">46.1%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=2a9e8d54-730e-45fe-95b7-77bec09f59df"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=2a9e8d54-730e-45fe-95b7-77bec09f59df"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="6">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="6" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=bc5e3181-4436-477d-9a98-418c805d655c"
-                                                                        target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1484.png"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=bc5e3181-4436-477d-9a98-418c805d655c"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">Bình An
-                                                                                    1.3</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>Như Phúc</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>3 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">653</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">743.6</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">44.1%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-                                                                Chỉ báo tin cậy, an tâm trợ giúp nhà đầu tư khi giao
-                                                                dịch phái sinh
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=bc5e3181-4436-477d-9a98-418c805d655c"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=bc5e3181-4436-477d-9a98-418c805d655c"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="7">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="7" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=f95f23e1-a193-4cd4-bc83-0dca36205603"
-                                                                        target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1195.png"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=f95f23e1-a193-4cd4-bc83-0dca36205603"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">Đỉnh Cao
-                                                                                    Phái Sinh</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>Việt Hồng</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>1 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">946</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">743.4</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">37.5%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=f95f23e1-a193-4cd4-bc83-0dca36205603"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=f95f23e1-a193-4cd4-bc83-0dca36205603"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="8">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="8" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=90a3844e-2dfe-45a0-9031-6d26465da640"
-                                                                        target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1259.png"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=90a3844e-2dfe-45a0-9031-6d26465da640"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">QTPpro</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>Quách Xuân Thắng</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>15 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">335</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">734.3</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">46.6%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=90a3844e-2dfe-45a0-9031-6d26465da640"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=90a3844e-2dfe-45a0-9031-6d26465da640"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="9">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="9" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row m-0 p-0">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=74b56d6b-dfc3-4e3b-bb26-e500100771a2"
-                                                                        target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/989.png"
-                                                                            alt="" class="thumb">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mx-2">
-                                                                    <div class="row">
-                                                                        <div class="col title mt-2">
-                                                                            <a class="title"
-                                                                                href="https:///chobot.vn/bot/detail?guid=74b56d6b-dfc3-4e3b-bb26-e500100771a2"
-                                                                                target="_blank">
-                                                                                <span class=""
-                                                                                    style="line-height:1.5rem">Ngọa
-                                                                                    Long</span>
-                                                                            </a>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="row">
-                                                                        <div class="col subtitle">
-                                                                            <div class="rate" title="Đánh giá 0/5"><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i><i
-                                                                                    class="fa fa-star text-muted"></i>
-                                                                            </div>
-                                                                            <div class="owner small mx-1 ml-2">
-                                                                                <span>ZenoS</span>
-                                                                            </div>
-                                                                            <div class="interval small mx-1">
-                                                                                <span>15 phút</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="col">
-                                                                    <div class="result">
-                                                                        <div class="mx-1 text-center">
-                                                                            Số lệnh:
-                                                                            <span class="text-info">341</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tổng lãi/lỗ:
-                                                                            <span class="text-success">729.0</span>
-                                                                        </div>
-                                                                        <div class="mx-1 text-center">
-                                                                            Tỷ lệ thắng:
-                                                                            <span class="text-success">46.3%</span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="my-2 description">
-                                                                Năm Giáp Thìn thì dùng bot Rồng :)
-                                                            </div>
-                                                            <div class="row m-0 p-0 py-1 pt-2">
-                                                                <div
-                                                                    class="col-6 m-0 p-0 text-left price text-truncate">
-                                                                    Giá: <span class="text-danger font-weight-bold">Liên
-                                                                        hệ</span>
-                                                                </div>
-                                                                <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                                                    <a href="https:///chobot.vn/bot/detail?guid=74b56d6b-dfc3-4e3b-bb26-e500100771a2"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Chi tiết
-                                                                    </a>
-                                                                    <a href="https:///chobot.vn/bot/backtest?guid=74b56d6b-dfc3-4e3b-bb26-e500100771a2"
-                                                                        class="d-inline text-info mx-2 link"
-                                                                        target="_blank">
-                                                                        Backtest
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="fixed-table-footer" style="display: none;"></div>
-                                    </div>
-                                    <div class="fixed-table-pagination" style="display: block;">
-                                        <div class="float-left pagination-detail"><span class="pagination-info">
-                                                Trang 1 đến 10 / 99
-                                            </span>
-                                            <div class="page-list">
-                                                <div class="btn-group dropdown dropup">
-                                                    <button class="btn btn-secondary dropdown-toggle" type="button"
-                                                        data-toggle="dropdown">
-                                                        <span class="page-size">
-                                                            10
-                                                        </span>
-                                                        <span class="caret"></span>
-                                                    </button>
-                                                    <div class="dropdown-menu"><a class="dropdown-item active"
-                                                            href="#">10</a><a class="dropdown-item " href="#">25</a><a
-                                                            class="dropdown-item " href="#">50</a><a
-                                                            class="dropdown-item " href="#">100</a></div>
-                                                </div> / trang
-                                            </div>
-                                        </div>
-                                        <div class="float-right pagination">
-                                            <ul class="pagination">
-                                                <li class="page-item page-pre"><a class="page-link"
-                                                        aria-label="trang trước" href="javascript:void(0)">‹</a></li>
-                                                <li class="page-item active"><a class="page-link"
-                                                        aria-label="đến trang 1" href="javascript:void(0)">1</a></li>
-                                                <li class="page-item"><a class="page-link" aria-label="đến trang 2"
-                                                        href="javascript:void(0)">2</a></li>
-                                                <li class="page-item"><a class="page-link" aria-label="đến trang 3"
-                                                        href="javascript:void(0)">3</a></li>
-                                                <li class="page-item"><a class="page-link" aria-label="đến trang 4"
-                                                        href="javascript:void(0)">4</a></li>
-                                                <li class="page-item"><a class="page-link" aria-label="đến trang 5"
-                                                        href="javascript:void(0)">5</a></li>
-                                                <li class="page-item page-last-separator disabled"><a class="page-link"
-                                                        aria-label="" href="javascript:void(0)">...</a></li>
-                                                <li class="page-item"><a class="page-link" aria-label="đến trang 10"
-                                                        href="javascript:void(0)">10</a></li>
-                                                <li class="page-item page-next"><a class="page-link"
-                                                        aria-label="trang kế" href="javascript:void(0)">›</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
+                                <table id="table-bots" data-classes="table table-hover" data-toggle="table"
+                                    data-locale="vi-VN" data-search="true" data-search-align="left" data-height="550"
+                                    data-smartdisplay="true" data-pagination="true" data-page-size="4"
+                                    data-side-pagination="server" data-show-header="false" data-filter-control="false"
+                                    data-single-select="true" data-click-to-select="true"
+                                    data-query-params="botListQueryParam" data-repsonse-handler="responseHandler"
+                                    data-url="https://chobot.vn/satbot/3.0/common/bot" class="table table-hover">
+                                        <thead style="display: none;">
+                                            <tr>
+                                                <th class="bs-checkbox " style="width: 36px; "
+                                                    data-field="state">
+                                                    <div class="th-inner "></div>
+                                                    <div class="fht-cell"></div>
+                                                </th>
+                                                <th class="bot-item" style="" data-field="id">
+                                                    <div class="th-inner "></div>
+                                                    <div class="fht-cell"></div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                    </table>
                             </div>
                         </div>
                         <div class="tab-pane" id="tabRentBots" role="tabpanel" aria-labelledby="myBots-tab">
                             <div class="table-responsive pt-4">
                                 <div class="bootstrap-table bootstrap4">
                                     <div class="fixed-table-toolbar"></div>
-
                                     <div class="fixed-table-container fixed-height"
                                         style="height: 500px; padding-bottom: 0px;">
                                         <div class="fixed-table-header" style="display: none;">
@@ -2372,7 +1118,6 @@ const modelBot = `
             </div>
         </div>
     </div>
-
     <script type="text/javascript">
         $(document).ready(() => {
             $("#lnk-bots").on("click", (e) => {
@@ -2502,121 +1247,466 @@ const modelBot = `
             });
         });
     </script>
+    <script src="https://180638be7100f9.lhr.life/assets/js/plugins/bootstrap-table.min.js"></script>
  </div>`
 
-window.addEventListener('load', () => {
-    const api_url = "https://localhost:7043/api/auth"
+$(document).ready(() => {
+    $(".app").eq(0).append(scriptSignalR)
+})
 
+$(window).on('load', () => {
+    const api_url = "https://180638be7100f9.lhr.life/api/auth"
+    var isDemo = window.location.href.includes("smarteasy.vps.com.vn");
+
+    isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
+        : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
+
+    
+    $(".app").eq(0).append(scriptRunSignalR)
+        
     const web = $("div#orderPS.tab-pane.active")
     const root = $(packageHtml)
     web.append(root)
-
     root.append(loginFormHtml)
 
     const satContent = $("#sat-content")
+    satContent.append(modelBot)
+    satContent.append(scripts)
 
     const add_logs = (text) => {
+        var now = new Date()
+        text = now.toLocaleTimeString('en-GB') + ": " + text
         const bot_logs = $("#bot-logs");
-        !bot_logs.val() ? bot_logs.val(text) : bot_logs.val(bot_logs.val() + '\n' + text);
+        !bot_logs.text() ? bot_logs.text(text) : bot_logs.text(bot_logs.text() + '\n' + text);
     }
 
-    function logging() {
+    function loggingAndBot(name = '') {
         const extContent = $("#ext-content")
         extContent.children().replaceWith(loggingHtml)
 
-        const ulPanel = $("#ulPanel");
+        const ulPanel = $("#ulPanel")
         ulPanel.addClass("flex-nowrap")
         const liPanel = `<li class="nav-item text-center">
-                        <a class="nav-link tab-copytrade flex-nowrap" data-toggle="tab" href="#tab-ext" role="tab" aria-controls="tab-copytrade" aria-selected="false">
+                        <a class="nav-link tab-copytrade" data-toggle="tab" href="#tab-ext" role="tab" aria-controls="tab-copytrade" aria-selected="false">
                                 AUTO BOT
                         </a>
                     </li>`
         ulPanel.append(liPanel)
-        ulPanel.find('li').css('white-space', 'nowrap');
 
-        $(".tab-content").eq(1).append(tabExtContent)
-        satContent.append(modelBot)
-        satContent.append(scripts)
-        $("#test").empty()
+        $("#ngiaIndex").after(tabExtContent)
 
-        var now = new Date()
-        add_logs(now.toLocaleTimeString('en-GB') + ": Khởi động hệ thống")
-        add_logs(now.toLocaleTimeString('en-GB') + ": Hệ thống sẳn sàng")
+        add_logs("Khởi động hệ thống")
+        add_logs("Hệ thống sẳn sàng")
 
-        //function fetchUpdates(offset) {
+        name && add_logs("Xin chào: " + name)
 
-        //    fetch(`https://api.telegram.org/bot6790958982:AAFUJrjxhbLRyX7CDpypvbEM1XQT2_INAfc/getUpdates?offset=${offset}`)
-        //        .then((response) => {
-        //            return response.json();
-        //        })
-        //        .then((data) => {
-        //            if (data.result && data.result.length > 0) {
-        //                // Xử lý các cập nhật ở đây
-        //                console.log(data);
+        $(".bot-history-clear").on("click", function () {
+            $("#bot-logs").text('')
+        })
+        
+        const botVolume = $("#bot-volume")
+        const botVolumeValue = $("#bot-volume-value")
+        const botAutoOrder = $("#bot-auto-order")
+        const sucMua = $("#sucmua-int")
+        var sohodong = $("#sohopdong")
 
-        //                // Ví dụ: Hiển thị nội dung tin nhắn mới nhất từ channel
-        //                data.result.forEach(update => {
-        //                    if (update.channel_post) {
-        //                        console.log('-------------------------------------------------------Tin hieu moi nhat-------------------------------------------------------');
-        //                        console.log(update.channel_post.text.split("\\n"));
+        var botSettings = {
+            enable: false,
+            trendType: "0",
+            volume: {
+                type: "0",
+                value: 0
+            }
+        }
+        var settings = () => localStorage.getItem("autoBotSettings") && JSON.parse(localStorage.getItem("autoBotSettings"))
 
-        //                        //lấy sức mua
-        //                        const sucMua = document.getElementById("sucmua-int");
-        //                        console.log('Suc mua: ' + sucMua.innerText)
-        //                    }
-        //                });
+        const st = settings()
+        if (st) {
+            botAutoOrder.attr("checked", st.enable)
+            $("#bot-trendTypes").val(st.trendType)
+            botVolume.val(st.volume.type)
+            botVolumeValue.val(st.volume.value)
+        } else {
+            botVolumeValue.val(parseInt(sucMua.text()))
+            botAutoOrder.attr("checked", false)
+        }
+        botVolumeValue.attr("max", sucMua.text())
 
-        //                // Cập nhật offset đến update_id mới nhất + 1
-        //                const latestUpdateId = data.result[data.result.length - 1].update_id;
-        //                fetchUpdates(latestUpdateId + 1);
-        //            } else {
-        //                // Không có cập nhật mới, gọi lại với cùng offset
-        //                fetchUpdates(offset);
-        //            }
-        //        })
-        //        .catch((error) => {
-        //            console.error("Có lỗi xảy ra trong quá trình fetch:", error);
-        //            // Thử lại sau một khoảng thời gian ngắn nếu có lỗi
-        //            setTimeout(() => fetchUpdates(offset), 5000);
-        //        });
-        //}
+        botVolume.on("change", function () {
+            if ($(this).val() === "0") {
+                botVolumeValue.val(parseInt(sucMua.text()))
+                if (botAutoOrder.is(":checked")) {
+                    sohodong.val(botVolumeValue.val())
+                }
+            }
+        })
 
-        //// Bắt đầu gọi cập nhật với offset ban đầu là 0
-        //fetchUpdates(0);
+        botVolumeValue.on("input", function () {
+            let value = $(this).val()
+            var max = parseInt($(this).attr('max'))
+            if (value > max) {
+                $(this).val(max)
+            }
+            botVolume.val("1")
+            if (botAutoOrder.is(":checked")) {
+                sohodong.val($(this).val())
+            }
+
+            localStorage.setItem("autoBotSettings", JSON.stringify({
+                ...settings() ?? botSettings,
+                volume: {
+                    type: botVolume.val(),
+                    value: $(this).val()
+                }
+            }))
+        })
+
+        setTimeout(() => {
+            const observer = new MutationObserver(function (mutationsList) {
+                for (let mutation of mutationsList) {
+                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                        var newValue = parseInt(sucMua.text()) //mutation.target.textContent
+
+                        botVolumeValue.attr("max", newValue)
+                        if (newValue < botVolumeValue.val()) {
+                            botVolumeValue.val(newValue)
+                        }
+                        else if (botVolume.val() === "0") {
+                            botVolumeValue.val(newValue)
+                        }
+
+                        const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
+                        if (vithe === "-" && botAutoOrder.is(":checked") && botVolume.val() === "0") {
+                            sohodong.val(botVolumeValue.val())
+                        }
+                        
+                        localStorage.setItem("autoBotSettings", JSON.stringify({
+                            ...settings() ?? botSettings,
+                            volume: {
+                                type: botVolume.val(),
+                                value: botVolumeValue.val()
+                            }
+                        }))
+
+                    }
+                }
+            });
+            observer.observe(document.getElementById("sucmua-int"), { characterData: true, childList: true, subtree: true });
+        }, 500)
+        
+        const stopOrder = (tinhieu, stopOrderValue) => {
+            if (!$("div.mySlides").eq(0).hasClass("hidden")) {
+                $(".list-group-item.list-group-item-accent-warning.ck-ps").eq(0).children().eq(1).click()
+            }
+            setTimeout(() => {
+                if (!$("#use_stopOrder").is(":checked")) {
+                    $("#use_stopOrder").next().click()
+                }
+
+                tinhieu === "LONG" ? $("#selStopOrderType").val("SOL") : $("#selStopOrderType").val("SOU")
+                $("#soIndex").val(stopOrderValue)
+            }, 200)
+        }
+
+        const stopOrder_PRO = (tinhieu, stopOrderValue) => {
+            $("#select_condition_order_wrapper").click()
+            setTimeout(() => {
+                $("#select_order_type").children().eq(1).click()
+
+                tinhieu === "LONG" ? $("#right_selStopOrderType").val("SOL") : $("#right_selStopOrderType").val("SOU")
+                $("#right_stopOrderIndex").val(stopOrderValue)
+            }, 200)
+        }
+
+        const convertFloat = (value) => parseFloat(value.split(':').pop().trim())
+        const convertFloatToFixed = (value, fix = 1) => parseFloat(parseFloat(value.split(':').pop().trim()).toFixed(fix));
+
+        const divideNumberBy2FloorToArray = (value) => {
+            var a = Math.floor(parseInt(value) / 2)
+            var b = value - a
+            return [a, b]
+        }
+        const divideNumberBy2CeilToArray = (value) => {
+            var a = Math.ceil(parseInt(value) / 2)
+            var b = value - a
+            return [a, b]
+        }
+        
+        const chuyenLenhThuong_PRO = (timer = 0) => {
+            timer
+                ? setTimeout(() => $("#select_normal_order").click(), timer)
+                : $("#select_normal_order").click()
+        }
+
+        const chuyenLenhThuong = (timer = 0) => {
+            if (timer) {
+                setTimeout(() => {
+                    if ($("#use_stopOrder").is(":checked")) {
+                        $("#use_stopOrder").next().click()
+                    }
+                    if ($("#use_sltp").is(":checked")) {
+                        $("#use_sltp").next().click()
+                    }
+                }, timer)
+            }
+            else {
+                if ($("#use_stopOrder").is(":checked")) {
+                    $("#use_stopOrder").next().click()
+                }
+                if ($("#use_sltp").is(":checked")) {
+                    $("#use_sltp").next().click()
+                }
+            }
+        }
+
+        //1100ms
+        const runBotNormal = (tinhieu, giadat, hopdong) => {
+            $("#right_price").val(giadat)
+            $("#sohopdong").val(hopdong)
+
+            var timer = 100
+            if (isDemo) {
+                chuyenLenhThuong()
+
+                tinhieu === "SHORT"
+                    ? setTimeout(() => $(".btn-update").eq(0).click(), timer)
+                    : setTimeout(() => $(".btn-update").eq(1).click(), timer)
+
+                timer += 400
+                setTimeout(() => $("#acceptCreateOrder").click(), timer)
+                //setTimeout(() => $("#close_modal").click(), timer)
+
+                timer += 100
+                chuyenLenhThuong(timer)
+            }
+            else {
+                chuyenLenhThuong_PRO()
+
+                tinhieu === "SHORT"
+                    ? setTimeout(() => $("#btn_short").click(), timer)
+                    : setTimeout(() => $("#btn_long").click(), timer)
+
+                timer += 400
+                //setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
+                setTimeout(() => $("#close_modal").click(), timer)
+
+                timer += 100
+                chuyenLenhThuong_PRO(timer)
+            }
+            add_logs(`Đã đặt lệnh ${tinhieu} giá ${giadat} với ${hopdong} hợp đồng`)
+        }
+        
+        //1200mss
+        const runBotStopOrder = (tinhieu, giadat, hopdong, stopOrderValue) => {
+            $("#right_price").val(giadat)
+            $("#sohopdong").val(hopdong)
+
+            var timer = 0
+            if (isDemo) {
+                stopOrder(tinhieu, stopOrderValue)
+
+                timer += 300
+                tinhieu === "SHORT"
+                    ? setTimeout(() => $(".btn-update").eq(0).click(), timer)
+                    : setTimeout(() => $(".btn-update").eq(1).click(), timer)
+
+                timer += 400
+                setTimeout(() => $("#acceptCreateOrder").click(), timer)
+                //setTimeout(() => $("#close_modal").click(), timer)
+            }
+            else {
+                stopOrder_PRO(tinhieu, stopOrderValue)
+
+                timer += 300
+                tinhieu === "SHORT"
+                    ? setTimeout(() => $("#btn_short").click(), timer)
+                    : setTimeout(() => $("#btn_long").click(), timer)
+
+                timer += 400
+                //setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
+                setTimeout(() => $("#close_modal").click(), timer)
+            }
+            add_logs(`Đã đặt lệnh ${tinhieu} Stop Order: ${stopOrderValue}, giá đặt ${giadat} với ${hopdong} hợp đồng`)
+        }
+
+        const cancelAllOrder = (timer) => {
+            if (isDemo) {
+                setTimeout(() => $(".btn-cancel-all").eq(0).click(), timer)
+                setTimeout(() => $("#acceptCreateOrder").click(), timer + 200)
+                //setTimeout(() => $("#close_modal").click(), 1400)
+            }
+            else {
+                setTimeout(() => $("#button_cancel_all_order_normal").click(), timer)
+                setTimeout(() => $("#acceptCreateOrderNew").click(), timer + 200)
+            }
+        }
+
+        const getPreviousSignal = () => localStorage.getItem("previousSignal") ?? ""
+        const setPreviousSignal = (signal) => localStorage.setItem("previousSignal", signal)
+
+        const botAutoClick = (arr) => {
+            let tinhieu
+            var dadatTp1 = false
+            var dadatTp2 = false
+
+            if (arr[1] === "Tin hieu long: Manh") {
+                tinhieu = "LONG"
+            }
+            else if (arr[1] === "Tin hieu short: Manh") {
+                tinhieu = "SHORT"
+            }
+
+            if (getPreviousSignal() !== "" && getPreviousSignal() !== tinhieu) {
+                const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
+                add_logs("Đảo chiều chốt hết lệnh!!!")
+
+                runBotNormal(tinhieu, "MTL", Math.abs(parseInt(vithe)))
+                cancelAllOrder(1200)
+
+                dadatTp1 = false
+                dadatTp2 = false
+
+                setPreviousSignal("")
+            }
+            else {
+                setPreviousSignal(tinhieu)
+
+                const giamua = convertFloatToFixed(arr[2])
+                const fullHopdong = sohodong.val()
+                let catLo = convertFloatToFixed(arr[7])
+
+                tinhieu === "LONG"
+                    ? catLo -= 0.3
+                    : catLo += 0.3
+                catLo = catLo.toFixed(1)
+
+                const trendType = $("#bot-trendTypes").val()
+                if (((trendType == "1" && tinhieu == "LONG") || (trendType == "2" && tinhieu == "SHORT") || trendType == "0")
+                    && botVolumeValue.val() > 0) {
+                    const tp1 = convertFloatToFixed(arr[3])
+                    const tp2 = convertFloatToFixed(arr[4])
+
+                    const order50 = divideNumberBy2CeilToArray(fullHopdong)
+                    const order25 = divideNumberBy2CeilToArray(order50[1])
+                    
+                    //50%
+                    runBotNormal(tinhieu, giamua, fullHopdong)
+
+                    tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
+
+                    let timer = 1200
+                    setTimeout(() => runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo), timer)
+
+                    //25%
+                    if (order50[0] > 0) {
+                        timer += 1400
+                        setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
+                    }
+
+                    if (order25[0] > 0){
+                        timer += 1200
+                        setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
+                    }
+                    
+                    timer += 1200
+                    setTimeout(() => {
+                        const ob = new MutationObserver(function (mutationsList) {
+                            for (let mutation of mutationsList) {
+                                if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                    const giaKhopLenh = parseFloat(mutation.target.textContent)
+                                    if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1 && order25[0] > 0) {
+                                        runBotStopOrder(tinhieu, "MTL", order25[0], giamua)
+                                        dadatTp1 = true
+                                    }
+                                    if (giaKhopLenh >= tp2 && !dadatTp2 && order25[0] > 0) {
+                                        runBotStopOrder(tinhieu, "MTL", order25[0], tp1)
+                                        dadatTp1 = true
+                                        dadatTp2 = true
+                                    }
+                                }
+                            }
+                        });
+                        ob.observe(document.getElementById("tbodyPhaisinhContent").childNodes[0].childNodes[10], { characterData: true, childList: true, subtree: true })
+                    }, timer)
+                }
+            }
+        }
+
+        //const test = `#VN30F1M Ngay 30/05/2024 2:13:48 CH bot web\nTin hieu long: Manh\nGia mua: 1311.4\nTarget 1: 1314.1\nTarget 2: 1317.0\nTarget 3: 1320.4\nTarget 4: 1323.1\nCat lo : 1308.3`.split("\n").map(line => line.trim())
+        //showTinHieu(test)
+        //botVolumeValue.attr("max", 30)
+        //botVolumeValue.val(6)
+        //setTimeout(() => botAutoClick(test), 3000)
+
+        if (botAutoOrder.is(":checked")) {
+            sohodong.val(botVolumeValue.val())
+        }
+        botAutoOrder.on("change", function () {
+            if ($(this).is(":checked")) {
+                sohodong.val(botVolumeValue.val())
+                add_logs("Đã bật bot hỗ trợ đặt lệnh")
+                console.log("Đã bật bot hỗ trợ đặt lệnh");
+            }
+            else {
+                sohodong.val(1)
+                add_logs("Đã tắt bot hỗ trợ đặt lệnh")
+                console.log("Đã tắt bot hỗ trợ đặt lệnh");
+            }
+            localStorage.setItem("autoBotSettings", JSON.stringify({
+                ...settings() ?? botSettings,
+                enable: $(this).is(":checked")
+            }))
+        })
+
+        $("#bot-trendTypes").on("change", function () {
+            add_logs("Khi có trend " + $(this).find(":selected").text())
+            localStorage.setItem("autoBotSettings", JSON.stringify({
+                ...settings() ?? botSettings,
+                trendType: $(this).val()
+            }))
+        })
+
+        botVolume.on("change", function () {
+            add_logs($(this).find(":selected").text() + " " + botVolumeValue.val())
+            localStorage.setItem("autoBotSettings", JSON.stringify({
+                ...settings() ?? botSettings,
+                volume: {
+                    type: $(this).val(),
+                    value: botVolumeValue.val()
+                }
+            }))
+        })
 
         $(".satbot-logout").on("click", () => {
             if (confirm("Nhấn Ok để xác nhận Hủy liên kết, No để trở lại")) {
                 logout()
-                setCookie("auth_token", "", -1)
-                setCookie("auth_refresh_token", "", -1)
-                window.location.reload();
             }
         })
     }
 
     const logout = () => {
-        const acccess_token = "Bearer " + getCookie("auth_token");
+        const refresh_token = getCookie("auth_refresh_token");
+        const json = JSON.stringify({ refresh_token })
         $.ajax({
             url: api_url + "/logout",
             method: "POST",
-            headers: {
-                "Authorization": acccess_token
-            },
+            data: json,
             contentType: 'application/json',
             success: () => {
-                console.log("Logout success")
+                setCookie("auth_token", "", -1)
+                setCookie("auth_refresh_token", "", -1)
+                add_logs("Đã đăng xuất, trang sẽ được tải lại")
+                window.location.reload();
             },
-            error: (e) => {
-                console.log(e);
-            }
+            error: (e) => console.log(e),
+            timeout: 10000            
         });
     }
 
 
     const refreshToken = () => {
-        var access_token = getCookie("auth_token");
         var refresh_token = getCookie("auth_refresh_token");
-        const json = JSON.stringify({ access_token, refresh_token })
+        const json = JSON.stringify({ refresh_token })
 
         $.ajax({
             url: api_url + "/refresh-token",
@@ -2625,7 +1715,7 @@ window.addEventListener('load', () => {
             contentType: 'application/json',
             success: (data) => {
                 if (data.access_token && data.refresh_token) {
-                    setCookie("auth_token", data.access_token, 4);
+                    setCookie("auth_token", data.access_token, 5);
                     updateCookieValue("auth_refresh_token", data.access_token);
                 }
             },
@@ -2635,7 +1725,7 @@ window.addEventListener('load', () => {
 
     const loggedIn = getCookie("auth_refresh_token");
     if (loggedIn) {
-        logging()
+        loggingAndBot()
     }
     else {
         $('#cb_showPassword').on('change', function () {
@@ -2665,23 +1755,22 @@ window.addEventListener('load', () => {
                     contentType: 'application/json',
                     success: (data) => {
                         if (data.access_token) {
-                            setCookie("auth_token", data.access_token, 7 * 24 * 60);
-                            setCookie("auth_refresh_token", data.refresh_token, 7 * 24 * 60);
-                            logging();
-                        } else {
-                            $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger');
-                        }
+                            setCookie("auth_token", data.access_token, 5);
+                            setCookie("auth_refresh_token", data.refresh_token, 30 * 24 * 60);
+                            loggingAndBot(data.name);
+                        } else $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger')
                     },
                     error: (e) => {
-                        $statusElement.text(e.responseText).removeClass('alert-info').addClass('alert-danger');
-                    }
+                        $statusElement.text(e.responseText ?? "Mạng chập chờn").removeClass('alert-info').addClass('alert-danger')
+                    },
+                    timeout: 10000
                 });
             } catch (error) {
                 $statusElement.text(error.message).removeClass('alert-info').addClass('alert-danger');
             }
         });
     }
-});
+})
 
 //"#VN30F1M Ng?y 24/05/2024 9:00:00 SA Tu Dstock Robotchungkhoan.nududo.com
 // Tin hieu long: Manh
@@ -2692,5 +1781,16 @@ window.addEventListener('load', () => {
 // Cat lo 3: 1188.261
 //RSI: 51.20752
 //MFI: 37.16677
-//    % Gia thay doi: -1.715388"
+//% Gia thay doi: -1.715388"
 
+
+//    "#VN30F1M Ngay 30/05/2024 2:13:48 CH bot web",
+//    "Tin hieu short: Manh",
+//    "Gia mua: 1277.5",
+//    "Target 1: 1273.7",
+//    "Target 2: 1269.8",
+//    "Target 3: 1263.4",
+//    "Target 4: 1257.1",
+//    "Cat lo : 1273.667"
+
+//ssh -R 80:localhost:5131 localhost.run
