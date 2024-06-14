@@ -1,15 +1,13 @@
 ﻿"use strict";
 
-const baseURL = "https://894f79e8e970c0.lhr.life"
+const baseURL = "http://localhost:5131"
 
 const api_auth = `${baseURL}/api/auth`
+
 const api_signal = `${baseURL}/api/signal`
 
-var isDemo = window.location.href.includes("smarteasy.vps.com.vn")
-
-const scripts = `<script src="${baseURL}/assets/js/common.js"></script>`
-
-const scriptSignalR = `<script src="${baseURL}/js/signalr/dist/browser/signalr.js"></script>`
+const scripts = `<script src="${baseURL}/assets/js/common.js"></script>
+        <script src="${baseURL}/js/signalr/dist/browser/signalr.js"></script>`
 
 const packageHtml = `
     <div id='sat-content'>
@@ -1290,32 +1288,35 @@ const showTinHieu = (tinhieu) => {
 }
 
 const getBotSignal = () => {
-    $.get(api_signal, (data) => {
-        const tbody = $("#bot-tbl-signals tbody")
-        if (data.length > 0) {
-            data.map((sig) => {
-                var dateTime = sig.dateTime.split(' ')
-                var date = dateTime[0]
-                var time = dateTime[1]
-                var signal = sig.signal;
-                var price = sig.price;
+    $.ajax({
+        url: api_signal,
+        success: (data) => {
+            const tbody = $("#bot-tbl-signals tbody")
+            if (data.length > 0) {
+                data.map((sig) => {
+                    var dateTime = sig.dateTime.split(' ')
+                    var date = dateTime[0]
+                    var time = dateTime[1]
+                    var signal = sig.signal;
+                    var price = sig.price;
 
-                var template = `<tr>
-                        <td class="text-left">
-                            <em><span class="date">${date}</span></em>
-                        </td>
-                        <td class="text-left">
-                            <b><span class="time">${time}</span></b>
-                        </td>
-                        <td class="signal text-center ${signal.toLowerCase()}">
-                            <span class="signal">${signal.toUpperCase()}</span>
-                        </td>
-                        <td class="text-right">
-                            <span class="price" text-center="">${price}</span>
-                        </td>
-                    </tr>`;
-                tbody.append(template)
-            })
+                    var template = `<tr>
+                                <td class="text-left">
+                                    <em><span class="date">${date}</span></em>
+                                </td>
+                                <td class="text-left">
+                                    <b><span class="time">${time}</span></b>
+                                </td>
+                                <td class="signal text-center ${signal.toLowerCase()}">
+                                    <span class="signal">${signal.toUpperCase()}</span>
+                                </td>
+                                <td class="text-right">
+                                    <span class="price" text-center="">${price}</span>
+                                </td>
+                            </tr>`;
+                    tbody.append(template)
+                })
+            }
         }
     })
 }
@@ -1327,8 +1328,6 @@ const logout = () => {
         url: api_auth + "/logout",
         method: "POST",
         data: json,
-        contentType: 'application/json',
-        timeout: 10000
     }).done(() => {
         setCookie("auth_token", "", -1)
         setCookie("auth_refresh_token", "", -1)
@@ -1348,9 +1347,7 @@ const refreshToken = () => {
     $.ajax({
         url: api_auth + "/refresh-token",
         method: "POST",
-        data: json,
-        contentType: 'application/json',
-        timeout: 10000
+        data: json
     }).done((data) => {
         if (data.access_token && data.refresh_token) {
             setCookie("auth_token", data.access_token, 5);
@@ -1364,10 +1361,17 @@ const refreshToken = () => {
 }
 
 $(document).ready(() => {
-    $(".app").eq(0).append(scriptSignalR)
+    $(".app").eq(0).append(scripts)
 })
 
 $(window).on('load', () => {
+    $.ajaxSetup({
+        contentType: 'application/json',
+        timeout: 10000
+    });
+
+    const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
+
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
         : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
         
@@ -1378,7 +1382,6 @@ $(window).on('load', () => {
 
     const satContent = $("#sat-content")
     satContent.append(modelBot)
-    satContent.append(scripts)
 
     function loggingAndBot(name = '') {
         const extContent = $("#ext-content")
@@ -1401,6 +1404,10 @@ $(window).on('load', () => {
         name && add_logs("Xin chào: " + name)
 
         getBotSignal()
+        $(".bot-signal-refresh").click(function () {
+            $("#bot-tbl-signals tbody").empty()
+            getBotSignal()
+        })
 
         $(".bot-history-clear").on("click", function () {
             $("#bot-logs").text('')
@@ -1473,7 +1480,7 @@ $(window).on('load', () => {
                         if (newValue < botVolumeValue.val()) {
                             botVolumeValue.val(newValue)
                         }
-                        else if (botVolume.val() === "0") {
+                        else if (newValue > botVolumeValue.val() && botVolume.val() === "0") {
                             botVolumeValue.val(newValue)
                         }
 
@@ -1589,8 +1596,8 @@ $(window).on('load', () => {
                     : setTimeout(() => $("#btn_long").click(), timer)
 
                 timer += 400
-                //setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
-                setTimeout(() => $("#close_modal").click(), timer)
+                setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
+                //setTimeout(() => $("#close_modal").click(), timer)
 
                 timer += 100
                 chuyenLenhThuong_PRO(timer)
@@ -1625,8 +1632,8 @@ $(window).on('load', () => {
                     : setTimeout(() => $("#btn_long").click(), timer)
 
                 timer += 400
-                //setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
-                setTimeout(() => $("#close_modal").click(), timer)
+                setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
+                //setTimeout(() => $("#close_modal").click(), timer)
             }
             add_logs(`Đã đặt lệnh ${tinhieu} Stop Order: ${stopOrderValue}, giá đặt ${giadat} với ${hopdong} hợp đồng`)
         }
@@ -1643,94 +1650,100 @@ $(window).on('load', () => {
             }
         }
 
-        const getPreviousSignal = () => localStorage.getItem("previousSignal") ?? ""
-        const setPreviousSignal = (signal) => localStorage.setItem("previousSignal", signal)
+        const getPreviousSignal = () => sessionStorage.getItem("previousSignal") ?? ""
+        const setPreviousSignal = (signal) => sessionStorage.setItem("previousSignal", signal)
 
         const botAutoClick = (arr) => {
             let tinhieu
             var dadatTp1 = false
             var dadatTp2 = false
 
-            if (arr[1] === "Tin hieu long: Manh") {
+            if (arr[1] == "Tin hieu long: Manh") {
                 tinhieu = "LONG"
             }
-            else if (arr[1] === "Tin hieu short: Manh") {
+            else if (arr[1] == "Tin hieu short: Manh") {
                 tinhieu = "SHORT"
             }
 
+            let timer = 0
             if (getPreviousSignal() !== "" && getPreviousSignal() !== tinhieu) {
                 const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
                 add_logs("Đảo chiều chốt hết lệnh!!!")
 
                 runBotNormal(tinhieu, "MTL", Math.abs(parseInt(vithe)))
-                cancelAllOrder(1200)
-
-                dadatTp1 = false
-                dadatTp2 = false
+                timer += 1200
+                cancelAllOrder(timer)
 
                 setPreviousSignal("")
             }
-            else {
-                setPreviousSignal(tinhieu)
 
-                const giamua = convertFloatToFixed(arr[2])
-                const fullHopdong = sohodong.val()
-                let catLo = convertFloatToFixed(arr[7])
+            setPreviousSignal(tinhieu)
 
-                tinhieu === "LONG"
-                    ? catLo -= 0.3
-                    : catLo += 0.3
-                catLo = catLo.toFixed(1)
+            const giamua = convertFloatToFixed(arr[2])
 
-                const trendType = $("#bot-trendTypes").val()
-                if (((trendType == "1" && tinhieu == "LONG") || (trendType == "2" && tinhieu == "SHORT") || trendType == "0")
-                    && botVolumeValue.val() > 0) {
-                    const tp1 = convertFloatToFixed(arr[3])
-                    const tp2 = convertFloatToFixed(arr[4])
+            let fullHopdong = botVolumeValue.val()
+            const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
 
-                    const order50 = divideNumberBy2CeilToArray(fullHopdong)
-                    const order25 = divideNumberBy2CeilToArray(order50[1])
-                    
-                    //50%
-                    runBotNormal(tinhieu, giamua, fullHopdong)
+            if (vithe != "-") {
+                fullHopdong += Math.abs(parseInt(vithe))
+            }
 
-                    tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
+            let catLo = convertFloatToFixed(arr[7])
 
-                    let timer = 1200
-                    setTimeout(() => runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo), timer)
+            tinhieu === "LONG"
+                ? catLo -= 0.3
+                : catLo += 0.3
+            catLo = catLo.toFixed(1)
 
-                    //25%
-                    if (order50[0] > 0) {
-                        timer += 1400
-                        setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
-                    }
+            const trendType = $("#bot-trendTypes").val()
+            if (((trendType == "1" && tinhieu == "LONG") || (trendType == "2" && tinhieu == "SHORT") || trendType == "0")
+                && botVolumeValue.val() > 0) {
+                const tp1 = convertFloatToFixed(arr[3])
+                const tp2 = convertFloatToFixed(arr[4])
 
-                    if (order25[0] > 0){
-                        timer += 1200
-                        setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
-                    }
-                    
+                const order50 = divideNumberBy2CeilToArray(fullHopdong)
+                const order25 = divideNumberBy2CeilToArray(order50[1])
+
+                //50%
+                timer += 1200
+                runBotNormal(tinhieu, giamua, fullHopdong)
+
+                tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
+
+                timer += 1200
+                setTimeout(() => runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo), timer)
+
+                //25%
+                if (order50[0] > 0) {
+                    timer += 1400
+                    setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
+                }
+
+                if (order25[0] > 0) {
                     timer += 1200
-                    setTimeout(() => {
-                        const ob = new MutationObserver(function (mutationsList) {
-                            for (let mutation of mutationsList) {
-                                if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                                    const giaKhopLenh = parseFloat(mutation.target.textContent)
-                                    if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1 && order25[0] > 0) {
-                                        runBotStopOrder(tinhieu, "MTL", order25[0], giamua)
-                                        dadatTp1 = true
-                                    }
-                                    if (giaKhopLenh >= tp2 && !dadatTp2 && order25[0] > 0) {
-                                        runBotStopOrder(tinhieu, "MTL", order25[0], tp1)
-                                        dadatTp1 = true
-                                        dadatTp2 = true
-                                    }
+                    setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
+                }
+
+                timer += 1200
+                setTimeout(() => {
+                    const ob = new MutationObserver(function (mutationsList) {
+                        for (let mutation of mutationsList) {
+                            if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                const giaKhopLenh = parseFloat(mutation.target.textContent)
+                                if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1 && order25[0] > 0) {
+                                    runBotStopOrder(tinhieu, "MTL", order25[0], giamua)
+                                    dadatTp1 = true
+                                }
+                                if (giaKhopLenh >= tp2 && !dadatTp2 && order25[0] > 0) {
+                                    runBotStopOrder(tinhieu, "MTL", order25[0], tp1)
+                                    dadatTp1 = true
+                                    dadatTp2 = true
                                 }
                             }
-                        });
-                        ob.observe(document.getElementById("tbodyPhaisinhContent").childNodes[0].childNodes[10], { characterData: true, childList: true, subtree: true })
-                    }, timer)
-                }
+                        }
+                    });
+                    ob.observe(document.getElementById("tbodyPhaisinhContent").childNodes[0].childNodes[10], { characterData: true, childList: true, subtree: true })
+                }, timer)
             }
         }
 
@@ -1779,24 +1792,36 @@ $(window).on('load', () => {
             }))
         })
 
-        $(".satbot-logout").on("click", () => {
+        $(".satbot-logout").click(() => {
             if (confirm("Nhấn Ok để xác nhận Hủy liên kết, No để trở lại")) {
                 logout()
             }
         })
 
-
         var connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseURL}/signal`)
             .withAutomaticReconnect()
             .build();
+
         connection.on("Signal", function (message) {
             const tinhieu = message.split("\n").map(line => line.trim())
             showTinHieu(tinhieu)
-            if ($("#bot-auto-order").is(":checked")) {
+            if (botAutoOrder.is(":checked")) {
                 botAutoClick(tinhieu)
             }
         });
+        connection.on("AdminSignal", function (message) {
+            if (message != "CANEL_ALL") {
+
+            }
+            add_logs(message)
+            const tinhieu = message.split("\n").map(line => line.trim())
+            //showTinHieu(tinhieu)
+            //if (botAutoOrder.is(":checked")) {
+            //    botAutoClick(tinhieu)
+            //}
+        });
+
         connection.start().catch((err) => console.error(err.toString()))
     }
 
@@ -1828,9 +1853,7 @@ $(window).on('load', () => {
                 $.ajax({
                     url: api_auth + "/login",
                     method: "POST",
-                    data: json,
-                    contentType: 'application/json',
-                    timeout: 10000
+                    data: json
                 }).done((data) => {
                     if (data.access_token) {
                         setCookie("auth_token", data.access_token, 5);
@@ -1840,28 +1863,14 @@ $(window).on('load', () => {
                 }).fail((e, error) => {
                     error === 'timeout'
                         ? $statusElement.text("Mạng yếu, vui lòng thử lại.").removeClass('alert-info').addClass('alert-danger')
-                        : $statusElement.text(e.responseText).removeClass('alert-info').addClass('alert-danger')
-
+                        : $statusElement.text(e.responseText ?? "Có lỗi xảy ra").removeClass('alert-info').addClass('alert-danger')
                 })
-
             } catch (error) {
-                $statusElement.text(error.message).removeClass('alert-info').addClass('alert-danger');
+                $statusElement.text(error.message ?? "Có lỗi xảy ra").removeClass('alert-info').addClass('alert-danger');
             }
         });
     }
 })
-
-//"#VN30F1M Ng?y 24/05/2024 9:00:00 SA Tu Dstock Robotchungkhoan.nududo.com
-// Tin hieu long: Manh
-// Gia mua: 1277.7
-// Target 1: 1367.139
-// Target 2: 1469.355
-// Target 3: 1533.24
-// Cat lo 3: 1188.261
-//RSI: 51.20752
-//MFI: 37.16677
-//% Gia thay doi: -1.715388"
-
 
 //    "#VN30F1M Ngay 30/05/2024 2:13:48 CH bot web",
 //    "Tin hieu short: Manh",

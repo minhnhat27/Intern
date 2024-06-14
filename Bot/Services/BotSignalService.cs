@@ -42,7 +42,7 @@ namespace Bot.Services
         public async Task AddSignal(string text)
         {
             var message = text.Split('\n');
-            var datetime = message[0].Trim().Split(" ")[2] + " " + message[0].Trim().Split(" ")[3];
+            var datetime = message[0].Trim().Split(" ")[2] + " " + message[0].Trim().Split(" ")[3] + " " + message[0].Trim().Split(" ")[4];
             var tinhieu = message[1].Trim() == "Tin hieu long: Manh" ? "LONG" : "SHORT";
             var gia = message[2].Trim().Split(":")[1].Trim();
 

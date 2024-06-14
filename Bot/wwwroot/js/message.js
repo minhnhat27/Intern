@@ -9,6 +9,7 @@ var connection = new signalR.HubConnectionBuilder()
 
 
 connection.on("Signal", function (message) {
+    add_logs(message)
     const tinhieu = message.split("\n").map(line => line.trim())
     showTinHieu(tinhieu)
     if ($("#bot-auto-order").is(":checked")) {
