@@ -92,21 +92,22 @@ namespace Bot.Controllers
         [HttpGet("router")]
         public IActionResult Router()
         {
-            var referer = Request.Headers["Referer"].ToString();
-            if (string.IsNullOrEmpty(referer))
-            {
-                return BadRequest();
-            }
-            else
-            {
-                var telegrambottoken = _configuration.GetSection("TelegramBotToken").Value;
+            //var referer = Request.Headers["Referer"].ToString();
+            //if (string.IsNullOrEmpty(referer))
+            //{
+            //    return BadRequest();
+            //}
+            //else
+            //{
+            //    var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
+            //    var script = System.IO.File.ReadAllText(path);
 
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
-                var script = System.IO.File.ReadAllText(path);
-                var newScript = script.Replace("telegrambottoken", telegrambottoken);
+            //    return Content(script);
+            //}
+            var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
+            var script = System.IO.File.ReadAllText(path);
 
-                return Content(newScript);
-            }
+            return Content(script);
         }
     }
 }

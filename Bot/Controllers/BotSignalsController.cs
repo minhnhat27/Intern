@@ -28,6 +28,7 @@ namespace Bot.Controllers
         {
             return Ok(await _botSignalService.GetSignals());
         }
+
         [HttpPost("addSignal")]
         public async Task<IActionResult> AddSignal(AddSignalRequest request)
         {
@@ -38,6 +39,7 @@ namespace Bot.Controllers
             }
             return BadRequest(result);
         }
+
         [HttpPost("addSignals")]
         public async Task<IActionResult> AddSignals(List<AddSignalRequest> requests)
         {
@@ -54,7 +56,7 @@ namespace Bot.Controllers
         {
             Console.WriteLine(text);
             await _hubContext.Clients.All.SendAsync("Signal", text);
-            await _botSignalService.AddSignal(text);
+            //await _botSignalService.AddSignal(text);
 
             return Ok();
         }
