@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <Content Remove="wwwroot\backup.js" />
+    <Content Remove="wwwroot\script.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -27,10 +28,7 @@
 
   <ItemGroup>
     <None Include="wwwroot\backup.js" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Repository\" />
+    <None Include="wwwroot\script.js" />
   </ItemGroup>
 
 </Project>

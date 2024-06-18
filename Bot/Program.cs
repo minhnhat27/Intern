@@ -1,7 +1,9 @@
 ﻿using Bot.Data;
+using Bot.Middleware;
 using Bot.Models;
 using Bot.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -19,8 +21,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
-    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
+    //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
 });
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<MyDbContext>()
@@ -72,12 +74,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
 app.UseCors("MyCors");
+
+app.UseMiddleware<AuthJwt>();
+
 app.UseAuthentication();
 app.UseAuthorization();
 

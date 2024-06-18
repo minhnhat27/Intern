@@ -1,6 +1,6 @@
-﻿"use strict";
+﻿"use strict"
 
-const baseURL = "https://06fc7f560a65b2.lhr.life"
+const baseURL = "http://localhost:5131"
 
 const api_auth = `${baseURL}/api/auth`
 const api_signal = `${baseURL}/api/signal`
@@ -301,7 +301,7 @@ const tabExtContent = `
     <div id="ext-tab-content">
          <div id="bot-settings" class="container-fluid m-0 p-2 bot-section">
 
-             <div class="d-flex justify-content-between border-bottom ">
+             <div class="d-flex justify-content-between border-bottom">
                  <div class="d-flex align-items-center">
                      <i class="fa fa-list mr-1"></i>
                      <b>Hỗ trợ Đặt lệnh</b>
@@ -341,12 +341,12 @@ const tabExtContent = `
          </div>
 
          <div id="bot-signal" class="container m-0 p-2">
-             <div class="row text-left border-bottom m-0 p-0">
-                 <div class="col p-0">
+             <div class="d-flex justify-content-between text-left border-bottom m-0 p-0">
+                 <div class="p-0">
                      <i class="fa fa-list"></i>
                      <b>Tín hiệu Bot</b>
                  </div>
-                 <div class="col text-right">
+                 <div class="text-right">
                      <a href="javascript:void(0)" class="bot-signal-refresh" title="Click để tải lại">
                          <i class="fa fa-refresh"></i>
                      </a>
@@ -463,15 +463,23 @@ const refreshToken = () => {
         method: "POST",
         data: json
     }).done((data) => {
-        if (data.access_token && data.refresh_token) {
+        if (data.access_token) {
             setCookie("auth_token", data.access_token, 5);
-            updateCookieValue("auth_refresh_token", data.access_token);
         }
     }).fail((_, error) => {
         error === 'timeout'
             ? add_logs("Mạng yếu, vui lòng thử lại.")
             : add_logs(error)
     })
+}
+
+const botSettings = {
+    enable: false,
+    trendType: "0",
+    volume: {
+        type: "0",
+        value: 0
+    }
 }
 
 $(document).ready(() => {
@@ -482,9 +490,9 @@ $(window).on('load', () => {
     $.ajaxSetup({
         contentType: 'application/json',
         timeout: 10000
-    });
+    })
 
-    const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
+    var isDemo = window.location.href.includes("smarteasy.vps.com.vn")
 
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
         : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
@@ -495,6 +503,10 @@ $(window).on('load', () => {
     root.append(loginFormHtml)
 
     function loggingAndBot(name = '') {
+        //5m
+        refreshToken()
+        setInterval(() => refreshToken(), 300000)
+
         const extContent = $("#ext-content")
         extContent.children().replaceWith(loggingHtml)
 
@@ -515,12 +527,14 @@ $(window).on('load', () => {
         name && add_logs("Xin chào: " + name)
 
         getBotSignal()
-        $(".bot-signal-refresh").click(function () {
-            $("#bot-tbl-signals tbody").empty()
+        const debouncedGetBotSignal = debounce(() => {
+            $("#bot-tbl-signals tbody").empty();
             getBotSignal()
-        })
+        }, 500);
 
-        $(".bot-history-clear").on("click", function () {
+        $(".bot-signal-refresh").click(debouncedGetBotSignal)
+        
+        $(".bot-history-clear").click(function () {
             $("#bot-logs").text('')
         })
         
@@ -529,15 +543,7 @@ $(window).on('load', () => {
         const botAutoOrder = $("#bot-auto-order")
         const sucMua = $("#sucmua-int")
         var sohodong = $("#sohopdong")
-
-        var botSettings = {
-            enable: false,
-            trendType: "0",
-            volume: {
-                type: "0",
-                value: 0
-            }
-        }
+        
         var settings = () => localStorage.getItem("autoBotSettings") && JSON.parse(localStorage.getItem("autoBotSettings"))
 
         const st = settings()
@@ -552,7 +558,7 @@ $(window).on('load', () => {
         }
         botVolumeValue.attr("max", sucMua.text())
 
-        botVolume.on("change", function () {
+        botVolume.change(function () {
             if ($(this).val() === "0") {
                 botVolumeValue.val(parseInt(sucMua.text()))
                 if (botAutoOrder.is(":checked")) {
@@ -585,7 +591,7 @@ $(window).on('load', () => {
             const observer = new MutationObserver(function (mutationsList) {
                 for (let mutation of mutationsList) {
                     if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                        var newValue = parseInt(sucMua.text()) //mutation.target.textContent
+                        var newValue = parseInt(mutation.target.textContent) //sucMua.text()
 
                         botVolumeValue.attr("max", newValue)
                         if (newValue < botVolumeValue.val()) {
@@ -596,7 +602,7 @@ $(window).on('load', () => {
                         }
 
                         const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
-                        if (vithe === "-" && botAutoOrder.is(":checked") && botVolume.val() === "0") {
+                        if (vithe === "-" && botAutoOrder.is(":checked")) {
                             sohodong.val(botVolumeValue.val())
                         }
                         
@@ -752,7 +758,7 @@ $(window).on('load', () => {
         const cancelAllOrder = (timer) => {
             if (isDemo) {
                 setTimeout(() => $(".btn-cancel-all").eq(0).click(), timer)
-                setTimeout(() => $("#acceptCreateOrder").click(), timer + 200)
+                setTimeout(() => $("#acceptCreateOrder").click(), timer + 400)
                 //setTimeout(() => $("#close_modal").click(), 1400)
             }
             else {
@@ -775,25 +781,23 @@ $(window).on('load', () => {
             else if (arr[1] == "Tin hieu short: Manh") {
                 tinhieu = "SHORT"
             }
-
+            let fullHopdong = botVolumeValue.val()
+            
+            var vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
             let timer = 0
             if (getPreviousSignal() !== "" && getPreviousSignal() !== tinhieu) {
-                const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
                 add_logs("Đảo chiều chốt hết lệnh!!!")
 
                 runBotNormal(tinhieu, "MTL", Math.abs(parseInt(vithe)))
+
                 timer += 1200
                 cancelAllOrder(timer)
-
                 setPreviousSignal("")
             }
 
             setPreviousSignal(tinhieu)
 
             const giamua = convertFloatToFixed(arr[2])
-
-            let fullHopdong = botVolumeValue.val()
-            const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
 
             if (vithe != "-") {
                 fullHopdong += Math.abs(parseInt(vithe))
@@ -815,7 +819,7 @@ $(window).on('load', () => {
                 const order50 = divideNumberBy2CeilToArray(fullHopdong)
                 const order25 = divideNumberBy2CeilToArray(order50[1])
 
-                //50%
+                //Vo 100%
                 timer += 1200
                 runBotNormal(tinhieu, giamua, fullHopdong)
 
@@ -824,12 +828,13 @@ $(window).on('load', () => {
                 timer += 1200
                 setTimeout(() => runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo), timer)
 
-                //25%
+                //Chot 50%
                 if (order50[0] > 0) {
                     timer += 1400
                     setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
                 }
 
+                //Chot 25%
                 if (order25[0] > 0) {
                     timer += 1200
                     setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
@@ -841,8 +846,8 @@ $(window).on('load', () => {
                         for (let mutation of mutationsList) {
                             if (mutation.type === 'characterData' || mutation.type === 'childList') {
                                 const giaKhopLenh = parseFloat(mutation.target.textContent)
-                                if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1 && order25[0] > 0) {
-                                    runBotStopOrder(tinhieu, "MTL", order25[0], giamua)
+                                if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1 && order50[0] > 0) {
+                                    runBotStopOrder(tinhieu, "MTL", order50[0], giamua)
                                     dadatTp1 = true
                                 }
                                 if (giaKhopLenh >= tp2 && !dadatTp2 && order25[0] > 0) {
@@ -992,4 +997,4 @@ $(window).on('load', () => {
 //    "Target 4: 1257.1",
 //    "Cat lo : 1273.667"
 
-//ssh -R 80:localhost:5131 localhost.run
+//    ssh -R 80:localhost:5131 localhost.run
