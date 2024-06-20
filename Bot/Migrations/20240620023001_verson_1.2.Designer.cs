@@ -3,6 +3,7 @@ using System;
 using Bot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bot.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240620023001_verson_1.2")]
+    partial class verson_12
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,8 +28,8 @@ namespace Bot.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("DateTime")
-                        .HasColumnType("datetime(6)");
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date");
 
                     b.Property<double>("Price")
                         .HasColumnType("double");
@@ -34,6 +37,9 @@ namespace Bot.Migrations
                     b.Property<string>("Signal")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<TimeOnly>("Time")
+                        .HasColumnType("time");
 
                     b.HasKey("SignalID");
 
