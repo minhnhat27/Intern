@@ -11,7 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bot.Migrations
 {
     [DbContext(typeof(MyDbContext))]
+<<<<<<<< HEAD:Bot/Migrations/20240619135143_initial.Designer.cs
     [Migration("20240619135143_initial")]
+========
+    [Migration("20240618092422_initial")]
+>>>>>>>> features/database:Bot/Migrations/20240618092422_initial.Designer.cs
     partial class initial
     {
         /// <inheritdoc />
