@@ -12,5 +12,8 @@ namespace Bot.Services
         Task<IdentityResult> Register(RegisterRequest request);
         Task<TokenModel?> RefreshToken(TokenModel token);
         Task Logout(TokenModel token);
+        Task<bool> SendPasswordResetTokenAsync(string email);
+        bool VerifyResetToken(string email, string token);
+        Task<bool> ResetPasswordAsync(string email, string token, string newPassword);
     }
 }

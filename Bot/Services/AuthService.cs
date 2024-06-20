@@ -3,7 +3,9 @@ using Bot.Models;
 using Bot.Request;
 using Bot.Response;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -15,12 +17,18 @@ namespace Bot.Services
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _config;
+        private readonly ILogger<AuthService> _logger;
+        private readonly ISendMailService _emailSender;
+        private readonly ICachingService _cachingService;
         public AuthService(SignInManager<User> signInManager,
-            UserManager<User> userManager, IConfiguration configuration)
+            UserManager<User> userManager, IConfiguration configuration, ILogger<AuthService> logger, ISendMailService emailSender, ICachingService cachingService)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _config = configuration;
+            _logger = logger;
+            _emailSender = emailSender;
+            _cachingService = cachingService;
         }
         private async Task<string> CreateJwt(User user, DateTime time)
         {
@@ -155,6 +163,49 @@ namespace Bot.Services
             await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
             await _userManager.UpdateSecurityStampAsync(user);
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<bool> SendPasswordResetTokenAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null) return false;
+
+            var token = new Random().Next(100000, 999999).ToString();
+            _cachingService.Set(email, token, TimeSpan.FromMinutes(5));
+
+            var message = $"Your password reset code is: {token}";
+            await _emailSender.SendEmailAsync(email, "Reset Password", message);
+
+            return true;
+        }
+
+        public bool VerifyResetToken(string email, string token)
+        {
+            var cachedToken = _cachingService.Get<string>(email);
+            if (cachedToken == null || cachedToken != token) return false;
+            else
+            {   
+                return true;
+            }
+        }
+
+        public async Task<bool> ResetPasswordAsync(string email, string token, string newPassword)
+        {
+            var isTokenValid = VerifyResetToken(email, token);
+            if (!isTokenValid) return false;
+
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return false;
+            }
+
+            var t = await _userManager.GeneratePasswordResetTokenAsync(user);
+
+            var result = await _userManager.ResetPasswordAsync(user, t, newPassword);
+            await _userManager.UpdateSecurityStampAsync(user);
+            _cachingService.Remove(email);
+            return result.Succeeded;
         }
     }
 }

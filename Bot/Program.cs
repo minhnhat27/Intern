@@ -1,11 +1,13 @@
 ﻿using Bot.Data;
 using Bot.Models;
+using Bot.Request;
 using Bot.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Configuration;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -66,6 +68,9 @@ builder.Services.AddSingleton<ICachingService, CachingService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBotSignalService, BotSignalService>();
+
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddSingleton<ISendMailService, SendMailService>();
 
 var app = builder.Build();
 
