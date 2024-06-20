@@ -79,7 +79,7 @@ namespace Bot.Services
             return null;
         }
 
-        public string? ValidateToken(string token, bool validateLifetime)
+        private string? ValidateToken(string token, bool validateLifetime)
         {
             var parameters = new TokenValidationParameters
             {

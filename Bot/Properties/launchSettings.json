@@ -37,14 +37,14 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
-  },
-  "Production": {
-    "commandName": "Project",
-    "dotnetRunMessages": true,
-    "launchBrowser": false,
-    "applicationUrl": "http://localhost:5001",
-    "environmentVariables": {
-      "ASPNETCORE_ENVIRONMENT": "Production"
-    }
+    //"Production": {
+    //  "commandName": "SdkContainer",
+    //  "dotnetRunMessages": true,
+    //  "launchBrowser": false,
+    //  "applicationUrl": "http://localhost:5001",
+    //  "environmentVariables": {
+    //    "ASPNETCORE_ENVIRONMENT": "Production"
+    //  }
+    //}
   }
 }

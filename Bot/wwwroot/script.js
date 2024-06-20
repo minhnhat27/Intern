@@ -1,12 +1,12 @@
 ﻿"use strict"
 
-const baseURL = "http://localhost:5131"
+const baseURL = "https://minhnhat27.id.vn"
 
 const api_auth = `${baseURL}/api/auth`
 const api_signal = `${baseURL}/api/signal`
 
 const scripts = `<script src="${baseURL}/assets/js/common.js"></script>
-        <script src="${baseURL}/js/signalr/dist/browser/signalr.js"></script>`
+        <script src="${baseURL}/assets/js/signalr/dist/browser/signalr.js"></script>`
 
 const packageHtml = `
     <div id='sat-content'>
@@ -722,7 +722,7 @@ $(window).on('load', () => {
             add_logs(`Đã đặt lệnh ${tinhieu} giá ${giadat} với ${hopdong} hợp đồng`)
         }
         
-        //1200mss
+        //1200ms
         const runBotStopOrder = (tinhieu, giadat, hopdong, stopOrderValue) => {
             $("#right_price").val(giadat)
             $("#sohopdong").val(hopdong)
@@ -755,6 +755,12 @@ $(window).on('load', () => {
             add_logs(`Đã đặt lệnh ${tinhieu} Stop Order: ${stopOrderValue}, giá đặt ${giadat} với ${hopdong} hợp đồng`)
         }
 
+        //setTimeout(() => {
+        //    //setTimeout(() => $(".foot_tab").eq(1).click(), 200)
+        //    setTimeout(() => $("#btn_cancel_all_order_condition").click(), 400)
+        //    setTimeout(() => $("#cancel_all_order").click(), 800)
+        //}, 3000)
+
         const cancelAllOrder = (timer) => {
             if (isDemo) {
                 setTimeout(() => $(".btn-cancel-all").eq(0).click(), timer)
@@ -763,12 +769,13 @@ $(window).on('load', () => {
             }
             else {
                 setTimeout(() => $("#button_cancel_all_order_normal").click(), timer)
-                setTimeout(() => $("#acceptCreateOrderNew").click(), timer + 200)
+                setTimeout(() => $("#acceptCreateOrderNew").click(), timer + 400)
+
+                //setTimeout(() => $(".foot_tab").eq(1).click(), timer + 200);
+                setTimeout(() => $("#btn_cancel_all_order_condition").click(), timer + 600);
+                setTimeout(() => $("#cancel_all_order").click(), timer + 1000);
             }
         }
-
-        const getPreviousSignal = () => sessionStorage.getItem("previousSignal") ?? ""
-        const setPreviousSignal = (signal) => sessionStorage.setItem("previousSignal", signal)
 
         const botAutoClick = (arr) => {
             let tinhieu
@@ -785,17 +792,14 @@ $(window).on('load', () => {
             
             var vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
             let timer = 0
-            if (getPreviousSignal() !== "" && getPreviousSignal() !== tinhieu) {
-                add_logs("Đảo chiều chốt hết lệnh!!!")
+            if (tinhieu[tinhieu.length - 1] && tinhieu[tinhieu.length - 1] === "REVERSE") {
+                add_logs("Tính hiệu đảo chiều!")
 
                 runBotNormal(tinhieu, "MTL", Math.abs(parseInt(vithe)))
 
                 timer += 1200
                 cancelAllOrder(timer)
-                setPreviousSignal("")
             }
-
-            setPreviousSignal(tinhieu)
 
             const giamua = convertFloatToFixed(arr[2])
 
@@ -922,20 +926,23 @@ $(window).on('load', () => {
         connection.on("Signal", function (message) {
             const tinhieu = message.split("\n").map(line => line.trim())
             showTinHieu(tinhieu)
+            add_logs(tinhieu[1])
             if (botAutoOrder.is(":checked")) {
                 botAutoClick(tinhieu)
             }
         });
         connection.on("AdminSignal", function (message) {
             if (message != "CANEL_ALL") {
-
+                cancelAllOrder(10)
             }
-            add_logs(message)
-            const tinhieu = message.split("\n").map(line => line.trim())
-            //showTinHieu(tinhieu)
-            //if (botAutoOrder.is(":checked")) {
-            //    botAutoClick(tinhieu)
-            //}
+            else {
+                const tinhieu = message.split("\n").map(line => line.trim())
+                showTinHieu(tinhieu)
+                add_logs(tinhieu[1])
+                if (botAutoOrder.is(":checked")) {
+                    botAutoClick(tinhieu)
+                }
+            }
         });
 
         connection.start().catch((err) => console.error(err.toString()))

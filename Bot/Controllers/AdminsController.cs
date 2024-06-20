@@ -1,5 +1,6 @@
 ﻿using Bot.Data;
 using Bot.Request;
+using Bot.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,7 +16,12 @@ namespace Bot.Controllers
     public class AdminsController : ControllerBase
     {
         private readonly IHubContext<MessageHub> _hubContext;
-        public AdminsController(IHubContext<MessageHub> hubContext) => _hubContext = hubContext;
+        private readonly IBotSignalService _botSignalService;
+        public AdminsController(IHubContext<MessageHub> hubContext, IBotSignalService botSignalService)
+        {
+            _hubContext = hubContext;
+            _botSignalService = botSignalService;
+        }
 
         [HttpPost("signal/add")]
         public async Task<IActionResult> AddSignal([FromBody] AdminSignalRequest request)
@@ -71,6 +77,7 @@ namespace Bot.Controllers
             }
 
             await _hubContext.Clients.All.SendAsync("AdminSignal", message);
+            //await _botSignalService.AddSignal
 
             return Ok();
         }

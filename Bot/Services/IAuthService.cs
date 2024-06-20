@@ -12,6 +12,5 @@ namespace Bot.Services
         Task<IdentityResult> Register(RegisterRequest request);
         Task<TokenModel?> RefreshToken(TokenModel token);
         Task Logout(TokenModel token);
-        string? ValidateToken(string token, bool validateLifetime);
     }
 }

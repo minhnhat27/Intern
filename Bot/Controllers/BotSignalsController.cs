@@ -13,14 +13,16 @@ namespace Bot.Controllers
         private readonly IBotSignalService _botSignalService;
         private readonly ICachingService _cachingService;
         private readonly IHubContext<MessageHub> _hubContext;
-
+        private readonly IConfiguration _configuration;
         public BotSignalsController(IBotSignalService botSignalService, 
             ICachingService cachingService,
-            IHubContext<MessageHub> hubContext)
+            IHubContext<MessageHub> hubContext,
+            IConfiguration configuration)
         {
             _botSignalService = botSignalService;
             _cachingService = cachingService;
             _hubContext = hubContext;
+            _configuration = configuration;
         }
 
         [HttpGet]
@@ -52,13 +54,43 @@ namespace Bot.Controllers
         }
 
         [HttpPost("sendMessage")]
-        public async Task<IActionResult> SendMessage([FromForm] string text)
+        public async Task<IActionResult> SendMessage([FromForm] SendMessageRequest request)
         {
-            Console.WriteLine(text);
-            await _hubContext.Clients.All.SendAsync("Signal", text);
-            //await _botSignalService.AddSignal(text);
+            if(request.Key != _configuration["MessageToken"])
+            {
+                return BadRequest();
+            }
+            else
+            {
+                var now = TimeOnly.FromDateTime(DateTime.Now);
+                var noon = new TimeOnly(12, 00);
+                var message = request.Text.Split('\n');
+                var signal = message[1].Trim() == "Tin hieu long: Manh" ? "LONG" : "SHORT";
 
-            return Ok();
+                if (now < noon)
+                {
+                    if (_cachingService.Get<string>("Morning") != null
+                        && _cachingService.Get<string>("Morning") != signal)
+                    {
+                        request.Text += "\nREVERSE";
+                    }
+                    _cachingService.Set("Morning", signal, TimeSpan.FromHours(3));
+                }
+                else
+                {
+                    if (_cachingService.Get<string>("Afternoon") != null
+                        && _cachingService.Get<string>("Afternoon") != signal)
+                    {
+                        request.Text += "\nREVERSE";
+                    }
+                    _cachingService.Set("Afternoon", signal, TimeSpan.FromHours(3));
+                }
+
+                await _hubContext.Clients.All.SendAsync("Signal", request.Text);
+                //await _botSignalService.AddSignal(text);
+
+                return Ok();
+            }
         }
     }
 }

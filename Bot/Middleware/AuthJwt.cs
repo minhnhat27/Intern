@@ -1,10 +1,6 @@
 ﻿using Bot.Data;
-using Bot.Models;
-using Bot.Services;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
 
@@ -43,7 +39,7 @@ namespace Bot.Middleware
 
         public async Task InvokeAsync(HttpContext context, MyDbContext dbContext)
         {
-            if(context.Request.Headers.TryGetValue("Authorization", out var authorizationHeader))
+            if (context.Request.Headers.TryGetValue("Authorization", out var authorizationHeader))
             {
                 var tokenBearer = authorizationHeader.ToString().Substring("Bearer ".Length).Trim();
                 var userId = ValidateToken(tokenBearer, true);

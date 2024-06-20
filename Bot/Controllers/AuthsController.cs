@@ -104,10 +104,18 @@ namespace Bot.Controllers
 
             //    return Content(script);
             //}
-            var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
-            var script = System.IO.File.ReadAllText(path);
+            try
+            {
+                //var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "script.js");
+                var script = System.IO.File.ReadAllText(path);
 
-            return Content(script);
+                return Content(script);
+            }
+            catch(Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
         }
     }
 }

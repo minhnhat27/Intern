@@ -63,8 +63,7 @@ namespace Bot.Migrations
                 {
                     SignalID = table.Column<int>(type: "int", nullable: false)
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
-                    Date = table.Column<DateOnly>(type: "date", nullable: false),
-                    Time = table.Column<TimeOnly>(type: "time", nullable: false),
+                    DateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     Signal = table.Column<string>(type: "longtext", nullable: false),
                     Price = table.Column<double>(type: "double", nullable: false)
                 },
