@@ -1,10 +1,12 @@
 ﻿using Bot.Data;
 using Bot.Models;
+using Bot.Request;
 using Bot.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Configuration;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,11 +21,12 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
 });
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<MyDbContext>()
-    .AddTokenProvider("Bot", typeof(DataProtectorTokenProvider<User>));
+    .AddTokenProvider("Bot", typeof(DataProtectorTokenProvider<User>))
+    .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -61,6 +64,9 @@ builder.Services.AddSingleton<ICachingService, CachingService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IBotSignalService, BotSignalService>();
+
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
+builder.Services.AddSingleton<ISendMailService, SendMailService>();
 
 var app = builder.Build();
 

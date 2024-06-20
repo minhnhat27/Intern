@@ -108,5 +108,40 @@ namespace Bot.Controllers
                 return Content(newScript);
             }
         }
+
+        [HttpPost("send-code")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest request)
+        {
+            var result = await _authService.SendPasswordResetTokenAsync(request.Email);
+            if (!result)
+            {
+                return BadRequest("Failed to send reset token.");
+            }
+
+            return Ok("Reset token sent.");
+        }
+
+        [HttpPost("confirm-code")]
+        public IActionResult VerifyResetToken([FromBody] VerifyResetTokenRequest request)
+        {
+            var result = _authService.VerifyResetToken(request.Email, request.Token);
+            if(!result)
+            {
+                return BadRequest("Invalid or expired reset token.");
+            }
+            return Ok("Reset token verified");
+        }
+
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ConfirmResetPassword([FromBody] ConfirmResetPasswordRequest request)
+        {
+            var result = await _authService.ResetPasswordAsync(request.Email, request.Token, request.NewPassword);
+            if (!result)
+            {
+                return BadRequest("Failed to reset password.");
+            }
+
+            return Ok("Password has been reset.");
+        }
     }
 }
