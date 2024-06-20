@@ -79,20 +79,20 @@ namespace Bot.Services
             return null;
         }
 
-        private string? ValidateToken(string token, out JwtSecurityToken jwtSecurityToken)
+        private string? ValidateToken(string token, bool validateLifetime)
         {
             var parameters = new TokenValidationParameters
             {
                 ValidateAudience = true,
                 ValidateIssuer = true,
-                ValidateLifetime = false,
+                ValidateLifetime = validateLifetime,
                 ValidAudience = _config["JWT:Audience"],
                 ValidIssuer = _config["JWT:Issuer"],
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["JWT:Key"] ?? ""))
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken securityToken);
-            jwtSecurityToken = (JwtSecurityToken) securityToken;
+            JwtSecurityToken jwtSecurityToken = (JwtSecurityToken) securityToken;
 
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid Refresh token");
@@ -102,7 +102,7 @@ namespace Bot.Services
 
         public async Task<TokenModel?> RefreshToken(TokenModel token)
         {
-            var userId = ValidateToken(token.Refresh_token, out JwtSecurityToken jwtSecurityToken);
+            var userId = ValidateToken(token.Refresh_token, true);
             if (userId == null)
             {
                 throw new ArgumentNullException();
@@ -113,19 +113,11 @@ namespace Bot.Services
                 throw new ArgumentNullException();
             }
 
-            var provider = "Bot";
-            var name = "Refresh_Token";
-
             var access_token = await CreateJwt(user, DateTime.UtcNow.AddMinutes(5));
-            var refresh_token = await CreateJwt(user, jwtSecurityToken.ValidTo);
-
-            await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
-            await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
 
             return new TokenModel
             {
-                Access_token = access_token,
-                Refresh_token = refresh_token
+                Access_token = access_token
             };
         }
 
@@ -148,7 +140,7 @@ namespace Bot.Services
 
         public async Task Logout(TokenModel token)
         {
-            var userId = ValidateToken(token.Refresh_token, out JwtSecurityToken jwtSecurityToken);
+            var userId = ValidateToken(token.Refresh_token, false);
             if (userId == null)
             {
                 throw new ArgumentNullException();

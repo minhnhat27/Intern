@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bot.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240612013558_initial")]
+    [Migration("20240619135143_initial")]
     partial class initial
     {
         /// <inheritdoc />
@@ -28,8 +28,8 @@ namespace Bot.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("DateTime")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<double>("Price")
                         .HasColumnType("double");
@@ -37,9 +37,6 @@ namespace Bot.Migrations
                     b.Property<string>("Signal")
                         .IsRequired()
                         .HasColumnType("longtext");
-
-                    b.Property<TimeOnly>("Time")
-                        .HasColumnType("time");
 
                     b.HasKey("SignalID");
 
