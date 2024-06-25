@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Bot.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
     //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
 });
 builder.Services.AddIdentity<User, IdentityRole>()
@@ -51,8 +52,8 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("MyCors", opt =>
     {
-        opt.WithOrigins("https://smartpro.vps.com.vn", 
-            "https://smarteasy.vps.com.vn", 
+        opt.WithOrigins("https://smartpro.vps.com.vn",
+            "https://smarteasy.vps.com.vn",
             "http://localhost:3000")
             .AllowAnyMethod()
             .AllowAnyHeader()
@@ -70,6 +71,15 @@ builder.Services.AddScoped<IBotSignalService, BotSignalService>();
 
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 builder.Services.AddSingleton<ISendMailService, SendMailService>();
+
+builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<ILogHistoryService, LogHistoryService>();
+builder.Services.AddScoped<IPriceBotService, PriceBotService>();
+builder.Services.AddScoped<IBotTradingService, BotTradingService>();
+builder.Services.AddScoped<IProfitLossService, ProfitLossService>();
+builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
+builder.Services.AddScoped<ISalaryService, SalaryService>();
+builder.Services.AddScoped<IUserBotService, UserBotService>();
 
 var app = builder.Build();
 

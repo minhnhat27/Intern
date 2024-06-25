@@ -5,9 +5,7 @@ namespace Bot.Models
 {
     public class LogHistory
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int LogId { get; set; }
+        public int Id { get; set; }
         public string Signal { get; set; }
         public double ProfitPointTP { get; set; }
         public bool IsSL {  get; set; }

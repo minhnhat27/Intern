@@ -1,4 +1,5 @@
 ﻿using Bot.Models;
+using Bot.Request;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +16,7 @@ namespace Bot.Data
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<LogHistory> LogHistorys { get; set; }
         public DbSet<PriceBot> PriceBots { get; set; }
-        public DbSet<ProfitLoss> ProfitsLoss { get; set; }
+        public DbSet<ProfitLoss> ProfitLosses { get; set; }
         public DbSet<PurchaseHistory> PurchaseHistories { get; set; }
         public DbSet<Salary> Salaries { get; set; }
     }

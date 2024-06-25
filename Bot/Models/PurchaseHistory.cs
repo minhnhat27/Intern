@@ -5,12 +5,10 @@ namespace Bot.Models
 {
     public class PurchaseHistory
     {
-        [Key]
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int PurchaseId { get; set; }
+        public int Id { get; set; }
         public double PriceBot {  get; set; }
-        public DateOnly StartDate { get; set; }
-        public DateOnly EndDate { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime EndDate { get; set; }
         public string PaymentMethod { get; set; }
         public string Status { get; set; }
         public DateTime Date {  get; set; }
