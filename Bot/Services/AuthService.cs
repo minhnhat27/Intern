@@ -3,9 +3,7 @@ using Bot.Models;
 using Bot.Request;
 using Bot.Response;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -30,9 +28,8 @@ namespace Bot.Services
             _emailSender = emailSender;
             _cachingService = cachingService;
         }
-        private async Task<string> CreateJwt(User user, DateTime time)
+        private string CreateJwt(User user, IEnumerable<string> roles, DateTime time)
         {
-            var roles = await _userManager.GetRolesAsync(user);
             var claims = new List<Claim>
             {
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
@@ -65,8 +62,9 @@ namespace Bot.Services
                 var user = await _userManager.FindByNameAsync(request.Username);
                 if (user != null)
                 {
-                    var access_token = await CreateJwt(user, DateTime.UtcNow.AddMinutes(5));
-                    var refresh_token = await CreateJwt(user, DateTime.UtcNow.AddDays(30));
+                    var roles = await _userManager.GetRolesAsync(user);
+                    var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(5));
+                    var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(30));
 
                     var provider = "Bot";
                     var name = "Refresh_Token";
@@ -80,9 +78,10 @@ namespace Bot.Services
                         Access_token = access_token,
                         Refresh_token = refresh_token,
                         Name = user.Fullname,
+                        Roles = roles
                     };
                 }
-                throw new ArgumentNullException();
+                throw new InvalidOperationException();
             }
             return null;
         }
@@ -121,7 +120,8 @@ namespace Bot.Services
                 throw new ArgumentNullException();
             }
 
-            var access_token = await CreateJwt(user, DateTime.UtcNow.AddMinutes(5));
+            var roles = await _userManager.GetRolesAsync(user);
+            var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(5));
 
             return new TokenModel
             {

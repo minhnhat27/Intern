@@ -2,7 +2,6 @@
 using Bot.Request;
 using Bot.Response;
 using Microsoft.AspNetCore.Identity;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace Bot.Services
 {

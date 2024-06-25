@@ -1,15 +1,12 @@
-﻿"use strict";
+﻿"use strict"
 
+//const baseURL = "https://minhnhat27.id.vn"
 const baseURL = "http://localhost:5131"
 
 const api_auth = `${baseURL}/api/auth`
-
 const api_signal = `${baseURL}/api/signal`
 
-const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
-
-const scripts = `<script src="${baseURL}/assets/js/common.js"></script>
-        <script src="${baseURL}/js/signalr/dist/browser/signalr.js"></script>`
+const scripts = `<script src="${baseURL}/assets/js/signalr/dist/browser/signalr.js"></script>`
 
 const packageHtml = `
     <div id='sat-content'>
@@ -202,15 +199,6 @@ const packageHtml = `
             max-height: 50vh !important;
         }
     </style>
-     <div id="system-error" class="d-none list-group-item px-1">
-         <div class="alert alert-danger">
-             <span class="system-error-text"></span>
-             <br>
-             Liên hệ
-             <a href="https://zalo.me/g/mgrsyj088" target="_blank">
-                 0786.441.433             </a> để được hỗ trợ
-         </div>
-     </div>
     </div>
 `
 
@@ -255,7 +243,7 @@ const loggingHtml = `
              <div class="d-flex">
                  <div class="mr-auto">
                      <i class="fa fa-copy"></i>
-                     <a href="https://chobot.vn" target="_blank" title="Bot phân tán thực hiện bởi chobot.vn">Chobot.vn</a> <small>231113</small>
+                     <a href="https://tradingbot-beta.vercel.app" target="_blank" title="Bot phân tán thực hiện bởi ...">....vn</a> <small>2024</small>
                  </div>
                  <div class="px-2">
                      <a href="javascript:void(0)" class="satbot-settings" title="Cài đặt">
@@ -286,15 +274,10 @@ const loggingHtml = `
              </div>
          </div>
 
-         <div class="d-none bot-none alert alert-danger text-center">
-             TK chưa thiết lập bot mặc định
-             <br>
-             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
-         </div>
          <div class="d-none bot-expired alert alert-danger text-center">
-             Bot đã hết hạn sử dụng <br> Vui lòng chọn và kích hoạt lại.
+             Bot đã hết hạn sử dụng <br> Vui lòng đăng ký lại.
              <br>
-             <button type="button" class="btn btn-primary btn-select-bot">Chọn bot</button>
+             <a href="https://tradingbot-beta.vercel.app" type="button" class="btn btn-primary">Đăng ký</a>
          </div>
 
          <div class="text-left border-bottom d-flex">
@@ -316,46 +299,14 @@ const loggingHtml = `
 const tabExtContent = `
 <div id="tab-ext" class="div-tab tab-pane fade in text-white" role="tabpanel">
     <div id="ext-tab-content">
-         <div id="bot-test" class="d-none container-fluid m-0 p-2 bot-section">
-             <div class="row">
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-success test-trigger-long">
-                         Trigger LONG
-                     </button>
-                 </div>
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-danger test-trigger-short">
-                         Trigger SHORT
-                     </button>
-                 </div>
-                 <div class="col text-center">
-                     <button type="button" class="btn btn-warning test-cancel-all">
-                         Hủy tất cả
-                     </button>
-                 </div>
-             </div>
-         </div>
          <div id="bot-settings" class="container-fluid m-0 p-2 bot-section">
-             <div class="row border-bottom ">
-                 <div class="col d-flex align-items-center">
-                     <i class="fa fa-list mr-1"></i>
-                     <b>Bot giao dịch</b>
-                 </div>
-             </div>
-             <div class="row my-2">
-                 <div class="col">
-                     <input id="bot-name" type="text" class="form-control w-100" value="" placeholder="Chọn bot để giao dịch" readonly="">
-                 </div>
-                 <div class="col-auto">
-                     <button type="button" data-toggle="modal" class="btn btn-primary btn-select-bot">Chọn bot</button>
-                 </div>
-             </div>
-             <div class="row border-bottom ">
-                 <div class="col d-flex align-items-center">
+
+             <div class="d-flex justify-content-between border-bottom">
+                 <div class="d-flex align-items-center">
                      <i class="fa fa-list mr-1"></i>
                      <b>Hỗ trợ Đặt lệnh</b>
                  </div>
-                 <div class="col text-right">
+                 <div class="text-right">
                      <label class="switch switch-label switch-label-panel switch-pill switch-success switch-sm float-right">
                          <input class="switch-input st-bot-config bot-settings" name="bot-auto-order" id="bot-auto-order" type="checkbox">
                          <span class="switch-slider" data-checked="On" data-unchecked="Off" id="bot-auto-order_sl"></span>
@@ -371,41 +322,7 @@ const tabExtContent = `
                          <option value="2">chỉ SHORT</option>
                      </select>
                  </div>
-                 <div>
-                     Bot đóng vị thế
-                 </div>
-                 <div class="row my-1 pr-2">
-                     <div class="col">
-                         <select id="bot-close" class="custom-select bot-settings">
-                             <option value="0"> Không làm gì </option>
-                             <option value="1" selected=""> Đóng vị thế ngược chiều </option>
-                         </select>
-                     </div>
-                     <div class="col-4 m-0 p-0 pl-2">
-                         <select id="bot-close-price" class="custom-select bot-settings">
-                             <option value="0" selected=""> MTL </option>
-                             <option value="1"> Trần/Sàn </option>
-                         </select>
-                     </div>
-                 </div>
-                 <div>
-                     Bot mở vị thế mới
-                 </div>
-                 <div class="row my-1 pr-2">
-                     <div class="col">
-                         <select id="bot-open" class="custom-select bot-settings">
-                             <option value="0"> Không mở vị thế </option>
-                             <option value="1" selected=""> Mở vị thế mới</option>
-                         </select>
-                     </div>
-                     <div class="col-4 m-0 p-0 pl-2">
-                         <select id="bot-open-price" class="custom-select bot-settings">
-                             <option value="0" selected=""> MTL </option>
-                             <option value="1"> Trần/Sàn </option>
-                             <option value="2"> Tín hiệu </option>
-                         </select>
-                     </div>
-                 </div>
+                 
                  <div>
                      với Số hợp đồng là
                  </div>
@@ -420,25 +337,16 @@ const tabExtContent = `
                          <input type="number" class="form-control formatDouble bot-settings" id="bot-volume-value" step="1" min="1" value="" placeholder="Số HĐ">
                      </div>
                  </div>
-                 <div class="row my-1 mt-2">
-                     <div class="col">
-                         <div class="custom-control custom-checkbox mx-2">
-                             <input id="bot-atoc-order" type="checkbox" class="custom-control-input bot-settings">
-                             <label for="bot-atoc-order" class="custom-control-label" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC">Đặt lệnh ATO/ATC
-                                 <i class="fa fa-info-circle text-info" aria-hidden="true" title="Cho phép bot đặt lệnh tự động trong phiên ATO/ATC"></i>
-                         </label></div>
-                     </div>
-                 </div>
              </div>
          </div>
 
          <div id="bot-signal" class="container m-0 p-2">
-             <div class="row text-left border-bottom m-0 p-0">
-                 <div class="col p-0">
+             <div class="d-flex justify-content-between text-left border-bottom m-0 p-0">
+                 <div class="p-0">
                      <i class="fa fa-list"></i>
                      <b>Tín hiệu Bot</b>
                  </div>
-                 <div class="col text-right">
+                 <div class="text-right">
                      <a href="javascript:void(0)" class="bot-signal-refresh" title="Click để tải lại">
                          <i class="fa fa-refresh"></i>
                      </a>
@@ -462,817 +370,21 @@ const tabExtContent = `
      </div>
     </div>`
 
-const modelBot = `
-<div id="global">
-    <div class="modal fade" id="satbot-settings" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" data-backdrop="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Semi-AutoBot Cài đặt</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form class="container">
-                        <div class="d-none row my-2 form-group w-100">
-                            <label class="form-label" for="ext-chart">Biểu đồ Bot</label>
-                            <select id="ext-chart" class="form-control">
-                                <option value="0">Mặc định</option>
-                                <!-- <option value="1" data-url="">SmartTrading</option> -->
-                                <option value="3" data-url="">Fansi AutoBot 1M++</option>
-                                <option value="2">Link chỉ định</option>
-                            </select>
-                        </div>
-                        <div class="d-none row my-2 form-group w-100">
-                            <input type="text" class="form-control w-100" id="ext-chart-link"
-                                placeholder="Nhập đường link đến biểu đồ">
-                        </div>
-
-                        <div class="row my-2 form-group w-100">
-                            <div class="form-group">
-                                <input type="checkbox" id="ext-json-debug" class="form-checkbox">
-                                <label for="ext-json-debug">Log dữ liệu nâng cao</label>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer d-flex flex-nowrap">
-                    <button type="button" class="btn btn-dark btnCloseModal" data-dismiss="modal">Bỏ qua</button>
-                    <button type="button" class="btn btn-success satbot-settings-save">Cập nhật</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!-- select bot version 3.0 -->
-
-    <div class="modal fade" id="bot-select" tabindex="-1" role="dialog" data-backdrop="static" data-backdrop="false">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content" style="min-width:600px;">
-                <div class="bot-select modal-header p-2">
-                    <h5 class="modal-title">Chọn bot...</h5>
-                    <button type="button" class="btn" data-dismiss="modal" aria-label="Close">
-                        X
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <ul id="bot-select-tabs" class="nav nav-tabs row m-0 p-0">
-                        <li id="nav-bot-list" class="nav-item col-4">
-                            <a id="lnk-bots" class="nav-link active show" data-toggle="tab" href="#tabChobot" role="tab"
-                                aria-controls="chobot" aria-selected="true">chobot.vn</a>
-                        </li>
-                        <li id="nav-rent-bot" class="nav-item col-4">
-                            <a id="lnk-rentbots" class="nav-link" data-toggle="tab" href="#tabRentBots" role="tab"
-                                aria-controls="rentBots" aria-selected="false">Đã kích hoạt</a>
-                        </li>
-                        <li id="nav-my-bot" class="nav-item col-4">
-                            <a id="lnk-mybots" class="nav-link" data-toggle="tab" href="#tabMyBots" role="tab"
-                                aria-controls="myBots" aria-selected="false">Bot của tôi</a>
-                        </li>
-                    </ul>
-
-                    <div class="tab-content">
-                        <div class="tab-pane active show" id="tabChobot" role="tabpanel" aria-labelledby="chobot-tab">
-                            <div class="table-responsive">
-                                <table id="table-bots" data-classes="table table-hover" data-toggle="table"
-                                    data-locale="vi-VN" data-search="true" data-search-align="left" data-height="550"
-                                    data-smartdisplay="true" data-pagination="true" data-page-size="4"
-                                    data-side-pagination="server" data-show-header="false" data-filter-control="false"
-                                    data-single-select="true" data-click-to-select="true"
-                                    data-query-params="botListQueryParam" data-repsonse-handler="responseHandler"
-                                    data-url="https://chobot.vn/satbot/3.0/common/bot" class="table table-hover">
-                                        <thead style="display: none;">
-                                            <tr>
-                                                <th class="bs-checkbox " style="width: 36px; "
-                                                    data-field="state">
-                                                    <div class="th-inner "></div>
-                                                    <div class="fht-cell"></div>
-                                                </th>
-                                                <th class="bot-item" style="" data-field="id">
-                                                    <div class="th-inner "></div>
-                                                    <div class="fht-cell"></div>
-                                                </th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tabRentBots" role="tabpanel" aria-labelledby="myBots-tab">
-                            <div class="table-responsive pt-4">
-                                <div class="bootstrap-table bootstrap4">
-                                    <div class="fixed-table-toolbar"></div>
-                                    <div class="fixed-table-container fixed-height"
-                                        style="height: 500px; padding-bottom: 0px;">
-                                        <div class="fixed-table-header" style="display: none;">
-                                            <table></table>
-                                        </div>
-                                        <div class="fixed-table-body">
-                                            <div class="fixed-table-loading table table-hover" style="top: 0px;">
-                                                <span class="loading-wrap">
-                                                    <span class="loading-text" style="font-size: 12px;">Đang tải</span>
-                                                    <span class="animation-wrap"><span
-                                                            class="animation-dot"></span></span>
-                                                </span>
-
-                                            </div>
-                                            <table id="table-rentBots" data-classes="table table-hover"
-                                                data-toggle="table" data-locale="vi" data-search="false"
-                                                data-search-align="left" data-height="500" data-smartdisplay="true"
-                                                data-pagination="true" data-page-size="6" data-side-pagination="server"
-                                                data-show-header="false" data-filter-control="false"
-                                                data-single-select="true" data-click-to-select="true"
-                                                data-query-params="rentBotsQueryParam"
-                                                data-repsonse-handler="responseHandler"
-                                                data-url="https://chobot.vn/satbot/3.0/common/bot"
-                                                class="table table-hover">
-                                                <thead style="display: none;">
-                                                    <tr>
-                                                        <th class="bs-checkbox " style="width: 36px; "
-                                                            data-field="state">
-                                                            <div class="th-inner "></div>
-                                                            <div class="fht-cell"></div>
-                                                        </th>
-                                                        <th class="bot-item" style="" data-field="id">
-                                                            <div class="th-inner "></div>
-                                                            <div class="fht-cell"></div>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr class="no-records-found">
-                                                        <td colspan="2">Không có dữ liệu</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="fixed-table-footer" style="display: none;"></div>
-                                    </div>
-                                    <div class="fixed-table-pagination" style="display: none;">
-                                        <div class="float-left pagination-detail"><span class="pagination-info">
-                                                Trang 1 đến 0 / 0
-                                            </span>
-                                            <div class="page-list" style="display: none;">
-                                                <div class="btn-group dropdown dropup">
-                                                    <button class="btn btn-secondary dropdown-toggle" type="button"
-                                                        data-toggle="dropdown">
-                                                        <span class="page-size">
-                                                            6
-                                                        </span>
-                                                        <span class="caret"></span>
-                                                    </button>
-                                                    <div class="dropdown-menu"><a class="dropdown-item " href="#">10</a>
-                                                    </div>
-                                                </div> / trang
-                                            </div>
-                                        </div>
-                                        <div class="float-right pagination" style="display: none;">
-                                            <ul class="pagination">
-                                                <li class="page-item page-pre"><a class="page-link"
-                                                        aria-label="trang trước" href="javascript:void(0)">‹</a></li>
-                                                <li class="page-item active"><a class="page-link"
-                                                        aria-label="đến trang 1" href="javascript:void(0)">1</a></li>
-                                                <li class="page-item page-next"><a class="page-link"
-                                                        aria-label="trang kế" href="javascript:void(0)">›</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-                        <div class="tab-pane" id="tabMyBots" role="tabpanel" aria-labelledby="myBots-tab">
-                            <div class="table-responsive pt-4">
-                                <div class="bootstrap-table bootstrap4">
-                                    <div class="fixed-table-toolbar"></div>
-
-                                    <div class="fixed-table-container fixed-height"
-                                        style="height: 446px; padding-bottom: 0px;">
-                                        <div class="fixed-table-header" style="display: none;">
-                                            <table></table>
-                                        </div>
-                                        <div class="fixed-table-body">
-                                            <div class="fixed-table-loading table table-hover" style="top: 0px;">
-                                                <span class="loading-wrap">
-                                                    <span class="loading-text" style="font-size: 12px;">Đang tải</span>
-                                                    <span class="animation-wrap"><span
-                                                            class="animation-dot"></span></span>
-                                                </span>
-
-                                            </div>
-                                            <table id="table-mybots" data-classes="table table-hover"
-                                                data-toggle="table" data-locale="vi" data-search="false"
-                                                data-search-align="left" data-height="500" data-smartdisplay="true"
-                                                data-pagination="true" data-page-size="6" data-side-pagination="server"
-                                                data-show-header="false" data-filter-control="false"
-                                                data-single-select="true" data-click-to-select="true"
-                                                data-query-params="myBotsQueryParam"
-                                                data-repsonse-handler="responseHandler"
-                                                data-url="https://chobot.vn/satbot/3.0/common/bot"
-                                                class="table table-hover">
-
-                                                <thead style="display: none;">
-                                                    <tr>
-                                                        <th class="bs-checkbox " style="width: 36px; "
-                                                            data-field="state">
-                                                            <div class="th-inner "></div>
-                                                            <div class="fht-cell"></div>
-                                                        </th>
-                                                        <th class="bot-item" style="" data-field="id">
-                                                            <div class="th-inner "></div>
-                                                            <div class="fht-cell"></div>
-                                                        </th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr data-index="0">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="0" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=d395233b-9165-488d-8640-b93bc58006e4"
-                                                                        title="Chi tiết" target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1477.png"
-                                                                            alt="" class="thumb ml-2">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mt-2 mx-2">
-                                                                    <div class="title">
-                                                                        <a class="title"
-                                                                            href="https:///chobot.vn/bot/detail?guid=d395233b-9165-488d-8640-b93bc58006e4"
-                                                                            target="_blank">
-                                                                            <span class=""
-                                                                                style="line-height:1.5rem">Bot
-                                                                                Test</span>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="subtitle">
-                                                                        <div class="rate" title="Đánh giá 0/5"><i
-                                                                                class="fa fa-star text-muted"></i><i
-                                                                                class="fa fa-star text-muted"></i><i
-                                                                                class="fa fa-star text-muted"></i><i
-                                                                                class="fa fa-star text-muted"></i><i
-                                                                                class="fa fa-star text-muted"></i></div>
-                                                                        <div class="owner small mx-1 ml-2">
-                                                                            <span>duy</span>
-                                                                        </div>
-                                                                        <div class="interval small mx-1">
-                                                                            <span>5 phút</span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr data-index="1">
-                                                        <td class="bs-checkbox " style="width: 36px; "><label>
-                                                                <input data-index="1" name="btSelectItem"
-                                                                    type="checkbox">
-                                                                <span></span>
-                                                            </label></td>
-                                                        <td class="bot-item">
-                                                            <div class="row">
-                                                                <div
-                                                                    class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                                                    <a class="link"
-                                                                        href="https:///chobot.vn/bot/detail?guid=88a3f2d2-1ac5-4c58-b923-7e0c99a056f8"
-                                                                        title="Chi tiết" target="_blank">
-                                                                        <img src="https://chobot.vn//storage/upload/avatars/1477.png"
-                                                                            alt="" class="thumb ml-2">
-                                                                    </a>
-                                                                </div>
-                                                                <div class="col m-0 p-0 pl-1 mt-2 mx-2">
-                                                                    <div class="title">
-                                                                        <a class="title"
-                                                                            href="https:///chobot.vn/bot/detail?guid=88a3f2d2-1ac5-4c58-b923-7e0c99a056f8"
-                                                                            target="_blank">
-                                                                            <span class=""
-                                                                                style="line-height:1.5rem">Bot
-                                                                                Trading</span>
-                                                                        </a>
-                                                                    </div>
-                                                                    <div class="subtitle">
-                                                                        <div class="rate" title="Đánh giá 0/5"><i
-                                                                                class="fa fa-star text-muted"></i><i
-                                                                                class="fa fa-star text-muted"></i><i
-                                                                                class="fa fa-star text-muted"></i><i
-                                                                                class="fa fa-star text-muted"></i><i
-                                                                                class="fa fa-star text-muted"></i></div>
-                                                                        <div class="owner small mx-1 ml-2">
-                                                                            <span>duy</span>
-                                                                        </div>
-                                                                        <div class="interval small mx-1">
-                                                                            <span>5 phút</span>
-                                                                        </div>
-                                                                    </div>
-
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <div class="fixed-table-footer" style="display: none;"></div>
-                                    </div>
-                                    <div class="fixed-table-pagination" style="display: block;">
-                                        <div class="float-left pagination-detail"><span class="pagination-info">
-                                                Trang 1 đến 2 / 2
-                                            </span>
-                                            <div class="page-list" style="display: none;">
-                                                <div class="btn-group dropdown dropup">
-                                                    <button class="btn btn-secondary dropdown-toggle" type="button"
-                                                        data-toggle="dropdown">
-                                                        <span class="page-size">
-                                                            6
-                                                        </span>
-                                                        <span class="caret"></span>
-                                                    </button>
-                                                    <div class="dropdown-menu"><a class="dropdown-item " href="#">10</a>
-                                                    </div>
-                                                </div> / trang
-                                            </div>
-                                        </div>
-                                        <div class="float-right pagination" style="display: none;">
-                                            <ul class="pagination">
-                                                <li class="page-item page-pre"><a class="page-link"
-                                                        aria-label="trang trước" href="javascript:void(0)">‹</a></li>
-                                                <li class="page-item active"><a class="page-link"
-                                                        aria-label="đến trang 1" href="javascript:void(0)">1</a></li>
-                                                <li class="page-item page-next"><a class="page-link"
-                                                        aria-label="trang kế" href="javascript:void(0)">›</a></li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="clearfix"></div>
-                            </div>
-                        </div>
-                    </div>
-
-
-                    <script type="text/javascript">
-                        function rentBotsQueryParam(query) {
-                            query.act = "bot-search-rentbots";
-                            query.user = "";
-                            if (typeof (getAuthInfo) != 'undefined')
-                                query.user = getAuthInfo().username;
-                            return query;
-                        }
-
-                        function myBotsQueryParam(query) {
-                            query.act = "bot-search-mybots";
-                            query.user = "";
-                            if (typeof (getAuthInfo) != 'undefined')
-                                query.user = getAuthInfo().username;
-                            return query;
-                        }
-
-                        function botListQueryParam(query) {
-                            query.act = "bot-search";
-                            return query;
-                        }
-
-                        function responseHandler(args) {
-                            return args;
-                        }
-
-                        function imageFormatter(value, row) {
-                            try {
-                                value = (value ?? "").trim();
-                                value = value === "" ? "https://chobot.vn/satbot/images/noimage.png" : value;
-                                var detailUrl = "https:///chobot.vn" + row.detailUrl;
-                                var html = \`
-                            <a href="\${detailUrl}" title="Chi tiết" target="_blank" class="thumb">
-                                <img src="\${value}" alt="\${row.name}" />
-                            </a>\`;
-                                return html;
-                            } catch (e) {
-                                console.error(e);
-                                return '';
-                            }
-                        }
-
-                        function rowFormatter(value, row) {
-                            try {
-                                var id = row.id;
-                                var detailUrl = "https:///chobot.vn" + row.detailUrl;
-                                var backtestUrl = "https:///chobot.vn" + row.backtestUrl;
-
-                                var html = row.description;
-                                var desc = "";
-                                var date = new Date(row.updatedAt);
-                                date = date.format("dd/MM/yyyy HH:mm:ss");
-
-                                try {
-                                    var parser = new DOMParser();
-                                    var doc = parser.parseFromString(html, "text/html");
-                                    desc = doc.documentElement.textContent;
-                                    var maxlen = 145;
-                                    if (desc.length > maxlen)
-                                        desc = desc.substring(0, maxlen) + "...";
-                                } catch { }
-
-                                if (row.imageUrl && row.imageUrl.includes("/storage/upload/avatars/") && !row.imageUrl.includes("http"))
-                                    row.imageUrl = "https://chobot.vn/" + row.imageUrl;
-
-                                var rate = parseInt(row.rate);
-                                var rateHtml = \`<div class="rate" title="Đánh giá \${rate}/5">\`;
-                                for (var i = 1; i <= 5; i++) {
-                                    rateHtml += \`<i class="fa fa-star \${i > rate ? 'text-muted' : 'text-yellow'}"></i>\`;
-                                }
-                                rateHtml += "</div>";
-
-                                var price = row.price ?? "";
-                                price = price === "" ? "Liên hệ" : price;
-
-                                html = \`
-                                <div class="row m-0 p-0">
-                                    <div class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                        <a class="link" href="\${detailUrl}" target="_blank">
-                                            <img src="\${row.imageUrl ?? "/satbot/images/noimage.png"}" alt="" class="thumb" />
-                                        </a>
-                                    </div>
-                                    <div class="col m-0 p-0 pl-1 mx-2">
-                                        <div class="row">
-                                            <div class="col title mt-2">
-                                                <a class="title" href="\${detailUrl}" target="_blank">
-                                                    <span class="" style="line-height:1.5rem">\${row.name}</span>
-                                                </a>
-                                            </div>
-                                        </div>
-                                        <div class="row">
-                                            <div class="col subtitle">
-                                                \${rateHtml}
-                                                <div class="owner small mx-1 ml-2">
-                                                    <span>\${row.fullname}</span>
-                                                </div>
-                                                <div class="interval small mx-1">
-                                                    <span>\${row.intervalName}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col">
-                                        <div class="result">
-                                            <div class="mx-1 text-center">
-                                                Số lệnh:
-                                                <span class="text-info">\${formatDecimal(row.numTrades, 0)}</span>
-                                            </div>
-                                            <div class="mx-1 text-center">
-                                                Tổng lãi/lỗ:
-                                                <span class="\${row.totalProfit > 0 ? "text-success" : "text-danger"}">\${formatDecimal(row.totalProfit)}</span>
-                                            </div>
-                                            <div class="mx-1 text-center">
-                                                Tỷ lệ thắng:
-                                                <span class="text-success">\${formatDecimal(row.winPct * 100)}%</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="my-2 description">
-                                    \${desc}
-                                </div>
-                                <div class="row m-0 p-0 py-1 pt-2">
-                                    <div class="col-6 m-0 p-0 text-left price text-truncate">
-                                        Giá: <span class="text-danger font-weight-bold">\${price}</span>
-                                    </div>
-                                    <div class="col-6 m-0 p-0 text-right text-nowrap">
-                                        <a href="\${detailUrl}" class="d-inline text-info mx-2 link" target="_blank">
-                                            Chi tiết
-                                        </a>
-                                        <a href="\${backtestUrl}" class="d-inline text-info mx-2 link" target="_blank">
-                                            Backtest
-                                        </a>
-                                    </div>
-                                </div>\`;
-
-                                return html;
-                            } catch (e) {
-                                console.error(e);
-                            }
-                        }
-
-                        function myBotExpireDateFormatter(value, row) {
-                            var now = new Date();
-                            var expire = new Date(row.expireDate);
-                            var isExpired = expire < now;
-
-                            expire = new Date(row.expireDate).format("yyyy-MM-dd");
-
-                            var html = "";
-                            if (isExpired) {
-                                html = \`
-                                <span class="text-danger">Đã hết hạn</span>
-                                <br/>
-                                <a href="javascript:void(0)" class="bot-extend-link text-danger" title="Click để gia hạn" data-id="\${row.id}">
-                                    <i class="fa fa-plus-circle"></i>
-                                    Gia hạn
-                                </a>
-                            \`;
-                            } else {
-                                html = \`
-                                <span>Sử dụng đến</span>
-                                <a href="javascript:void(0)" class="bot-extend-link" title="Click để gia hạn" data-id="\${row.id}">
-                                    <span>\${expire}</span>
-                                </a>
-                                <br/>
-                                <a href="javascript:void(0)" class="bot-extend-link" title="Click để gia hạn" data-id="\${row.id}">
-                                    <i class="fa fa-plus-circle"></i>
-                                    Gia hạn
-                                </a>
-                            \`;
-                            }
-
-                            return html;
-                        }
-
-                        function myBotRowFormatter(value, row) {
-                            var id = row.id;
-                            var detailUrl = "https:///chobot.vn" + row.detailUrl;
-                            var backtestUrl = "https:///chobot.vn" + row.backtestUrl;
-                            var html = row.description;
-                            var desc = "";
-                            var date = new Date(row.updatedAt);
-                            date = date.format("dd/MM/yyyy HH:mm:ss");
-
-                            try {
-                                var parser = new DOMParser();
-                                var doc = parser.parseFromString(html, "text/html");
-                                desc = doc.documentElement.textContent;
-                                var maxlen = 145;
-                                if (desc.length > maxlen)
-                                    desc = desc.substring(0, maxlen) + "...";
-                            } catch { }
-
-                            if (row.imageUrl && row.imageUrl.includes("/storage/upload/avatars/") && !row.imageUrl.includes("http"))
-                                row.imageUrl = "https://chobot.vn/" + row.imageUrl;
-
-                            var rate = parseInt(row.rate);
-                            var rateHtml = \`<div class="rate" title="Đánh giá \${rate}/5">\`;
-                            for (var i = 1; i <= 5; i++) {
-                                rateHtml += \`<i class="fa fa-star \${i > rate ? 'text-muted' : 'text-yellow'}"></i>\`;
-                            }
-                            rateHtml += "</div>";
-
-                            var usageHtml = '';
-                            if (row.expireDate) {
-                                var activeDate = new Date(row.activeDate).toLocaleDateString();
-                                var expireDate = new Date(row.expireDate).toLocaleDateString();
-                                usageHtml =
-                                    \`<div class="row m-0 p-0">
-                                <div class="col-auto px-1">Ngày kích hoạt: <b>\${activeDate}</b></div>
-                                <div class="col-auto px-1">Ngày hết hạn: <b>\${expireDate}</b></div>
-                            </div>\`;
-                            }
-
-                            var html = \`
-                                <div class="row">
-                                    <div class="col-auto m-0 p-0 pr-1 d-flex align-items-center">
-                                        <a class="link" href="\${detailUrl}" title="Chi tiết" target="_blank">
-                                            <img src="\${row.imageUrl ?? "/satbot/images/noimage.png"}" alt="" class="thumb ml-2" />
-                                        </a>
-                                    </div>
-                                    <div class="col m-0 p-0 pl-1 mt-2 mx-2">
-                                        <div class="title">
-                                            <a class="title" href="\${detailUrl}" target="_blank">
-                                                <span class="" style="line-height:1.5rem">\${row.name}</span>
-                                            </a>
-                                        </div>
-                                        <div class="subtitle">
-                                            \${rateHtml}
-                                            <div class="owner small mx-1 ml-2">
-                                                <span>\${row.fullname}</span>
-                                            </div>
-                                            <div class="interval small mx-1">
-                                                <span>\${row.intervalName}</span>
-                                            </div>
-                                        </div>
-                                        \${usageHtml}
-                                    </div>
-                                </div>
-                            \`;
-
-                            return html;
-                        }
-                    </script>
-                </div>
-                <div class="modal-footer d-flex flex-nowrap justify-content-center">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Bỏ qua</button>
-                    <button type="button" class="btn btn-success btn-bot-selected">Chọn bot</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="bot-activate" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" data-backdrop="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Kích hoạt...</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body text-dark">
-                    <input id="bot-activate-botid" type="hidden" value="">
-                    <div class="alert alert-warning bot-activate-message">
-                        Vui lòng liên hệ bộ phận hỗ trợ để nhận mã kích hoạt
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Mã kích hoạt</label>
-                        <input id="bot-activation-code" type="text" class="form-control" value=""
-                            placeholder="Nhập mã kích hoạt">
-                    </div>
-                </div>
-                <div class="modal-footer d-flex flex-nowrap">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Bỏ qua</button>
-                    <button type="button" class="btn btn-success btn-bot-activate">Kích hoạt</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="modal fade" id="bot-extend-modal" tabindex="-1" role="dialog" data-backdrop="static" aria-hidden="true" data-backdrop="false">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Gia hạn sử dụng...</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body text-dark">
-                    <input id="bot-extend-botid" type="hidden" value="">
-                    <div class="alert alert-warning bot-extend-message">
-                        Vui lòng liên hệ bộ phận hỗ trợ để nhận mã kích hoạt gia hạn sử dụng Bot
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Mã kích hoạt</label>
-                        <input id="bot-extend-code" type="text" class="form-control" value=""
-                            placeholder="Nhập mã kích hoạt">
-                    </div>
-                </div>
-                <div class="modal-footer d-flex flex-nowrap">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Bỏ qua</button>
-                    <button type="button" class="btn btn-success bot-extend-btn">Kích hoạt</button>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script type="text/javascript">
-        $(document).ready(() => {
-            $("#lnk-bots").on("click", (e) => {
-                $("#table-bots").bootstrapTable('refresh');
-            });
-
-            $("#lnk-mybots").on("click", (e) => {
-                $("#table-mybots").bootstrapTable('refresh');
-            });
-
-            $(document).on("click", ".btn-select-bot", (e) => {
-                $("#table-bots").bootstrapTable('refresh');
-                $("#table-mybots").bootstrapTable('refresh');
-                $("#bot-select").modal("show");
-            });
-
-            $(document).on("click", ".btn-bot-selected", async (e) => {
-                try {
-                    var aThis = window.autobot;
-                    var showActivateModal = true;
-                    var selection = [];
-                    if ($("#tabChobot").hasClass("active")) {
-                        selection = $("#table-bots").bootstrapTable('getSelections');
-                    } else if ($("#tabRentBots").hasClass("active")) {
-                        selection = $("#table-rentBots").bootstrapTable('getSelections');
-                        showActivateModal = false;
-                    } else {
-                        selection = $("#table-mybots").bootstrapTable('getSelections');
-                        showActivateModal = false;
-                    }
-
-                    if (selection.length > 0) {
-                        $("#bot-select").modal("hide");
-
-                        var bot = selection[0];
-                        if (showActivateModal) {
-                            var url = \`\${aThis._config.apiUrl}?act=bot-settingsGet&bid=\${bot.id}&name=msgActivate\`;
-                            var result = await $.get(url);
-                            var msg = "";
-                            if (result.rc > 0)
-                                msg = result.data;
-
-                            if (!msg || msg == "")
-                                msg = \`Vui lòng liên hệ <a href="https://zalo.me/0908204305">0908204305</a> để nhận Mã kích hoạt\`;
-
-                            var sel = $("div.bot-activate-message");
-                            if (sel.length > 0)
-                                sel[0].innerHTML = msg;
-
-                            $("#bot-activation-code").val("");
-                            $("#bot-activate-botid").val(bot.id);
-                            $("#bot-activate").modal("show");
-                        } else {
-                            aThis.botSetActive(bot.id);
-                        }
-                    }
-                } catch (e) {
-                    console.error(e);
-                }
-            });
-
-            $(document).on("click", ".btn-bot-activate", async (e) => {
-                var aThis = window.autobot;
-
-                try {
-                    var key = $("#bot-activation-code").val();
-                    key = key.trim();
-                    if (!key || key === "") {
-                        aThis.tError("Vui lòng nhập mã kích hoạt");
-                        return;
-                    }
-
-                    var botId = $("#bot-activate-botid").val();
-                    if (!botId || botId === "") {
-                        aThis.tError("Vui lòng chọn lại bot cần kích hoạt");
-                        return;
-                    }
-
-                    // activate bot
-                    var result = await aThis.botActivate(botId, key);
-                    if (result)
-                        $("#bot-activate").modal("hide");
-                } catch (e) {
-                    aThis.tError(e.message);
-                }
-            });
-
-            $(document).on("click", ".bot-extend-link", async (e) => {
-                try {
-                    const aThis = window.autobot;
-
-                    var bid = $(e.currentTarget).attr("data-id");
-                    var url = \`\${aThis._config.apiUrl}?act=bot-settingsGet&bid=\${bid}&name=msgExtend\`;
-                    var result = await $.get(url);
-                    var msg = "";
-                    if (result.rc > 0)
-                        msg = result.data;
-
-                    if (!msg || msg == "")
-                        msg = \`Vui lòng liên hệ <a href="https://zalo.me/0908204305">0908204305</a> để nhận Mã kích hoạt\`;
-
-                    var sel = $("div.bot-extend-message");
-                    if (sel.length > 0)
-                        sel[0].innerHTML = msg;
-
-                    $("#bot-extend-botid").val(bid);
-                    $("#bot-extend-code").val("");
-                    $("#bot-extend-modal").modal("show");
-                    $("#bot-select").modal("hide");
-                } catch (e) {
-                    console.error(e);
-                }
-            });
-
-            $(document).on("click", ".bot-extend-btn", async (e) => {
-                try {
-                    const aThis = window.autobot;
-
-                    var bid = $("#bot-extend-botid").val();
-                    var key = $("#bot-extend-code").val();
-                    var result = await aThis.botExtend(bid, key);
-                    if (result)
-                        $("#bot-extend-modal").modal("hide");
-                } catch (e) {
-                    console.error(e);
-                }
-            });
-        });
-    </script>
-    <script src="${baseURL}/assets/js/plugins/bootstrap-table.min.js"></script>
- </div>`
-
 const add_logs = (text) => {
     var now = new Date()
-    text = now.toLocaleTimeString('en-GB') + ": " + text
+    text = now.toLocaleTimeString('vi-VN') + ": " + text
     const bot_logs = $("#bot-logs");
     !bot_logs.text() ? bot_logs.text(text) : bot_logs.text(bot_logs.text() + '\n' + text);
 }
 
 const showTinHieu = (tinhieu) => {
     const tbody = $("#bot-tbl-signals tbody")
-    var date = tinhieu[0].split(" ")[2]
-    var time = tinhieu[0].split(" ")[3]
-    var signal = tinhieu[1].split(" ")[2].slice(0, -1);
-    var price = parseFloat(tinhieu[2].split(':').pop().trim()).toFixed(2)
+    const date = tinhieu[0].split(" ")[2]
+    const time = tinhieu[0].split(" ")[3]
+    const signal = tinhieu[1].split(" ")[2].slice(0, -1);
+    const price = parseFloat(tinhieu[2].split(':').pop().trim()).toFixed(2)
 
-    var template = `<tr>
+    const template = `<tr>
                         <td class="text-left">
                             <em><span class="date">${date}</span></em>
                         </td>
@@ -1296,13 +408,13 @@ const getBotSignal = () => {
             const tbody = $("#bot-tbl-signals tbody")
             if (data.length > 0) {
                 data.map((sig) => {
-                    var dateTime = sig.dateTime.split(' ')
-                    var date = dateTime[0]
-                    var time = dateTime[1]
-                    var signal = sig.signal;
-                    var price = sig.price;
+                    const dateTime = sig.dateTime.split(' ')
+                    const date = dateTime[0]
+                    const time = dateTime[1]
+                    const signal = sig.signal;
+                    const price = sig.price;
 
-                    var template = `<tr>
+                    const template = `<tr>
                                 <td class="text-left">
                                     <em><span class="date">${date}</span></em>
                                 </td>
@@ -1343,7 +455,7 @@ const logout = () => {
 }
 
 const refreshToken = () => {
-    var refresh_token = getCookie("auth_refresh_token");
+    const refresh_token = getCookie("auth_refresh_token");
     const json = JSON.stringify({ refresh_token })
 
     $.ajax({
@@ -1351,15 +463,59 @@ const refreshToken = () => {
         method: "POST",
         data: json
     }).done((data) => {
-        if (data.access_token && data.refresh_token) {
+        if (data.access_token) {
             setCookie("auth_token", data.access_token, 5);
-            updateCookieValue("auth_refresh_token", data.access_token);
         }
     }).fail((_, error) => {
         error === 'timeout'
             ? add_logs("Mạng yếu, vui lòng thử lại.")
             : add_logs(error)
     })
+}
+
+function debounce(func, delay) {
+    let timeout;
+
+    return function executedFunc(...args) {
+        if (timeout) {
+            clearTimeout(timeout);
+        }
+
+        timeout = setTimeout(() => {
+            func(...args);
+            timeout = null;
+        }, delay);
+    };
+}
+function setCookie(cname, cvalue, exMinutes) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exMinutes * 60 * 1000));
+    let expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for (let i = 0; i < ca.length; i++) {
+        let c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return null;
+}
+
+const botSettings = {
+    enable: false,
+    trendType: "0",
+    volume: {
+        type: "0",
+        value: 0
+    }
 }
 
 $(document).ready(() => {
@@ -1369,8 +525,10 @@ $(document).ready(() => {
 $(window).on('load', () => {
     $.ajaxSetup({
         contentType: 'application/json',
-        timeout: 10000
-    });
+        timeout: 30000
+    })
+
+    var isDemo = window.location.href.includes("smarteasy.vps.com.vn")
 
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
         : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
@@ -1380,10 +538,11 @@ $(window).on('load', () => {
     web.append(root)
     root.append(loginFormHtml)
 
-    const satContent = $("#sat-content")
-    satContent.append(modelBot)
-
     function loggingAndBot(name = '') {
+        //5m
+        refreshToken()
+        setInterval(() => refreshToken(), 300000)
+
         const extContent = $("#ext-content")
         extContent.children().replaceWith(loggingHtml)
 
@@ -1402,14 +561,8 @@ $(window).on('load', () => {
         add_logs("Hệ thống sẳn sàng")
 
         name && add_logs("Xin chào: " + name)
-
-        getBotSignal()
-        $(".bot-signal-refresh").click(function () {
-            $("#bot-tbl-signals tbody").empty()
-            getBotSignal()
-        })
-
-        $(".bot-history-clear").on("click", function () {
+        
+        $(".bot-history-clear").click(function () {
             $("#bot-logs").text('')
         })
         
@@ -1418,15 +571,7 @@ $(window).on('load', () => {
         const botAutoOrder = $("#bot-auto-order")
         const sucMua = $("#sucmua-int")
         var sohodong = $("#sohopdong")
-
-        var botSettings = {
-            enable: false,
-            trendType: "0",
-            volume: {
-                type: "0",
-                value: 0
-            }
-        }
+        
         var settings = () => localStorage.getItem("autoBotSettings") && JSON.parse(localStorage.getItem("autoBotSettings"))
 
         const st = settings()
@@ -1441,7 +586,7 @@ $(window).on('load', () => {
         }
         botVolumeValue.attr("max", sucMua.text())
 
-        botVolume.on("change", function () {
+        botVolume.change(function () {
             if ($(this).val() === "0") {
                 botVolumeValue.val(parseInt(sucMua.text()))
                 if (botAutoOrder.is(":checked")) {
@@ -1452,7 +597,7 @@ $(window).on('load', () => {
 
         botVolumeValue.on("input", function () {
             let value = $(this).val()
-            var max = parseInt($(this).attr('max'))
+            const max = parseInt($(this).attr('max'))
             if (value > max) {
                 $(this).val(max)
             }
@@ -1469,40 +614,62 @@ $(window).on('load', () => {
                 }
             }))
         })
-
-        setTimeout(() => {
-            const observer = new MutationObserver(function (mutationsList) {
-                for (let mutation of mutationsList) {
-                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                        var newValue = parseInt(sucMua.text()) //mutation.target.textContent
-
-                        botVolumeValue.attr("max", newValue)
-                        if (newValue < botVolumeValue.val()) {
-                            botVolumeValue.val(newValue)
-                        }
-                        else if (newValue > botVolumeValue.val() && botVolume.val() === "0") {
-                            botVolumeValue.val(newValue)
-                        }
-
-                        const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
-                        if (vithe === "-" && botAutoOrder.is(":checked") && botVolume.val() === "0") {
-                            sohodong.val(botVolumeValue.val())
-                        }
-                        
-                        localStorage.setItem("autoBotSettings", JSON.stringify({
-                            ...settings() ?? botSettings,
-                            volume: {
-                                type: botVolume.val(),
-                                value: botVolumeValue.val()
-                            }
-                        }))
-
-                    }
-                }
-            });
-            observer.observe(document.getElementById("sucmua-int"), { characterData: true, childList: true, subtree: true });
-        }, 500)
         
+        const funcTheoDoiSucMua = () => {
+            const sucmua = document.getElementById("sucmua-int")
+            if (!sucmua) {
+                setTimeout(funcTheoDoiSucMua, 1000)
+            }
+            else {
+                const observer = new MutationObserver(function (mutationsList) {
+                    for (let mutation of mutationsList) {
+                        if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                            const newValue = parseInt(mutation.target.textContent) //sucMua.text()
+
+                            botVolumeValue.attr("max", newValue)
+                            if (newValue < botVolumeValue.val()) {
+                                botVolumeValue.val(newValue)
+                            }
+                            else if (newValue > botVolumeValue.val() && botVolume.val() === "0") {
+                                botVolumeValue.val(newValue)
+                            }
+
+                            const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
+                            if (vithe === "-" && botAutoOrder.is(":checked")) {
+                                sohodong.val(botVolumeValue.val())
+                            }
+
+                            localStorage.setItem("autoBotSettings", JSON.stringify({
+                                ...settings() ?? botSettings,
+                                volume: {
+                                    type: botVolume.val(),
+                                    value: botVolumeValue.val()
+                                }
+                            }))
+
+                        }
+                    }
+                });
+
+                observer.observe(sucmua, { characterData: true, childList: true, subtree: true });
+            }
+        }
+        funcTheoDoiSucMua()
+        
+        const convertFloat = (value) => parseFloat(value.split(':').pop().trim())
+        const convertFloatToFixed = (value, fix = 1) => parseFloat(parseFloat(value.split(':').pop().trim()).toFixed(fix));
+
+        const divideNumberBy2FloorToArray = (value) => {
+            let a = Math.floor(parseInt(value) / 2)
+            let b = value - a
+            return [a, b]
+        }
+        const divideNumberBy2CeilToArray = (value) => {
+            let a = Math.ceil(parseInt(value) / 2)
+            let b = value - a
+            return [a, b]
+        }
+
         const stopOrder = (tinhieu, stopOrderValue) => {
             if (!$("div.mySlides").eq(0).hasClass("hidden")) {
                 $(".list-group-item.list-group-item-accent-warning.ck-ps").eq(0).children().eq(1).click()
@@ -1525,20 +692,6 @@ $(window).on('load', () => {
                 tinhieu === "LONG" ? $("#right_selStopOrderType").val("SOL") : $("#right_selStopOrderType").val("SOU")
                 $("#right_stopOrderIndex").val(stopOrderValue)
             }, 200)
-        }
-
-        const convertFloat = (value) => parseFloat(value.split(':').pop().trim())
-        const convertFloatToFixed = (value, fix = 1) => parseFloat(parseFloat(value.split(':').pop().trim()).toFixed(fix));
-
-        const divideNumberBy2FloorToArray = (value) => {
-            var a = Math.floor(parseInt(value) / 2)
-            var b = value - a
-            return [a, b]
-        }
-        const divideNumberBy2CeilToArray = (value) => {
-            var a = Math.ceil(parseInt(value) / 2)
-            var b = value - a
-            return [a, b]
         }
         
         const chuyenLenhThuong_PRO = (timer = 0) => {
@@ -1573,7 +726,7 @@ $(window).on('load', () => {
             $("#right_price").val(giadat)
             $("#sohopdong").val(hopdong)
 
-            var timer = 100
+            let timer = 100
             if (isDemo) {
                 chuyenLenhThuong()
 
@@ -1605,12 +758,12 @@ $(window).on('load', () => {
             add_logs(`Đã đặt lệnh ${tinhieu} giá ${giadat} với ${hopdong} hợp đồng`)
         }
         
-        //1200mss
+        //1200ms
         const runBotStopOrder = (tinhieu, giadat, hopdong, stopOrderValue) => {
             $("#right_price").val(giadat)
             $("#sohopdong").val(hopdong)
 
-            var timer = 0
+            let timer = 0
             if (isDemo) {
                 stopOrder(tinhieu, stopOrderValue)
 
@@ -1638,106 +791,173 @@ $(window).on('load', () => {
             add_logs(`Đã đặt lệnh ${tinhieu} Stop Order: ${stopOrderValue}, giá đặt ${giadat} với ${hopdong} hợp đồng`)
         }
 
-        const cancelAllOrder = (timer) => {
+        //400ms
+        const huyLenhThuong = (timer = 0) => {
             if (isDemo) {
-                setTimeout(() => $(".btn-cancel-all").eq(0).click(), timer)
-                setTimeout(() => $("#acceptCreateOrder").click(), timer + 200)
-                //setTimeout(() => $("#close_modal").click(), 1400)
+                timer ? setTimeout(() => $(".btn-cancel-all").eq(0).click(), timer)
+                    : $(".btn-cancel-all").eq(0).click()
+                setTimeout(() => $("#acceptCreateOrder").click(), timer + 400)
             }
             else {
-                setTimeout(() => $("#button_cancel_all_order_normal").click(), timer)
-                setTimeout(() => $("#acceptCreateOrderNew").click(), timer + 200)
+                timer ? setTimeout(() => $("#button_cancel_all_order_normal").click(), timer)
+                    : $("#button_cancel_all_order_normal").click()
+                    
+                setTimeout(() => $("#acceptCreateOrderNew").click(), timer + 400)
+                setTimeout(() => $("#confirmModal").click(), timer + 500)
             }
+            add_logs("Đã hủy tất cả lệnh thường")
         }
 
-        const getPreviousSignal = () => sessionStorage.getItem("previousSignal") ?? ""
-        const setPreviousSignal = (signal) => sessionStorage.setItem("previousSignal", signal)
-
-        const botAutoClick = (arr) => {
-            let tinhieu
-            var dadatTp1 = false
-            var dadatTp2 = false
-
-            if (arr[1] == "Tin hieu long: Manh") {
-                tinhieu = "LONG"
-            }
-            else if (arr[1] == "Tin hieu short: Manh") {
-                tinhieu = "SHORT"
-            }
-
-            if (!getPreviousSignal() && getPreviousSignal() !== tinhieu) {
-                const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
-
-                add_logs("Đảo chiều chốt hết lệnh!!!")
-                runBotNormal(tinhieu, "MTL", Math.abs(parseInt(vithe)))
-                cancelAllOrder(1200)
-
-                dadatTp1 = false
-                dadatTp2 = false
-
-                setPreviousSignal("")
+        const huyLenhDieuKien = (timer = 0) => {
+            if (isDemo) {
+                $("#mainFooter").children().eq(1).children().eq(1).click()
+                setTimeout(() => {
+                    let timer = 0
+                    let totalTime = 0
+                    const links = $("#tbodyContentCondition").find("a");
+                    links.each(function () {
+                        timer += 100;
+                        totalTime += 500
+                        setTimeout(() => {
+                            timer += 400
+                            $(this).click()
+                            setTimeout(() => $("#btn_save_cancel_order").click(), timer)
+                        }, timer)
+                    });
+                    setTimeout(() => $("#mainFooter").children().eq(1).children().eq(1).click(), totalTime)
+                }, 500)
             }
             else {
-                setPreviousSignal(tinhieu)
+                timer
+                    ? setTimeout(() =>$("#btn_cancel_all_order_condition").click(), timer)
+                    : $("#btn_cancel_all_order_condition").click()
 
-                const giamua = convertFloatToFixed(arr[2])
-                const fullHopdong = sohodong.val()
-                let catLo = convertFloatToFixed(arr[7])
+                setTimeout(() => $("#cancel_all_order").click(), timer + 400);
+            }
+            add_logs("Đã hủy tất cả lệnh điều kiện")
+        }
+        
+        const botAutoClick = (arr, fullHopdong = botVolumeValue.val()) => {
+            let tinhieu = arr[1] === "Tin hieu long: Manh" ? "LONG" : "SHORT"
+            let dadatTp1 = false
+            let dadatTp2 = false
 
-                tinhieu === "LONG"
-                    ? catLo -= 0.3
-                    : catLo += 0.3
-                catLo = catLo.toFixed(1)
+            const li = ulPanel.children()
+            li.eq(0).children().click()
+            li.eq(2).children().click()
 
-                const trendType = $("#bot-trendTypes").val()
-                if (((trendType == "1" && tinhieu == "LONG") || (trendType == "2" && tinhieu == "SHORT") || trendType == "0")
-                ) {//&& botVolumeValue.val() > 0
-                    const tp1 = convertFloatToFixed(arr[3])
-                    const tp2 = convertFloatToFixed(arr[4])
+            const type = arr[arr.length - 1].split(" ")
+            const daoChieu = arr[arr.length - 1] === "REVERSE" || type[0] === "REVERSE"
+            
+            const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
+            let timer = 0
+            
+            if (daoChieu) {
+                add_logs("Tính hiệu đảo chiều!")
 
-                    const order50 = divideNumberBy2CeilToArray(fullHopdong)
-                    const order25 = divideNumberBy2CeilToArray(order50[1])
-                    
-                    //50%
-                    runBotNormal(tinhieu, giamua, fullHopdong)
+                if (parseInt(vithe)) {
+                    fullHopdong += Math.abs(parseInt(vithe))
+                }
+                
+                huyLenhThuong()
+                timer += 400
+                huyLenhDieuKien(timer)
+            }
+            
+            let giamua = convertFloatToFixed(arr[2])
+            tinhieu === "LONG"
+                ? giamua += 0.2
+                : giamua -= 0.2
+            giamua = giamua.toFixed(1)
 
+            let catLo = convertFloatToFixed(arr[7])
+            tinhieu === "LONG"
+                ? catLo -= 0.3
+                : catLo += 0.3
+            catLo = catLo.toFixed(1)
+
+            const trendType = $("#bot-trendTypes").val()
+            if (((trendType == "1" && tinhieu == "LONG") || (trendType == "2" && tinhieu == "SHORT") || trendType == "0")
+                && fullHopdong > 0) {
+                const tp1 = convertFloatToFixed(arr[3])
+                const tp2 = convertFloatToFixed(arr[4])
+
+                const order50 = divideNumberBy2CeilToArray(fullHopdong)
+                const order25 = divideNumberBy2CeilToArray(order50[1])
+
+                //Vo 100%
+                if (daoChieu) {
+                    timer += 400
+                    setTimeout(() => runBotNormal(tinhieu, giamua, fullHopdong), timer)
+                }
+                else runBotNormal(tinhieu, giamua, fullHopdong) 
+
+                timer += 1200
+                setTimeout(() => {
                     tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
+                    runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo)
+                }, timer)
 
-                    let timer = 1200
-                    setTimeout(() => runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo), timer)
+                //Chot 50%
+                if (order50[0] > 0) {
+                    timer += 1300
+                    setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
+                }
 
-                    //25%
-                    if (order50[0] > 0) {
-                        timer += 1400
-                        setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
-                    }
-
-                    if (order25[0] > 0){
-                        timer += 1200
-                        setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
-                    }
-                    
+                //Chot 25%
+                if (order25[0] > 0) {
                     timer += 1200
-                    setTimeout(() => {
-                        const ob = new MutationObserver(function (mutationsList) {
-                            for (let mutation of mutationsList) {
-                                if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                                    const giaKhopLenh = parseFloat(mutation.target.textContent)
-                                    if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1 && order25[0] > 0) {
-                                        runBotStopOrder(tinhieu, "MTL", order25[0], giamua)
-                                        dadatTp1 = true
-                                    }
-                                    if (giaKhopLenh >= tp2 && !dadatTp2 && order25[0] > 0) {
-                                        runBotStopOrder(tinhieu, "MTL", order25[0], tp1)
-                                        dadatTp1 = true
-                                        dadatTp2 = true
+                    setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
+                }
+
+                timer += 1200
+                setTimeout(() => {
+                    const funcTheoDoiGiaKhopLenh = () => {
+                        const giaKhop = document.getElementById("tbodyPhaisinhContent").childNodes[0]?.childNodes[10]
+                        if (!giaKhop) {
+                            setTimeout(funcTheoDoiGiaKhopLenh, 1000)
+                        }
+                        else {
+                            const ob = new MutationObserver(function (mutationsList) {
+                                for (let mutation of mutationsList) {
+                                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                        const giaKhopLenh = parseFloat(mutation.target.textContent)
+
+                                        if (tinhieu === "SHORT") {
+                                            if (giaKhopLenh >= tp1 && giaKhopLenh < tp2 && !dadatTp1 && order50[0] > 0) {
+                                                runBotStopOrder(tinhieu, "MTL", order50[0], giamua)
+                                                huyLenhDieuKien(1300)
+                                                dadatTp1 = true
+                                            }
+                                            if (giaKhopLenh >= tp2 && !dadatTp2 && order25[0] > 0) {
+                                                runBotStopOrder(tinhieu, "MTL", order25[0], tp1)
+                                                huyLenhDieuKien(1300)
+                                                dadatTp1 = true
+                                                dadatTp2 = true
+                                            }
+                                        }
+                                        else {
+                                            if (giaKhopLenh <= tp1 && giaKhopLenh > tp2 && !dadatTp1 && order50[0] > 0) {
+                                                runBotStopOrder(tinhieu, "MTL", order50[0], giamua)
+                                                huyLenhDieuKien(1300)
+                                                dadatTp1 = true
+                                            }
+                                            if (giaKhopLenh <= tp2 && !dadatTp2 && order25[0] > 0) {
+                                                runBotStopOrder(tinhieu, "MTL", order25[0], tp1)
+                                                huyLenhDieuKien(1300)
+                                                dadatTp1 = true
+                                                dadatTp2 = true
+                                            }
+                                        }
+                                        
                                     }
                                 }
-                            }
-                        });
-                        ob.observe(document.getElementById("tbodyPhaisinhContent").childNodes[0].childNodes[10], { characterData: true, childList: true, subtree: true })
-                    }, timer)
-                }
+                            });
+                            ob.observe(giaKhop, { characterData: true, childList: true, subtree: true })
+                        }
+                    }
+                    funcTheoDoiGiaKhopLenh()
+                }, timer)
             }
         }
 
@@ -1786,12 +1006,12 @@ $(window).on('load', () => {
             }))
         })
 
-        $(".satbot-logout").on("click", () => {
+        $(".satbot-logout").click(() => {
             if (confirm("Nhấn Ok để xác nhận Hủy liên kết, No để trở lại")) {
                 logout()
             }
         })
-
+        
         var connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseURL}/signal`)
             .withAutomaticReconnect()
@@ -1800,11 +1020,66 @@ $(window).on('load', () => {
         connection.on("Signal", function (message) {
             const tinhieu = message.split("\n").map(line => line.trim())
             showTinHieu(tinhieu)
+            add_logs(tinhieu[1])
             if (botAutoOrder.is(":checked")) {
                 botAutoClick(tinhieu)
             }
         });
+
+        connection.on("AdminSignal", function (message) {
+            console.log(message)
+            if (message == "CANCEL_ALL") {
+                huyLenhThuong()
+                huyLenhDieuKien(500)
+            }
+            else {
+                const arr = message.split("\n").map(line => line.trim())
+                const type = arr[arr.length - 1].split(" ")
+                showTinHieu(arr)
+                add_logs(arr[1])
+                
+                if (botAutoOrder.is(":checked")) {
+                    if (type[0] === "NO_STOP_ORDER" || type[1] === "NO_STOP_ORDER") {
+                        const tinhieu = arr[1] === "Tin hieu long: Manh" ? "LONG" : "SHORT"
+
+                        let hopdong = botVolumeValue.val()
+
+                        let giamua = convertFloatToFixed(arr[2])
+                        tinhieu === "LONG"
+                            ? giamua += 0.2
+                            : giamua -= 0.2
+                        giamua = giamua.toFixed(1)
+
+                        if ((parseInt(type[1]) || parseInt(type[2]))) {
+                            const hd = parseInt(type[1]) || parseInt(type[2])
+                            if (hd < hopdong) {
+                                hopdong = hd
+                            }
+                        }
+
+                        runBotNormal(tinhieu, giamua, hopdong)
+                    }
+                    else {
+                        const fullHopdong = botVolumeValue.val()
+                        if ((type[1] || type[2]) && (parseInt(type[1]) > 0 || parseInt(type[2]) > 0) && (parseInt(type[1]) < fullHopdong || parseInt(type[2]) < fullHopdong)) {
+                            const hd = parseInt(type[1]) || parseInt(type[2])
+                            botAutoClick(arr, hd)
+                        }
+                        else botAutoClick(arr)
+                    }                    
+                }
+            }
+        });
+
         connection.start().catch((err) => console.error(err.toString()))
+
+        getBotSignal()
+        const debouncedGetBotSignal = debounce(() => {
+            $("#bot-tbl-signals tbody").empty();
+            getBotSignal()
+        }, 500);
+
+        $(".bot-signal-refresh").click(debouncedGetBotSignal)
     }
 
     const loggedIn = getCookie("auth_refresh_token");
@@ -1863,4 +1138,4 @@ $(window).on('load', () => {
 //    "Target 4: 1257.1",
 //    "Cat lo : 1273.667"
 
-//ssh -R 80:localhost:5131 localhost.run
+//    ssh -R 80:localhost:5131 localhost.run

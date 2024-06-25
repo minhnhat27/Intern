@@ -1,11 +1,7 @@
 ﻿using Bot.DTO;
 using Bot.Request;
 using Bot.Services;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using NuGet.Common;
-using System.Security.Claims;
-using static System.Net.WebRequestMethods;
 
 namespace Bot.Controllers
 {

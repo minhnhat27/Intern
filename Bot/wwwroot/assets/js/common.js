@@ -37,20 +37,6 @@ function updateCookieValue(cname, newValue) {
         }
     }
 }
-function debounce(func, delay) {
-    let timeout;
-
-    return function executedFunc(...args) {
-        if (timeout) {
-            clearTimeout(timeout);
-        }
-
-        timeout = setTimeout(() => {
-            func(...args);
-            timeout = null;
-        }, delay);
-    };
-}
 
 var aBeep = new Audio(`${baseURL}/assets/sound/beep.wav`);
 var aTick = new Audio(`${baseURL}/assets/sound/tick.wav`);

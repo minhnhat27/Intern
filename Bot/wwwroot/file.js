@@ -1,7 +1,7 @@
 ﻿"use strict"
 
-const baseURL = "https://minhnhat27.id.vn"
-//const baseURL = "http://localhost:5131"
+//const baseURL = "https://minhnhat27.id.vn"
+const baseURL = "http://localhost:5131"
 
 const api_auth = `${baseURL}/api/auth`
 const api_signal = `${baseURL}/api/signal`
@@ -472,7 +472,6 @@ const refreshToken = () => {
             : add_logs(error)
     })
 }
-
 function debounce(func, delay) {
     let timeout;
 
@@ -532,7 +531,7 @@ $(window).on('load', () => {
 
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
         : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
-        
+
     const web = $("div#orderPS.tab-pane.active")
     const root = $(packageHtml)
     web.append(root)
@@ -561,17 +560,17 @@ $(window).on('load', () => {
         add_logs("Hệ thống sẳn sàng")
 
         name && add_logs("Xin chào: " + name)
-        
+
         $(".bot-history-clear").click(function () {
             $("#bot-logs").text('')
         })
-        
+
         const botVolume = $("#bot-volume")
         const botVolumeValue = $("#bot-volume-value")
         const botAutoOrder = $("#bot-auto-order")
         const sucMua = $("#sucmua-int")
         var sohodong = $("#sohopdong")
-        
+
         var settings = () => localStorage.getItem("autoBotSettings") && JSON.parse(localStorage.getItem("autoBotSettings"))
 
         const st = settings()
@@ -614,7 +613,7 @@ $(window).on('load', () => {
                 }
             }))
         })
-        
+
         const funcTheoDoiSucMua = () => {
             const sucmua = document.getElementById("sucmua-int")
             if (!sucmua) {
@@ -655,7 +654,7 @@ $(window).on('load', () => {
             }
         }
         funcTheoDoiSucMua()
-        
+
         const convertFloat = (value) => parseFloat(value.split(':').pop().trim())
         const convertFloatToFixed = (value, fix = 1) => parseFloat(parseFloat(value.split(':').pop().trim()).toFixed(fix));
 
@@ -669,148 +668,75 @@ $(window).on('load', () => {
             let b = value - a
             return [a, b]
         }
-
-        const stopOrder = (tinhieu, stopOrderValue) => {
-            if (!$("div.mySlides").eq(0).hasClass("hidden")) {
-                $(".list-group-item.list-group-item-accent-warning.ck-ps").eq(0).children().eq(1).click()
-            }
-            setTimeout(() => {
-                if (!$("#use_stopOrder").is(":checked")) {
-                    $("#use_stopOrder").next().click()
-                }
-
-                tinhieu === "LONG" ? $("#selStopOrderType").val("SOL") : $("#selStopOrderType").val("SOU")
-                $("#soIndex").val(stopOrderValue)
-            }, 200)
-        }
-
-        const stopOrder_PRO = (tinhieu, stopOrderValue) => {
-            $("#select_condition_order_wrapper").click()
-            setTimeout(() => {
-                $("#select_order_type").children().eq(1).click()
-
-                tinhieu === "LONG" ? $("#right_selStopOrderType").val("SOL") : $("#right_selStopOrderType").val("SOU")
-                $("#right_stopOrderIndex").val(stopOrderValue)
-            }, 200)
-        }
         
-        const chuyenLenhThuong_PRO = (timer = 0) => {
-            timer
-                ? setTimeout(() => $("#select_normal_order").click(), timer)
-                : $("#select_normal_order").click()
-        }
-
-        const chuyenLenhThuong = (timer = 0) => {
-            if (timer) {
-                setTimeout(() => {
-                    if ($("#use_stopOrder").is(":checked")) {
-                        $("#use_stopOrder").next().click()
-                    }
-                    if ($("#use_sltp").is(":checked")) {
-                        $("#use_sltp").next().click()
-                    }
-                }, timer)
-            }
-            else {
-                if ($("#use_stopOrder").is(":checked")) {
-                    $("#use_stopOrder").next().click()
-                }
-                if ($("#use_sltp").is(":checked")) {
-                    $("#use_sltp").next().click()
-                }
-            }
-        }
-
-        //1100ms
         const runBotNormal = (tinhieu, giadat, hopdong) => {
             $("#right_price").val(giadat)
             $("#sohopdong").val(hopdong)
 
-            let timer = 100
+            tinhieu === "LONG" ? $('input[name="type"]').val("B") : $('input[name="type"]').val("S")
+            
             if (isDemo) {
-                chuyenLenhThuong()
-
-                tinhieu === "SHORT"
-                    ? setTimeout(() => $(".btn-update").eq(0).click(), timer)
-                    : setTimeout(() => $(".btn-update").eq(1).click(), timer)
-
-                timer += 400
-                setTimeout(() => $("#acceptCreateOrder").click(), timer)
-                //setTimeout(() => $("#close_modal").click(), timer)
-
-                timer += 100
-                chuyenLenhThuong(timer)
+                saveOrder()
             }
             else {
-                chuyenLenhThuong_PRO()
-
-                tinhieu === "SHORT"
-                    ? setTimeout(() => $("#btn_short").click(), timer)
-                    : setTimeout(() => $("#btn_long").click(), timer)
-
-                timer += 400
-                setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
-                //setTimeout(() => $("#close_modal").click(), timer)
-
-                timer += 100
-                chuyenLenhThuong_PRO(timer)
+                saveOrderNew()
             }
             add_logs(`Đã đặt lệnh ${tinhieu} giá ${giadat} với ${hopdong} hợp đồng`)
         }
-        
-        //1200ms
+
         const runBotStopOrder = (tinhieu, giadat, hopdong, stopOrderValue) => {
             $("#right_price").val(giadat)
             $("#sohopdong").val(hopdong)
+            tinhieu === "LONG" ? $('input[name="type"]').val("B") : $('input[name="type"]').val("S")
 
-            let timer = 0
             if (isDemo) {
-                stopOrder(tinhieu, stopOrderValue)
+                plusDivs(1)
+                $('#use_stopOrder').prop('checked', true)
+                
+                tinhieu === "LONG" ? $('#selStopOrderType').val("SOL") : $("#selStopOrderType").val("SOU")
+                $('#soIndex').val(stopOrderValue)
 
-                timer += 300
-                tinhieu === "SHORT"
-                    ? setTimeout(() => $(".btn-update").eq(0).click(), timer)
-                    : setTimeout(() => $(".btn-update").eq(1).click(), timer)
+                saveOrder()
 
-                timer += 400
-                setTimeout(() => $("#acceptCreateOrder").click(), timer)
-                //setTimeout(() => $("#close_modal").click(), timer)
+                plusDivs(-1)
+                $('#use_stopOrder').prop('checked', false)
             }
             else {
-                stopOrder_PRO(tinhieu, stopOrderValue)
+                changeSelectionType($("#select_condition_order_wrapper"))
+                changeSelectOrder($('#select_order_type').children().eq(1)[0])
+                //$('#modal_price').text(giadat)
+                objConfig.CONFIRM_ORDER = false
+                $("#right_order_type").data("2")
+                $("#right_stock_cd_code").data("3")
 
-                timer += 300
-                tinhieu === "SHORT"
-                    ? setTimeout(() => $("#btn_short").click(), timer)
-                    : setTimeout(() => $("#btn_long").click(), timer)
+                tinhieu === "LONG" ? $('#right_selStopOrderType').val("SOL") : $("#right_selStopOrderType").val("SOU")
 
-                timer += 400
-                setTimeout(() => $("#acceptCreateOrderNew").click(), timer)
-                //setTimeout(() => $("#close_modal").click(), timer)
+                $('#right_stopOrderIndex').val(stopOrderValue)
+
+                saveOrderNew()
+                changeSelectionType($("#select_normal_order_wrapper"))
             }
             add_logs(`Đã đặt lệnh ${tinhieu} Stop Order: ${stopOrderValue}, giá đặt ${giadat} với ${hopdong} hợp đồng`)
         }
 
-        //400ms
-        const huyLenhThuong = (timer = 0) => {
-            if (isDemo) {
-                timer ? setTimeout(() => $(".btn-cancel-all").eq(0).click(), timer)
-                    : $(".btn-cancel-all").eq(0).click()
-                setTimeout(() => $("#acceptCreateOrder").click(), timer + 400)
-            }
-            else {
-                timer ? setTimeout(() => $("#button_cancel_all_order_normal").click(), timer)
-                    : $("#button_cancel_all_order_normal").click()
-                    
-                setTimeout(() => $("#acceptCreateOrderNew").click(), timer + 400)
-                setTimeout(() => $("#confirmModal").click(), timer + 500)
-            }
+        const huyLenhThuong = () => {
+            $('.cancel-all-confirm').css('display', 'none')
+
+            isDemo
+                ? saveOrder()
+                : saveOrderNew()
+
             add_logs("Đã hủy tất cả lệnh thường")
         }
 
-        const huyLenhDieuKien = (timer = 0) => {
+        //smartEasy - x
+        const huyLenhDieuKien = () => {
             if (isDemo) {
                 $("#mainFooter").children().eq(1).children().eq(1).click()
+
+                objOrderPanel.deleteOrderCondition('919232', 'S', 'FU_1', 'VN30F2407', 'MTL', '10', 'D382198');
+
+
                 setTimeout(() => {
                     let timer = 0
                     let totalTime = 0
@@ -828,20 +754,20 @@ $(window).on('load', () => {
                 }, 500)
             }
             else {
-                timer
-                    ? setTimeout(() =>$("#btn_cancel_all_order_condition").click(), timer)
-                    : $("#btn_cancel_all_order_condition").click()
-
-                setTimeout(() => $("#cancel_all_order").click(), timer + 400);
+                $("#modal_stock_cd_cancel_all").val("ALL")
+                $("#modal_account_cancel_all").val($("#right_account option:selected").val())
+                $('#cancel_order_type').val("order_condition")
+                cancelAllOrderPending()
             }
-            add_logs("Đã hủy tất cả lệnh điều kiện")
+            add_logs("Đã hủy tất cả lệnh điều kiện chờ kích hoạt")
         }
-        
-        const botAutoClick = (arr) => {
+
+        setTimeout(huyLenhDieuKien, 3000)
+
+        const botAutoClick = (arr, fullHopdong = botVolumeValue.val()) => {
             let tinhieu = arr[1] === "Tin hieu long: Manh" ? "LONG" : "SHORT"
             let dadatTp1 = false
             let dadatTp2 = false
-            let fullHopdong = botVolumeValue.val()
 
             const li = ulPanel.children()
             li.eq(0).children().click()
@@ -849,22 +775,22 @@ $(window).on('load', () => {
 
             const type = arr[arr.length - 1].split(" ")
             const daoChieu = arr[arr.length - 1] === "REVERSE" || type[0] === "REVERSE"
-            
+
             const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
             let timer = 0
-            
+
             if (daoChieu) {
                 add_logs("Tính hiệu đảo chiều!")
 
                 if (parseInt(vithe)) {
                     fullHopdong += Math.abs(parseInt(vithe))
                 }
-                
+
                 huyLenhThuong()
                 timer += 400
-                huyLenhDieuKien(timer)
+                huyLenhDieuKien(400)
             }
-            
+
             let giamua = convertFloatToFixed(arr[2])
             tinhieu === "LONG"
                 ? giamua += 0.2
@@ -891,24 +817,21 @@ $(window).on('load', () => {
                     timer += 400
                     setTimeout(() => runBotNormal(tinhieu, giamua, fullHopdong), timer)
                 }
-                else runBotNormal(tinhieu, giamua, fullHopdong) 
+                else runBotNormal(tinhieu, giamua, fullHopdong)
 
-                timer += 1200
-                setTimeout(() => {
-                    tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
-                    runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo)
-                }, timer)
+                //dao lenh
+                tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
+
+                runBotStopOrder(tinhieu, "MTL", fullHopdong, catLo)
 
                 //Chot 50%
                 if (order50[0] > 0) {
-                    timer += 1300
-                    setTimeout(() => runBotNormal(tinhieu, tp1, order50[0]), timer)
+                    runBotNormal(tinhieu, tp1, order50[0])
                 }
 
                 //Chot 25%
                 if (order25[0] > 0) {
-                    timer += 1200
-                    setTimeout(() => runBotNormal(tinhieu, tp2, order25[0]), timer)
+                    runBotNormal(tinhieu, tp2, order25[0])
                 }
 
                 timer += 1200
@@ -950,7 +873,7 @@ $(window).on('load', () => {
                                                 dadatTp2 = true
                                             }
                                         }
-                                        
+
                                     }
                                 }
                             });
@@ -1012,7 +935,7 @@ $(window).on('load', () => {
                 logout()
             }
         })
-        
+
         var connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseURL}/signal`)
             .withAutomaticReconnect()
@@ -1038,7 +961,7 @@ $(window).on('load', () => {
                 const type = arr[arr.length - 1].split(" ")
                 showTinHieu(arr)
                 add_logs(arr[1])
-                
+
                 if (botAutoOrder.is(":checked")) {
                     if (type[0] === "NO_STOP_ORDER" || type[1] === "NO_STOP_ORDER") {
                         const tinhieu = arr[1] === "Tin hieu long: Manh" ? "LONG" : "SHORT"
@@ -1061,14 +984,13 @@ $(window).on('load', () => {
                         runBotNormal(tinhieu, giamua, hopdong)
                     }
                     else {
-                        //const fullHopdong = botVolumeValue.val()
-                        //if ((type[1] || type[2]) && (parseInt(type[1]) > 0 || parseInt(type[2]) > 0) && (parseInt(type[1]) < fullHopdong || parseInt(type[2]) < fullHopdong)) {
-                        //    const hd = parseInt(type[1]) || parseInt(type[2])
-                        //    botAutoClick(arr, hd)
-                        //}
-                        //else botAutoClick(arr)
-                        botAutoClick(arr)
-                    }                    
+                        const fullHopdong = botVolumeValue.val()
+                        if ((type[1] || type[2]) && (parseInt(type[1]) > 0 || parseInt(type[2]) > 0) && (parseInt(type[1]) < fullHopdong || parseInt(type[2]) < fullHopdong)) {
+                            const hd = parseInt(type[1]) || parseInt(type[2])
+                            botAutoClick(arr, hd)
+                        }
+                        else botAutoClick(arr)
+                    }
                 }
             }
         });

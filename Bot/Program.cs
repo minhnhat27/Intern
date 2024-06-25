@@ -1,13 +1,12 @@
 ﻿using Bot.Data;
+using Bot.Middleware;
 using Bot.Models;
-using Bot.Request;
 using Bot.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using System.Configuration;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -81,17 +80,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-using (var scope = app.Services.CreateScope())
-{
-    var _Db = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-    if (_Db != null)
-    {
-        if (_Db.Database.GetPendingMigrations().Any())
-        {
-            _Db.Database.Migrate();
-        }
-    }
-}
+await DataSeeding.Initialize(app.Services);
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {

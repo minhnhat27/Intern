@@ -10,47 +10,27 @@ namespace Bot.Services
     public class BotSignalService : IBotSignalService
     {
         private readonly MyDbContext _dbContext;
-        public BotSignalService(MyDbContext dbContext) => _dbContext = dbContext;
-
-        public async Task<bool> AddSignal(AddSignalRequest request)
+        private readonly ICachingService _cachingService;
+        public BotSignalService(MyDbContext dbContext, ICachingService cachingService)
         {
-            var Signal = new BotSignal()
-            {
-                Signal = request.Signal,
-                Price = request.Price,
-                DateTime = request.Date
-            };
-            await _dbContext.BotSignals.AddAsync(Signal);
-
-            var result = await _dbContext.SaveChangesAsync();
-            return result > 0 ;
-        }
-
-        public async Task<bool> AddSignals(List<AddSignalRequest> requests)
-        {
-            List<BotSignal> listSignal = requests.Select(e => new BotSignal
-            {
-                Signal = e.Signal,
-                Price = e.Price,
-                DateTime = e.Date
-            }).ToList();
-            await _dbContext.BotSignals.AddRangeAsync(listSignal);
-            var result = await _dbContext.SaveChangesAsync();
-            return result > 0;
+            _dbContext = dbContext;
+            _cachingService = cachingService;
         }
 
         public async Task AddSignal(string text)
         {
             var message = text.Split('\n');
-            var datetime = message[0].Trim().Split(" ")[2] + " " + message[0].Trim().Split(" ")[3] + " " + message[0].Trim().Split(" ")[4];
+            var datetime = message[0].Trim().Split(" ")[2] + " " + message[0].Trim().Split(" ")[3];
             var tinhieu = message[1].Trim() == "Tin hieu long: Manh" ? "LONG" : "SHORT";
             var gia = message[2].Trim().Split(":")[1].Trim();
+
+            string inputFormat = "yyyy-MM-dd HH:mm:ss";
 
             var signal = new BotSignal
             {
                 Signal = tinhieu,
                 Price = double.Parse(gia),
-                DateTime = DateTime.Parse(datetime)
+                DateTime = DateTime.ParseExact(datetime, inputFormat,  CultureInfo.InvariantCulture)
             };
             await _dbContext.AddAsync(signal);
             await _dbContext.SaveChangesAsync();
@@ -68,5 +48,32 @@ namespace Bot.Services
                     DateTime = e.DateTime.ToString("dd/MM/yyyy HH:mm:ss"),
                 }).ToListAsync();
         }
+        public string CacheSignal(string signal, string message)
+        {
+            var now = TimeOnly.FromDateTime(DateTime.Now);
+            var noon = new TimeOnly(12, 00);
+
+            if (now < noon)
+            {
+                if (_cachingService.Get<string>("Morning") != null
+                    && _cachingService.Get<string>("Morning") != signal)
+                {
+                    message += "\nREVERSE";
+                }
+                _cachingService.Set("Morning", signal, TimeSpan.FromHours(3));
+            }
+            else
+            {
+                if (_cachingService.Get<string>("Afternoon") != null
+                    && _cachingService.Get<string>("Afternoon") != signal)
+                {
+                    message += "\nREVERSE";
+                }
+                _cachingService.Set("Afternoon", signal, TimeSpan.FromHours(3));
+            }
+
+            return message;
+        }
+
     }
 }

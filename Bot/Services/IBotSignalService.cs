@@ -8,7 +8,6 @@ namespace Bot.Services
     {
         Task<IList<SignalResponse>> GetSignals();
         Task AddSignal(string text);
-        Task<bool> AddSignal(AddSignalRequest request);
-        Task<bool> AddSignals(List<AddSignalRequest> requests);
+        string CacheSignal(string signal, string message);
     }
 }

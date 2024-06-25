@@ -18,17 +18,5 @@ namespace Bot.Data
         public DbSet<ProfitLoss> ProfitsLoss { get; set; }
         public DbSet<PurchaseHistory> PurchaseHistories { get; set; }
         public DbSet<Salary> Salaries { get; set; }
-        protected override void OnModelCreating(ModelBuilder builder)
-        {
-            base.OnModelCreating(builder);
-            //builder.Entity<User>()
-            //    .HasMany(u => u.BotTradings)
-            //    .WithMany(u => u.Users)
-            //    .UsingEntity<UserBot>(
-            //        l => l.HasOne<BotTrading>().WithMany().HasForeignKey(u => u.BotId),
-            //        r => r.HasOne<User>().WithMany().HasForeignKey(u => u.UserId)
-            //    );
-        }
-
     }
 }
