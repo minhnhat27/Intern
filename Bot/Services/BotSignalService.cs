@@ -1,6 +1,5 @@
 ﻿using Bot.Data;
 using Bot.Models;
-using Bot.Request;
 using Bot.Response;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;
@@ -30,7 +29,7 @@ namespace Bot.Services
             {
                 Signal = tinhieu,
                 Price = double.Parse(gia),
-                DateTime = DateTime.ParseExact(datetime, inputFormat,  CultureInfo.InvariantCulture)
+                DateTime = DateTime.ParseExact(datetime, inputFormat, CultureInfo.InvariantCulture)
             };
             await _dbContext.AddAsync(signal);
             await _dbContext.SaveChangesAsync();

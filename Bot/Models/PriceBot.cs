@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace Bot.Models
 {
@@ -11,7 +9,7 @@ namespace Bot.Models
         public double Price { get; set; }
         public int Discount { get; set; }
         public int BotTradingId { get; set; }
-        public BotTrading BotTrading { get; set; } 
+        public BotTrading BotTrading { get; set; }
 
     }
 }

@@ -50,7 +50,7 @@ namespace Bot.Controllers
                     return Ok();
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }

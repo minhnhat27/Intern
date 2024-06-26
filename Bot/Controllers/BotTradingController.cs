@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Bot.Data;
-using Bot.Request;
+﻿using Bot.Request;
 using Bot.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Bot.Controllers
 {

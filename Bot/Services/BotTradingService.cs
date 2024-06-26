@@ -2,8 +2,6 @@
 using Bot.Models;
 using Bot.Request;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Bot.Services
 {
@@ -24,7 +22,7 @@ namespace Bot.Services
                 Profit = botTrading.Profit,
                 CommandNumber = botTrading.CommandNumber,
                 WinRate = botTrading.WinRate,
-                
+
             };
             await _dbContext.BotsTrading.AddAsync(payload);
             await _dbContext.SaveChangesAsync();

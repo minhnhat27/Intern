@@ -1,6 +1,4 @@
-﻿using Bot.Models;
-using Bot.Request;
-using Bot.Response;
+﻿using Bot.Response;
 
 namespace Bot.Services
 {

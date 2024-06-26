@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
-using Bot.Controllers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -22,8 +22,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
     //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
 });
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<MyDbContext>()
@@ -46,6 +46,19 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = builder.Configuration.GetSection("JWT:Audience").Value,
         ValidIssuer = builder.Configuration.GetSection("JWT:Issuer").Value,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JWT:Key").Value ?? "")),
+    };
+    options.Events = new JwtBearerEvents()
+    {
+        OnTokenValidated = context =>
+        {
+            var versionClaim = context.Principal?.FindFirstValue(ClaimTypes.Version);
+            if (versionClaim != null && versionClaim == "Refresh_Token")
+            {
+                context.Fail("Requests with refresh tokens are not allowed.");
+            }
+
+            return Task.CompletedTask;
+        }
     };
 });
 builder.Services.AddCors(opt =>
@@ -90,7 +103,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-await DataSeeding.Initialize(app.Services);
+DataSeeding.Initialize(app.Services).Wait();
 
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
@@ -107,7 +120,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
-app.MapHub<MessageHub>("/signal");
+app.MapHub<MessageHub>("/realtimeSignal");
 
 app.MapGet("/", () => "Hello World!");
 

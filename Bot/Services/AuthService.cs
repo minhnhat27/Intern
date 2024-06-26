@@ -28,7 +28,7 @@ namespace Bot.Services
             _emailSender = emailSender;
             _cachingService = cachingService;
         }
-        private string CreateJwt(User user, IEnumerable<string> roles, DateTime time)
+        private string CreateJwt(User user, IEnumerable<string> roles, DateTime time, bool RefreshToken)
         {
             var claims = new List<Claim>
             {
@@ -36,6 +36,11 @@ namespace Bot.Services
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email ?? "")
             };
+            if (RefreshToken)
+            {
+                claims.Add(new Claim(ClaimTypes.Version, "Refresh_Token"));
+            }
+
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
@@ -63,8 +68,8 @@ namespace Bot.Services
                 if (user != null)
                 {
                     var roles = await _userManager.GetRolesAsync(user);
-                    var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(5));
-                    var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(30));
+                    var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
+                    var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(30), true);
 
                     var provider = "Bot";
                     var name = "Refresh_Token";
@@ -78,10 +83,13 @@ namespace Bot.Services
                         Access_token = access_token,
                         Refresh_token = refresh_token,
                         Name = user.Fullname,
-                        Roles = roles
+                        Roles = roles,
+                        UserId = user.Id,
+                        Email = user.Email ?? "",
+                        PhoneNumber = user.PhoneNumber,
                     };
                 }
-                throw new InvalidOperationException();
+                throw new Exception("User not found");
             }
             return null;
         }
@@ -99,7 +107,7 @@ namespace Bot.Services
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken securityToken);
-            JwtSecurityToken jwtSecurityToken = (JwtSecurityToken) securityToken;
+            JwtSecurityToken jwtSecurityToken = (JwtSecurityToken)securityToken;
 
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
                 throw new SecurityTokenException("Invalid Refresh token");
@@ -112,16 +120,16 @@ namespace Bot.Services
             var userId = ValidateToken(token.Refresh_token, true);
             if (userId == null)
             {
-                throw new ArgumentNullException();
+                throw new Exception("Invalid refresh token");
             }
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new ArgumentNullException();
+                throw new Exception("UserId not found");
             }
 
             var roles = await _userManager.GetRolesAsync(user);
-            var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(5));
+            var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(5), false);
 
             return new TokenModel
             {
@@ -184,7 +192,7 @@ namespace Bot.Services
             var cachedToken = _cachingService.Get<string>(email);
             if (cachedToken == null || cachedToken != token) return false;
             else
-            {   
+            {
                 return true;
             }
         }

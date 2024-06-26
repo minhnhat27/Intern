@@ -1,8 +1,4 @@
-﻿using Bot.Data;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.OpenApi;
-using Microsoft.AspNetCore.Http.HttpResults;
-namespace Bot.Response
+﻿namespace Bot.Response
 {
     public class LogHistoryResponse
     {

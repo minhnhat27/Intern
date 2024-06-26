@@ -1,7 +1,5 @@
 ﻿using Bot.Models;
 using Bot.Request;
-using Bot.Response;
-using System.Threading.Tasks;
 
 namespace Bot.Services
 {

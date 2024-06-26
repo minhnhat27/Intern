@@ -88,29 +88,17 @@ namespace Bot.Controllers
         [HttpGet("router")]
         public IActionResult Router()
         {
-            //var referer = Request.Headers["Referer"].ToString();
-            //if (string.IsNullOrEmpty(referer))
-            //{
-            //    return BadRequest();
-            //}
-            //else
-            //{
-            //    var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
-            //    var script = System.IO.File.ReadAllText(path);
-
-            //    return Content(script);
-            //}
-            try
+            var referer = Request.Headers["Referer"].ToString();
+            if (string.IsNullOrEmpty(referer))
             {
-                //var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
-                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "script.js");
+                return BadRequest();
+            }
+            else
+            {
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
                 var script = System.IO.File.ReadAllText(path);
 
                 return Content(script);
-            }
-            catch(Exception ex)
-            {
-                return StatusCode(500, ex.Message);
             }
         }
 
@@ -130,7 +118,7 @@ namespace Bot.Controllers
         public IActionResult VerifyResetToken([FromBody] VerifyResetTokenRequest request)
         {
             var result = _authService.VerifyResetToken(request.Email, request.Token);
-            if(!result)
+            if (!result)
             {
                 return BadRequest("Invalid or expired reset token.");
             }

@@ -1,6 +1,7 @@
 ﻿using Bot.Request;
 using Bot.Services;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Bot.Controllers
 {
@@ -39,14 +40,15 @@ namespace Bot.Controllers
         }
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateLogHistory([FromBody] LogHistoryRequest request, int id) {
+        public async Task<IActionResult> UpdateLogHistory([FromBody] LogHistoryRequest request, int id)
+        {
             try
             {
-                if(request == null)
+                if (request == null)
                 {
                     return BadRequest("Vui lòng nhập giá trị cần thay đổi");
                 }
-                var result = await _logHistoryService.UpdateLogHistory(id,request);
+                var result = await _logHistoryService.UpdateLogHistory(id, request);
                 if (result != null)
                 {
                     return Ok(result);

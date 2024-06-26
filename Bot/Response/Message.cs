@@ -2,7 +2,7 @@
 {
     public class Message
     {
-     public string[] To { get; }
+        public string[] To { get; }
         public string Subject { get; }
         public string Content { get; }
 

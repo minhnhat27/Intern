@@ -1,11 +1,8 @@
-﻿using Bot.Response;
-//using System.Net.Mail;
-using MimeKit;
+﻿//using System.Net.Mail;
 using MailKit.Net.Smtp;
-using Bot.Request;
-using Microsoft.Extensions.Options;
-using NuGet.Packaging;
 using MailKit.Security;
+using Microsoft.Extensions.Options;
+using MimeKit;
 
 namespace Bot.Services
 {

@@ -8,7 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\backup.js" />
+    <Content Remove="wwwroot\backup-v2.js" />
+    <Content Remove="wwwroot\backup-v3.js" />
+    <Content Remove="wwwroot\backup-v4.js" />
+    <Content Remove="wwwroot\script.js" />
+    <Content Remove="wwwroot\telegramScript.js" />
   </ItemGroup>
 
   <ItemGroup>
@@ -29,7 +33,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\backup.js" />
-    <None Include="wwwroot\script.js" />
+    <None Include="wwwroot\**\*.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Response\**\*.js" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

@@ -1,6 +1,4 @@
-﻿using Bot.Response;
-
-namespace Bot.Services
+﻿namespace Bot.Services
 {
     public interface ISendMailService
     {

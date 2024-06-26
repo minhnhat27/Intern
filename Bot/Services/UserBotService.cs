@@ -2,8 +2,6 @@
 using Bot.DTO;
 using Bot.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 
 namespace Bot.Services
 {

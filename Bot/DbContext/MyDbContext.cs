@@ -1,9 +1,6 @@
 ﻿using Bot.Models;
-using Bot.Request;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Emit;
 
 namespace Bot.Data
 {

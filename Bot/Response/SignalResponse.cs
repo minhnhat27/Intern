@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Bot.Response
+﻿namespace Bot.Response
 {
     public class SignalResponse
     {

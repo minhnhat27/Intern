@@ -16,16 +16,17 @@ namespace Bot.Services
 
         public async Task<LogHistory> AddLogHistory(LogHistoryRequest logHistory)
         {
-            var _logHistory= new LogHistory{
-                Signal=logHistory.Signal,
-                DateTime=logHistory.DateTime,
-                IsSL=logHistory.IsSL,
-                ProfitPointTP=logHistory.ProfitPointTP,
-                UserId=logHistory.UserId,
+            var _logHistory = new LogHistory
+            {
+                Signal = logHistory.Signal,
+                DateTime = logHistory.DateTime,
+                IsSL = logHistory.IsSL,
+                ProfitPointTP = logHistory.ProfitPointTP,
+                UserId = logHistory.UserId,
             };
             await _dbContext.LogHistorys.AddAsync(_logHistory);
             await _dbContext.SaveChangesAsync();
-            return _logHistory;         
+            return _logHistory;
         }
 
 
@@ -51,17 +52,18 @@ namespace Bot.Services
 
         public async Task<LogHistory> UpdateLogHistory(int id, LogHistoryRequest logHistory)
         {
-            var _logHistory =await _dbContext.LogHistorys.FindAsync(id);
-            if (logHistory == null) {
+            var _logHistory = await _dbContext.LogHistorys.FindAsync(id);
+            if (logHistory == null)
+            {
                 return null;
             }
             else
             {
-                _logHistory.IsSL= logHistory.IsSL;
-                _logHistory.Signal= logHistory.Signal;
-                _logHistory.ProfitPointTP= logHistory.ProfitPointTP;
-                _logHistory.UserId= logHistory.UserId;
-                _logHistory.DateTime= logHistory.DateTime;
+                _logHistory.IsSL = logHistory.IsSL;
+                _logHistory.Signal = logHistory.Signal;
+                _logHistory.ProfitPointTP = logHistory.ProfitPointTP;
+                _logHistory.UserId = logHistory.UserId;
+                _logHistory.DateTime = logHistory.DateTime;
                 await _dbContext.SaveChangesAsync();
                 return _logHistory;
             }

@@ -1,7 +1,6 @@
 ﻿using Bot.Data;
 using Bot.Models;
 using Bot.Request;
-using Bot.Response;
 using Microsoft.EntityFrameworkCore;
 namespace Bot.Services
 {
@@ -32,14 +31,15 @@ namespace Bot.Services
             var _expense = await _dbContext.Expenses.FindAsync(id);
             if (_expense != null)
             {
-                 _dbContext.Remove(_expense);
+                _dbContext.Remove(_expense);
                 await _dbContext.SaveChangesAsync();
                 return true;
-            }else
+            }
+            else
             {
                 return false;
             }
-            
+
         }
 
         public async Task<List<Expense>> GetExpenses()
@@ -52,7 +52,8 @@ namespace Bot.Services
         public async Task<Expense> UpdateExpense(int id, ExpenseRequest expense)
         {
             var _expense = await _dbContext.Expenses.FindAsync(id);
-            if (_expense == null) {
+            if (_expense == null)
+            {
                 return null;
             }
             else

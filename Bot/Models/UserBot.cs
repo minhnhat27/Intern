@@ -7,7 +7,7 @@ namespace Bot.Models
     {
         public string? UserId { get; set; }
         public User? User { get; set; }
-        public int BotTradingId {  get; set; }
+        public int BotTradingId { get; set; }
         public BotTrading? BotTradings { get; set; }
 
     }

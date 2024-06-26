@@ -42,7 +42,7 @@ namespace Bot.Migrations
 
             modelBuilder.Entity("Bot.Models.BotTrading", b =>
                 {
-                    b.Property<int>("BotId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -62,19 +62,19 @@ namespace Bot.Migrations
                     b.Property<double>("WinRate")
                         .HasColumnType("double");
 
-                    b.HasKey("BotId");
+                    b.HasKey("Id");
 
                     b.ToTable("BotsTrading");
                 });
 
             modelBuilder.Entity("Bot.Models.Expense", b =>
                 {
-                    b.Property<int>("ExpenseId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Description")
                         .IsRequired()
@@ -87,14 +87,14 @@ namespace Bot.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("double");
 
-                    b.HasKey("ExpenseId");
+                    b.HasKey("Id");
 
                     b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("Bot.Models.LogHistory", b =>
                 {
-                    b.Property<int>("LogId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
@@ -114,7 +114,7 @@ namespace Bot.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("LogId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
@@ -124,10 +124,9 @@ namespace Bot.Migrations
             modelBuilder.Entity("Bot.Models.PriceBot", b =>
                 {
                     b.Property<int>("Month")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<int>("BotId")
+                    b.Property<int>("BotTradingId")
                         .HasColumnType("int");
 
                     b.Property<int>("Discount")
@@ -136,22 +135,21 @@ namespace Bot.Migrations
                     b.Property<double>("Price")
                         .HasColumnType("double");
 
-                    b.HasKey("Month");
+                    b.HasKey("Month", "BotTradingId");
 
-                    b.HasIndex("BotId")
-                        .IsUnique();
+                    b.HasIndex("BotTradingId");
 
                     b.ToTable("PriceBots");
                 });
 
             modelBuilder.Entity("Bot.Models.ProfitLoss", b =>
                 {
-                    b.Property<int>("ProfitLossId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<double>("Price")
                         .HasColumnType("double");
@@ -159,24 +157,24 @@ namespace Bot.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("ProfitLossId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("ProfitsLoss");
+                    b.ToTable("ProfitLosses");
                 });
 
             modelBuilder.Entity("Bot.Models.PurchaseHistory", b =>
                 {
-                    b.Property<int>("PurchaseId")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("PaymentMethod")
                         .IsRequired()
@@ -185,8 +183,8 @@ namespace Bot.Migrations
                     b.Property<double>("PriceBot")
                         .HasColumnType("double");
 
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -196,7 +194,7 @@ namespace Bot.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("PurchaseId");
+                    b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
@@ -308,25 +306,25 @@ namespace Bot.Migrations
                     b.Property<string>("UserId")
                         .HasColumnType("varchar(255)");
 
-                    b.Property<int>("BotId")
+                    b.Property<int>("BotTradingId")
                         .HasColumnType("int");
 
-                    b.HasKey("UserId", "BotId");
+                    b.HasKey("UserId", "BotTradingId");
 
-                    b.HasIndex("BotId");
+                    b.HasIndex("BotTradingId");
 
                     b.ToTable("UserBots");
                 });
 
             modelBuilder.Entity("BotTradingUser", b =>
                 {
-                    b.Property<int>("BotTradingsBotId")
+                    b.Property<int>("BotTradingsId")
                         .HasColumnType("int");
 
                     b.Property<string>("UsersId")
                         .HasColumnType("varchar(255)");
 
-                    b.HasKey("BotTradingsBotId", "UsersId");
+                    b.HasKey("BotTradingsId", "UsersId");
 
                     b.HasIndex("UsersId");
 
@@ -473,8 +471,8 @@ namespace Bot.Migrations
             modelBuilder.Entity("Bot.Models.PriceBot", b =>
                 {
                     b.HasOne("Bot.Models.BotTrading", "BotTrading")
-                        .WithOne("PriceBots")
-                        .HasForeignKey("Bot.Models.PriceBot", "BotId")
+                        .WithMany("PriceBots")
+                        .HasForeignKey("BotTradingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -516,7 +514,7 @@ namespace Bot.Migrations
                 {
                     b.HasOne("Bot.Models.BotTrading", "BotTradings")
                         .WithMany("UsersBots")
-                        .HasForeignKey("BotId")
+                        .HasForeignKey("BotTradingId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -535,7 +533,7 @@ namespace Bot.Migrations
                 {
                     b.HasOne("Bot.Models.BotTrading", null)
                         .WithMany()
-                        .HasForeignKey("BotTradingsBotId")
+                        .HasForeignKey("BotTradingsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

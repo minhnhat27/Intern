@@ -41,12 +41,12 @@ namespace Bot.Controllers
             {
                 CultureInfo culture = new CultureInfo("en-US");
                 culture.NumberFormat.NumberDecimalSeparator = ".";
-                
+
                 if (request.Status == "SHORT")
                 {
                     var catLo = Math.Round(request.Price * 1.003, 1);
 
-                    if(request.StopOrderValue != 0)
+                    if (request.StopOrderValue != 0)
                     {
                         catLo = Math.Round(request.StopOrderValue, 1);
                     }
@@ -78,7 +78,7 @@ namespace Bot.Controllers
                         + $"Target 4: {Math.Round(request.Price * 1.016, 1).ToString(culture)}\n"
                         + $"Cat lo: {catLo.ToString(culture)}";
                 }
-                
+
                 messageResponse = _botSignalService.CacheSignal(signal, message);
 
                 if (!message.Equals(messageResponse))
@@ -94,8 +94,8 @@ namespace Bot.Controllers
                         : "\nSTOP_ORDER";
                 }
 
-                if(request.OrderNumber != 0)
-                { 
+                if (request.OrderNumber != 0)
+                {
                     messageResponse += " " + request.OrderNumber;
                 }
 
@@ -106,6 +106,30 @@ namespace Bot.Controllers
             await _hubContext.Clients.All.SendAsync("AdminSignal", messageResponse);
 
             return Ok();
+        }
+
+        [HttpPost("upload")]
+        public async Task<IActionResult> Upload(IFormFile file)
+        {
+            try
+            {
+                if (Path.GetExtension(file.FileName) != ".js")
+                {
+                    throw new Exception("File js only");
+                }
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "Response", "script.js");
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
         }
     }
 }

@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bot.Models
 {
-    [PrimaryKey(nameof(Month),nameof(Year),nameof(UserId))]
+    [PrimaryKey(nameof(Month), nameof(Year), nameof(UserId))]
     public class Salary
     {
         [Key, Column(Order = 0)]

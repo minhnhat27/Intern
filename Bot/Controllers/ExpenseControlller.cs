@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Bot.Data;
-using Bot.Request;
+﻿using Bot.Request;
 using Bot.Services;
+using Microsoft.AspNetCore.Mvc;
 namespace Bot.Controllers
 {
     [Route("/api/expense")]
@@ -58,7 +57,7 @@ namespace Bot.Controllers
                 else
                 {
                     var result = await _expenseService.UpdateExpense(id, expense);
-                    if (result!=null)
+                    if (result != null)
                     {
                         return Ok(result);
                     }
@@ -72,7 +71,8 @@ namespace Bot.Controllers
         }
 
         [HttpDelete("Delete/{id}")]
-        public async Task<IActionResult> DeleteExpense(int id) {
+        public async Task<IActionResult> DeleteExpense(int id)
+        {
             try
             {
                 var result = await _expenseService.DeleteExpense(id);

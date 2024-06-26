@@ -1,6 +1,4 @@
-﻿using Bot.Models;
-
-namespace Bot.Request
+﻿namespace Bot.Request
 {
     public class BotTradingRequest
     {
