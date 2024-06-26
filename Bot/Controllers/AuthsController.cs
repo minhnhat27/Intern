@@ -126,6 +126,17 @@ namespace Bot.Controllers
             return Ok("Reset token sent.");
         }
 
+        [HttpPost("send-register-code")]
+        public async Task<IActionResult> RegisterCode([FromBody] ResetPasswordRequest request)
+        {
+            var result = await _authService.SendRegisterTokenAsync(request.Email);
+            if (!result)
+            {
+                return BadRequest("Failed to send register code.");
+            }
+            return Ok();
+        }
+
         [HttpPost("confirm-code")]
         public IActionResult VerifyResetToken([FromBody] VerifyResetTokenRequest request)
         {
