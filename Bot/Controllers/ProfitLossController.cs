@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Bot.Services;
 using System.Threading.Tasks;
 using Bot.DTO;
+using Bot.Services.MiniServiceProfitLoss;
 
 namespace Bot.Controllers
 {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Bot.DTO;
-using Bot.Services;
 using System.Threading.Tasks;
+using Bot.Services.MiniServiceSalary;
 
 namespace Bot.Controllers
 {
@@ -81,5 +81,44 @@ namespace Bot.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("salaryYear")]
+        public async Task<IActionResult> GetSalaryByYear([FromQuery] int year)
+        {
+            try
+            {
+                var salaryResponse = await _salaryService.GetSalaryByYear(year);
+                if (salaryResponse == null)
+                {
+                    return NotFound();
+                }
+                return Ok(salaryResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpGet("salaryMonth")]
+        public async Task<IActionResult> GetSalaryByMonth([FromQuery] int month, [FromQuery] int year)
+        {
+            try
+            {
+                var salaryResponse = await _salaryService.GetSalaryByMonth(month, year);
+                if (salaryResponse == null)
+                {
+                    return NotFound();
+                }
+                return Ok(salaryResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
     }
 }
+

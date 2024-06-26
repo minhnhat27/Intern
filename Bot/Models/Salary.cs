@@ -7,12 +7,12 @@ namespace Bot.Models
     [PrimaryKey(nameof(Month),nameof(Year),nameof(UserId))]
     public class Salary
     {
-        [Key, Column(Order = 0)]
+        [Column(Order = 0)]
         [Range(1, 12, ErrorMessage = "Month just 1 to 12")]
         public int Month { get; set; }
-        [Key, Column(Order = 1)]
+        [Column(Order = 1)]
         public int Year { get; set; }
-        [Key, Column(Order = 2)]
+        [Column(Order = 2)]
         [Required]
         public string UserId { get; set; }
         public double Price { get; set; }

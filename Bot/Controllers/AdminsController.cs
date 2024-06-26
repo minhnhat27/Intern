@@ -1,6 +1,7 @@
 ﻿using Bot.Data;
 using Bot.Request;
-using Bot.Services;
+using Bot.Services.MiniServiceBotSignal;
+using Bot.Services.MiniServiceCaching;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;

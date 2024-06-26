@@ -1,6 +1,6 @@
 ﻿using Bot.Data;
 using Bot.Request;
-using Bot.Services;
+using Bot.Services.MiniServiceBotSignal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Bot.Data;
 using Bot.Request;
-using Bot.Services;
+using Bot.Services.MiniServiceBotTrading;
 
 namespace Bot.Controllers
 {

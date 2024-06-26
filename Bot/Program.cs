@@ -1,7 +1,6 @@
 ﻿using Bot.Data;
 using Bot.Middleware;
 using Bot.Models;
-using Bot.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +8,19 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Bot.Controllers;
+using Bot.Services.MiniServiceExpense;
+using Bot.Services.MiniServiceBotTrading;
+using Bot.Services.MiniServiceSalary;
+using Bot.Services.MiniServiceAuth;
+using Bot.Services.MiniServiceBotSignal;
+using Bot.Services.MiniServiceCaching;
+using Bot.Services.MiniServiceLogHistory;
+using Bot.Services.MiniServicePriceBot;
+using Bot.Services.MiniServiceProfitLoss;
+using Bot.Services.MiniServicePurchaseHistory;
+using Bot.Services.MiniServiceSendMail;
+using Bot.Services.MiniServiceUserBot;
+using Bot.Services.MiniServiceUser;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -80,6 +92,7 @@ builder.Services.AddScoped<IProfitLossService, ProfitLossService>();
 builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
 builder.Services.AddScoped<ISalaryService, SalaryService>();
 builder.Services.AddScoped<IUserBotService, UserBotService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
 var app = builder.Build();
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Bot.DTO;
-using Bot.Services;
 using System.Threading.Tasks;
+using Bot.Services.MiniServicePriceBot;
 
 namespace Bot.Controllers
 {
