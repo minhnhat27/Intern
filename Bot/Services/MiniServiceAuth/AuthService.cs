@@ -6,6 +6,8 @@ using Bot.Services.MiniServiceCaching;
 using Bot.Services.MiniServiceSendMail;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using NuGet.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -141,19 +143,26 @@ namespace Bot.Services.MiniServiceAuth
 
         public async Task<IdentityResult> Register(RegisterRequest request)
         {
-            var User = new User()
+            var isTokenValid = VerifyResetToken(request.Email, request.Token);
+            if (isTokenValid)
             {
-                Id = Guid.NewGuid().ToString(),
-                Email = request.Email,
-                NormalizedEmail = request.Email,
-                UserName = request.PhoneNumber,
-                NormalizedUserName = request.PhoneNumber,
-                PhoneNumber = request.PhoneNumber,
-                Fullname = request.Name,
-                SecurityStamp = Guid.NewGuid().ToString(),
-                ConcurrencyStamp = Guid.NewGuid().ToString(),
-            };
-            return await _userManager.CreateAsync(User, request.Password);
+                var User = new User()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Email = request.Email,
+                    NormalizedEmail = request.Email,
+                    UserName = request.PhoneNumber,
+                    NormalizedUserName = request.PhoneNumber,
+                    PhoneNumber = request.PhoneNumber,
+                    Fullname = request.Name,
+                    SecurityStamp = Guid.NewGuid().ToString(),
+                    ConcurrencyStamp = Guid.NewGuid().ToString(),
+                };
+
+                return await _userManager.CreateAsync(User, request.Password);
+            }
+            else throw new Exception("Invalid token.");
+            
         }
 
         public async Task Logout(TokenModel token)
@@ -173,6 +182,17 @@ namespace Bot.Services.MiniServiceAuth
             await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
             await _userManager.UpdateSecurityStampAsync(user);
             await _signInManager.SignOutAsync();
+        }
+
+        public async Task<bool> SendRegisterTokenAsync(string email)
+        {
+            var token = new Random().Next(100000, 999999).ToString();
+            _cachingService.Set(email, token, TimeSpan.FromMinutes(5));
+
+            var message = $"Your code is: {token}";
+            await _emailSender.SendEmailAsync(email, "Register Code", message);
+
+            return true;
         }
 
         public async Task<bool> SendPasswordResetTokenAsync(string email)
