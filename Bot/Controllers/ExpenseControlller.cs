@@ -1,6 +1,7 @@
-﻿using Bot.Request;
-using Bot.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Bot.Data;
+using Bot.Request;
+using Bot.Services.MiniServiceExpense;
 namespace Bot.Controllers
 {
     [Route("/api/expense")]
@@ -86,6 +87,62 @@ namespace Bot.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpGet("expenseDate")]
+        public async Task<IActionResult> GetExpenseByDate([FromQuery] int day, [FromQuery] int month, [FromQuery] int year)
+        {
+            try
+            {
+                var expenseResponse = await _expenseService.GetExpenseByDate(day, month, year);
+                if (expenseResponse == null)
+                {
+                    return NotFound();
+                }
+                return Ok(expenseResponse);
+            }
+            catch (Exception ex) {
+                return BadRequest(ex.Message);
+            }
+            
+        }
+
+        [HttpGet("expenseMonth")]
+        public async Task<IActionResult> GetExpenseByMonth([FromQuery] int month, [FromQuery] int year)
+        {
+            try
+            {
+                var expenseResponse = await _expenseService.GetExpenseByMonth(month, year);
+                if (expenseResponse == null)
+                {
+                    return NotFound();
+                }
+                return Ok(expenseResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+           
+        }
+
+        [HttpGet("expenseYear")]
+        public async Task<IActionResult> GetExpenseByYear([FromQuery] int year)
+        {
+            try
+            {
+                var expenseResponse = await _expenseService.GetExpenseByYear(year);
+                if (expenseResponse == null)
+                {
+                    return NotFound();
+                }
+                return Ok(expenseResponse);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+           
         }
     }
 }

@@ -1,6 +1,6 @@
 ﻿using Bot.DTO;
 using Bot.Request;
-using Bot.Services;
+using Bot.Services.MiniServiceAuth;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Bot.Controllers

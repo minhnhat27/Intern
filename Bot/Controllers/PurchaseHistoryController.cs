@@ -1,6 +1,8 @@
-﻿using Bot.DTO;
-using Bot.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Bot.DTO;
+using Microsoft.IdentityModel.Tokens;
+using Bot.Response;
+using Bot.Services.MiniServicePurchaseHistory;
 
 namespace Bot.Controllers
 {
@@ -80,5 +82,130 @@ namespace Bot.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
+        [HttpGet("getPurchaseMonthByUser")]
+        public async Task<IActionResult> GetPurchaseMonthByUser([FromQuery] string userId, [FromQuery] int month, [FromQuery] int? year)
+        {
+            try
+            {
+                if (!year.HasValue)
+                {
+                    year = DateTime.Now.Year;
+                }
+                var result = await _purchaseHistoryService.GetPurchaseHistoriesMonthByUser(userId, month, year.Value);
+                if (result != null)
+                {
+                    var response = new PurchaseHistoryResponse
+                    {
+                        Purchases = result,
+                        Total = result.Sum(ph => ph.PriceBot)
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return NotFound("No purchases found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("getPurchaseYearByUser")]
+        public async Task<IActionResult> GetPurchaseYearByUser([FromQuery] string userId, [FromQuery] int? year)
+        {
+            try
+            {
+                if (!year.HasValue)
+                {
+                    year = DateTime.Now.Year;
+                }
+                var result = await _purchaseHistoryService.GetPurchaseHistoriesYearByUser(userId, year.Value);
+                if (result != null)
+                {
+                    var response = new PurchaseHistoryResponse
+                    {
+                        Purchases = result,
+                        Total = result.Sum(ph => ph.PriceBot)
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return NotFound("No purchases found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("getPurchaseAllByUser")]
+        public async Task<IActionResult> GetPurchaseAllByUser([FromQuery] string userId)
+        {
+            try
+            {
+
+                var result = await _purchaseHistoryService.GetPurchaseHistoriesAllByUser(userId);
+                if (result != null)
+                {
+                    var response = new PurchaseHistoryResponse
+                    {
+                        Purchases = result,
+                        Total = result.Sum(ph => ph.PriceBot)
+                    };
+                    return Ok(response);
+                }
+                else
+                {
+                    return NotFound("No purchases found.");
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("getRevenueMonth")]
+        public async Task<IActionResult> GetRevenueMonth([FromQuery] int month, [FromQuery] int? year)
+        {
+            try
+            {
+                if (!year.HasValue)
+                {
+                    year=DateTime.Now.Year;
+                }
+                var result = await _purchaseHistoryService.GetRevenueMonth(month,year.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("getRevenueYear")]
+        public async Task<IActionResult> GetRevenueYear([FromQuery] int? year)
+        {
+            try
+            {
+                if (!year.HasValue)
+                {
+                    year = DateTime.Now.Year;
+                }
+                var result = await _purchaseHistoryService.GetRevenueYear(year.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }
+

@@ -1,6 +1,7 @@
-﻿using Bot.DTO;
-using Bot.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Threading.Tasks;
+using Bot.DTO;
+using Bot.Services.MiniServiceProfitLoss;
 
 namespace Bot.Controllers
 {
