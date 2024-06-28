@@ -23,7 +23,10 @@ namespace Bot.Services.MiniServiceLogHistory
                 DateTime = logHistory.DateTime,
                 IsSL = logHistory.IsSL,
                 ProfitPointTP = logHistory.ProfitPointTP,
+                NumberContract = logHistory.NumberContract,
+                PriceBuy = logHistory.PriceBuy,
                 UserId = logHistory.UserId,
+                Profit = Math.Round(logHistory.NumberContract*(logHistory.ProfitPointTP-logHistory.PriceBuy)*100000)
             };
             await _dbContext.LogHistorys.AddAsync(_logHistory);
             await _dbContext.SaveChangesAsync();
@@ -60,10 +63,13 @@ namespace Bot.Services.MiniServiceLogHistory
             else
             {
                 _logHistory.IsSL = logHistory.IsSL;
+                _logHistory.NumberContract = logHistory.NumberContract;
+                _logHistory.PriceBuy = logHistory.PriceBuy;
                 _logHistory.Signal = logHistory.Signal;
                 _logHistory.ProfitPointTP = logHistory.ProfitPointTP;
                 _logHistory.UserId = logHistory.UserId;
                 _logHistory.DateTime = logHistory.DateTime;
+                _logHistory.Profit = logHistory.NumberContract*(logHistory.ProfitPointTP-logHistory.PriceBuy);
                 await _dbContext.SaveChangesAsync();
                 return _logHistory;
             }
@@ -72,14 +78,14 @@ namespace Bot.Services.MiniServiceLogHistory
 
         public async Task<LogHistoryResponse> GetLogHistoryDay(int day, int month, int year, string userId)
         {
-            var result = await _dbContext.LogHistorys.Where( lh =>
+            var result = await _dbContext.LogHistorys.Where(lh =>
                lh.DateTime.Day == day && lh.DateTime.Month == month && lh.DateTime.Year == year && lh.UserId == userId
             ).ToListAsync();
-            var numSL= result.Count(lh => lh.IsSL==true);
+            var numSL = result.Count(lh => lh.IsSL == true);
             return new LogHistoryResponse { LogHistoryList = result, CountSL = numSL };
         }
 
-        public async Task<LogHistoryResponse> GetLogHistoryMonth( int month, int year, string userId)
+        public async Task<LogHistoryResponse> GetLogHistoryMonth(int month, int year, string userId)
         {
             var result = await _dbContext.LogHistorys.Where(lh =>
                lh.DateTime.Month == month && lh.DateTime.Year == year && lh.UserId == userId
@@ -88,7 +94,7 @@ namespace Bot.Services.MiniServiceLogHistory
             return new LogHistoryResponse { LogHistoryList = result, CountSL = numSL };
         }
 
-        public async Task<LogHistoryResponse> GetLogHistoryYear( int year, string userId)
+        public async Task<LogHistoryResponse> GetLogHistoryYear(int year, string userId)
         {
             var result = await _dbContext.LogHistorys.Where(lh =>
                lh.DateTime.Year == year && lh.UserId == userId

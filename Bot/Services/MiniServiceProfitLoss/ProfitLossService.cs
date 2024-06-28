@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Bot.DTO;
+using Bot.Response;
 
 namespace Bot.Services.MiniServiceProfitLoss
 {
@@ -77,6 +78,56 @@ namespace Bot.Services.MiniServiceProfitLoss
                 Date = existingProfitLoss.Date,
                 UserId = existingProfitLoss.UserId
             };
+        }
+
+        public async Task<ProfitLossResponse> getProfitLossMonth(int month, int year, string userId)
+        {
+            var result = await _dbContext.ProfitLosses.Where(pl=>
+                pl.Date.Month==month && pl.Date.Year==year && pl.UserId==userId
+            ).Select(
+                s => new ProfitLossDTO
+                {
+                    Price = s.Price,
+                    Date = s.Date,
+                    UserId = s.UserId,
+                    Id = s.Id
+                }
+                ).ToListAsync();
+            var count = result.Sum(pl => pl.Price);
+            return new ProfitLossResponse { ProfitLossDTOList = result, Total=count };
+        }
+        public async Task<ProfitLossResponse> getProfitLossYear(int year, string userId)
+        {
+            var result = await _dbContext.ProfitLosses.Where(pl =>
+                pl.Date.Year == year && pl.UserId == userId
+            ).Select(
+                s => new ProfitLossDTO
+                {
+                    Price = s.Price,
+                    Date = s.Date,
+                    UserId = s.UserId,
+                    Id = s.Id
+                }
+                ).ToListAsync();
+            var count = result.Sum(pl => pl.Price);
+            return new ProfitLossResponse { ProfitLossDTOList = result, Total = count };
+        }
+
+        public async Task<ProfitLossResponse> getProfitLossAll( string userId)
+        {
+            var result = await _dbContext.ProfitLosses.Where(pl =>
+                 pl.UserId == userId
+            ).Select(
+                s => new ProfitLossDTO
+                {
+                    Price = s.Price,
+                    Date = s.Date,
+                    UserId = s.UserId,
+                    Id = s.Id
+                }
+                ).ToListAsync();
+            var count = result.Sum(pl => pl.Price);
+            return new ProfitLossResponse { ProfitLossDTOList = result, Total = count };
         }
     }
 }

@@ -8,6 +8,7 @@ namespace Bot.Controllers
 {
     [Route("/api/logHistory")]
     [ApiController]
+    [Authorize]
     public class LogHistoryController : ControllerBase
     {
         private readonly ILogHistoryService _logHistoryService;
@@ -27,6 +28,7 @@ namespace Bot.Controllers
         }
 
         [HttpPost("add")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddLogHistory([FromBody] LogHistoryRequest request)
         {
             try
@@ -41,6 +43,7 @@ namespace Bot.Controllers
         }
 
         [HttpPut("update/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateLogHistory([FromBody] LogHistoryRequest request, int id) {
             try
             {
@@ -63,6 +66,7 @@ namespace Bot.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteLogHistory(int id)
         {
             try

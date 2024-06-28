@@ -3,6 +3,7 @@ using System;
 using Bot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bot.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    partial class MyDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240627042230_Version1.4")]
+    partial class Version14
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -107,8 +110,8 @@ namespace Bot.Migrations
                     b.Property<int>("NumberContract")
                         .HasColumnType("int");
 
-                    b.Property<double>("PriceBuy")
-                        .HasColumnType("double");
+                    b.Property<int>("PriceBuy")
+                        .HasColumnType("int");
 
                     b.Property<double>("Profit")
                         .HasColumnType("double");
@@ -159,6 +162,9 @@ namespace Bot.Migrations
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<double>("FeeTrading")
+                        .HasColumnType("double");
 
                     b.Property<double>("Price")
                         .HasColumnType("double");
