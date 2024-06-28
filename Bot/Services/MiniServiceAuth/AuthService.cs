@@ -1,10 +1,12 @@
-﻿using Bot.DTO;
+﻿using Bot.Data;
+using Bot.DTO;
 using Bot.Models;
 using Bot.Request;
 using Bot.Response;
 using Bot.Services.MiniServiceCaching;
 using Bot.Services.MiniServiceSendMail;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 using NuGet.Common;
@@ -22,8 +24,12 @@ namespace Bot.Services.MiniServiceAuth
         private readonly ILogger<AuthService> _logger;
         private readonly ISendMailService _emailSender;
         private readonly ICachingService _cachingService;
+        private readonly IHubContext<MessageHub> _hubContext;
         public AuthService(SignInManager<User> signInManager,
-            UserManager<User> userManager, IConfiguration configuration, ILogger<AuthService> logger, ISendMailService emailSender, ICachingService cachingService)
+            UserManager<User> userManager, IConfiguration configuration,
+            ILogger<AuthService> logger, ISendMailService emailSender, 
+            ICachingService cachingService,
+            IHubContext<MessageHub> hubContext)
         {
             _signInManager = signInManager;
             _userManager = userManager;
@@ -31,6 +37,7 @@ namespace Bot.Services.MiniServiceAuth
             _logger = logger;
             _emailSender = emailSender;
             _cachingService = cachingService;
+            _hubContext = hubContext;
         }
         private string CreateJwt(User user, IEnumerable<string> roles, DateTime time, bool RefreshToken)
         {
@@ -73,13 +80,18 @@ namespace Bot.Services.MiniServiceAuth
                 {
                     var roles = await _userManager.GetRolesAsync(user);
                     var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
-                    var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(30), true);
+                    var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(1), true);
 
                     var provider = "Bot";
                     var name = "Refresh_Token";
 
+                    var existUserLogin = await _userManager.GetAuthenticationTokenAsync(user, provider, name);
+                    if(existUserLogin != null)
+                    {
+                        await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
+                    }
+
                     await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
-                    //var refresh_token = await _userManager.GenerateUserTokenAsync(user, provider, name);
                     await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
 
                     return new JwtResponse

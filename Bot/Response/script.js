@@ -5,8 +5,7 @@ const baseURL = "https://minhnhat27.id.vn"
 
 const api_auth = `${baseURL}/api/auth`
 const api_signal = `${baseURL}/api/signal`
-
-var isDemo = window.location.href.includes("smarteasy.vps.com.vn")
+const api_logHistory = `${baseURL}/api/logHistory`
 
 const scripts = `<script src="${baseURL}/assets/js/signalr/dist/browser/signalr.js"></script>`
 function debounce(func, delay) {
@@ -279,7 +278,9 @@ const loggingHtml = `
              <div class="d-flex">
                  <div class="mr-auto">
                      <i class="fa fa-copy"></i>
-                     <a href="https://tradingbot-beta.vercel.app" target="_blank" id="my-name" title="Bot phân tán thực hiện bởi ..."></a>
+                     <a href="https://tradingbot-beta.vercel.app" target="_blank" title="Bot phân tán thực hiện bởi ...">
+                        <div id="my-name"></div>
+                     </a>
                  </div>
                  <div class="px-2">
                      <a href="javascript:void(0)" class="satbot-settings" title="Cài đặt">
@@ -481,7 +482,7 @@ const getCurrentUser = () => {
     return my_user ? JSON.parse(my_user) : my_user
 }
 
-const logout = () => {
+const my_logout = () => {
     const refresh_token = getCurrentUser()?.refresh_token;
     const json = JSON.stringify({ refresh_token })
     $.ajax({
@@ -492,12 +493,19 @@ const logout = () => {
         setCookie("auth_token", "", -1)
         setCookie("bot_data", "", -1)
         add_logs("Đã đăng xuất, trang sẽ được tải lại")
-        window.location.reload();
+        window.location.reload()
     }).fail((_, error) => {
         error === 'timeout'
             ? add_logs("Mạng yếu, vui lòng thử lại.")
             : add_logs(error)
     })
+}
+
+const server_logout = () => {
+    setCookie("auth_token", "", -1)
+    setCookie("bot_data", "", -1)
+    add_logs("Tài khoản đã bị đăng xuất, trang sẽ được tải lại")
+    window.location.reload()
 }
 
 const refreshToken = () => {
@@ -519,6 +527,28 @@ const refreshToken = () => {
     })
 }
 
+Date.prototype.getUTCTime = function () {
+    var time = this.getTime();
+    return time + UTC_OFFSET;
+};
+
+const timezone7 = 7 * 60 * 60 * 1000; //ms
+
+const getISOStringNow = () => {
+    var time = new Date().getTime() + timezone7;
+    return new Date(time).toISOString();
+};
+
+const logHistory = (signal, profitPointTP, isSL) => {
+    const userId = getCurrentUser().userId
+    const dateTime = getISOStringNow()
+    const data = JSON.stringify({ signal, profitPointTP, isSL, dateTime, userId })
+    $.ajax({
+        url: api_logHistory + "/add",
+        method: "POST",
+        data: data
+    }).fail((_, error) => console.log(error))
+}
 
 const botSettings = {
     enable: false,
@@ -539,6 +569,8 @@ $(window).on('load', async () => {
         timeout: 20000
     })
 
+    const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
+
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
         : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
 
@@ -547,9 +579,9 @@ $(window).on('load', async () => {
     web.append(root)
     root.append(loginFormHtml)
 
-    async function loggingAndBot() {
+    async function loggingAndBot(isLogin = '') {
         //5m
-        refreshToken()
+        isLogin || refreshToken()
         setInterval(() => refreshToken(), 300000)
 
         const my_user = getCurrentUser()
@@ -653,7 +685,7 @@ $(window).on('load', async () => {
             }
         }
         funcTheoDoiSucMua()
-        
+
         const convertFloatToFixed = (value, fix = 1) => parseFloat(parseFloat(value.split(':').pop().trim()).toFixed(fix));
 
         const divideNumberBy2CeilToArray = (value) => {
@@ -661,8 +693,11 @@ $(window).on('load', async () => {
             let b = value - a
             return [a, b]
         }
-        
+
         const runBotNormal = (tinhieu, giadat, hopdong) => {
+            $('.cancel-all-confirm').css('display', '')
+            $('#use_stopOrder').prop('checked', false)
+
             $("#right_price").val(giadat)
             $("#sohopdong").val(hopdong)
 
@@ -682,8 +717,8 @@ $(window).on('load', async () => {
 
             if (isDemo) {
                 plusDivs(1)
+                $('.cancel-all-confirm').css('display', '')
                 $('#use_stopOrder').prop('checked', true)
-                
                 tinhieu === "LONG" ? $('#selStopOrderType').val("SOL") : $("#selStopOrderType").val("SOU")
                 $('#soIndex').val(stopOrderValue)
 
@@ -711,20 +746,20 @@ $(window).on('load', async () => {
         }
 
         const huyLenhThuong = () => {
-            $('.cancel-all-confirm').css('display', 'none')
-
-            isDemo
-                ? saveOrder()
-                : saveOrderNew()
-
+            if (isDemo) {
+                $('.cancel-all-confirm').css('display', 'none')
+                saveOrder()
+                $('.cancel-all-confirm').css('display', '')
+            }
+            else {
+                saveOrderNew()
+            }
             add_logs("Đã hủy tất cả lệnh thường")
         }
 
         const huyLenhDieuKien = () => {
             if (isDemo) {
                 objOrderPanel.create = 0;
-                objOrderPanel.currentFilterStatus = 1;
-                objOrderPanel.currentFilterOrCon = 1;
                 objOrderPanel.showConditionOrderList()
                 setTimeout(() => {
                     $("#tbodyContentCondition tr").each(function () {
@@ -735,7 +770,7 @@ $(window).on('load', async () => {
                             cancelOrder("advance")
                         }
                     })
-                }, 500)
+                }, 300)
             }
             else {
                 $("#modal_stock_cd_cancel_all").val("ALL")
@@ -746,37 +781,113 @@ $(window).on('load', async () => {
             add_logs("Đã hủy tất cả lệnh điều kiện chờ kích hoạt")
         }
 
+        const huyViTheHienTai = () => {
+            const vithe = parseInt($("#status-danhmuc-content").children().eq(0).children().eq(1).text())
+            if (vithe) {
+                vithe > 0
+                    ? runBotNormal("SHORT", "MTL", Math.abs(vithe))
+                    : runBotNormal("LONG", "MTL", Math.abs(vithe))
+            }
+        }
+
         const capNhatSoHopDong = () => {
             const li = ulPanel.children()
             li.eq(0).children().click()
             //li.eq(2).children().click()
         }
 
+        const daoLenh = (tinhieu) => tinhieu === "LONG" ? "SHORT" : "LONG"
+
         const botAutoClick = (arr, fullHopdong = botVolumeValue.val()) => {
             let tinhieu = arr[1] === "Tin hieu long: Manh" ? "LONG" : "SHORT"
+
             add_logs("Tính hiệu: " + tinhieu)
+
+            fullHopdong = parseInt(fullHopdong) 
+
             let dadatTp1 = false
             let dadatTp2 = false
-            capNhatSoHopDong()
 
-            const tp1 = convertFloatToFixed(arr[3])
-            const tp2 = convertFloatToFixed(arr[4])
-
-            const order50 = divideNumberBy2CeilToArray(fullHopdong)
-            const order25 = divideNumberBy2CeilToArray(order50[1])
-            
             const type = arr[arr.length - 1].split(" ")
             const daoChieu = arr[arr.length - 1] === "REVERSE" || type[0] === "REVERSE"
 
             const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
 
+            let delay = false
+
+            let my_hd = fullHopdong
+
+            const ngDat = parseInt(botVolumeValue.val())
             if (daoChieu) {
                 add_logs("Tính hiệu đảo chiều!")
-                if (parseInt(vithe)) {
-                    fullHopdong += Math.abs(parseInt(vithe))
+
+                const soViThe = parseInt(vithe)
+                const soSucMua = parseInt(sucMua.text())
+
+                if (botVolume.val() === "0") {
+                    if (soViThe && !soSucMua) {
+                        if (Math.abs(soViThe) >= fullHopdong) {
+                            fullHopdong += Math.abs(soViThe)
+                        }
+                        else {
+                            my_hd = Math.abs(soViThe)
+                            fullHopdong = Math.abs(soViThe) * 2
+                        }
+                    }
+                    else if (!soViThe && soSucMua) {
+                        if (fullHopdong > ngDat) {
+                            my_hd = ngDat
+                            fullHopdong = ngDat
+                        }
+                    }
+                    else if (soViThe && soSucMua) {
+                        if ((Math.abs(soViThe) + ngDat) < fullHopdong) {
+                            my_hd = (Math.abs(soViThe) + ngDat)
+                            fullHopdong = Math.abs(soViThe) * 2 + ngDat // hoac (Math.abs(soViThe) + botVolumeValue.val()) + Math.abs(soViThe)
+                        }
+                        else if ((Math.abs(soViThe) + ngDat) >= fullHopdong) {
+                            my_hd = fullHopdong
+                            fullHopdong += Math.abs(soViThe)
+                        }
+                    }
                 }
+                else {
+                    if (soViThe && !soSucMua) {
+                        if (Math.abs(soViThe) >= fullHopdong) {
+                            fullHopdong += Math.abs(soViThe)
+                        }
+                        else {
+                            my_hd = Math.abs(soViThe)
+                            fullHopdong = Math.abs(soViThe) * 2
+                        }
+                    }
+                    else if (!soViThe && soSucMua) {
+                        if (fullHopdong > ngDat) {
+                            my_hd = ngDat
+                            fullHopdong = ngDat
+                        }
+                    }
+                    else if (soViThe && soSucMua) {
+                        if (fullHopdong > ngDat) {
+                            my_hd = ngDat
+                            fullHopdong = ngDat + Math.abs(soViThe)
+                        }
+                        else {
+                            fullHopdong += Math.abs(soViThe)
+                        }
+                    }
+                }
+
                 huyLenhThuong()
                 huyLenhDieuKien()
+
+                delay = true
+            }
+            else {
+                if (fullHopdong > ngDat) {
+                    my_hd = ngDat
+                    fullHopdong = ngDat
+                }
             }
 
             let giamua = convertFloatToFixed(arr[2])
@@ -791,87 +902,186 @@ $(window).on('load', async () => {
                 : catLo += 0.3
             catLo = catLo.toFixed(1)
 
+            const tp1 = convertFloatToFixed(arr[3])
+            const tp2 = convertFloatToFixed(arr[4])
+            
+            const order50 = divideNumberBy2CeilToArray(my_hd)
+            const order25 = divideNumberBy2CeilToArray(order50[1])
+
             const trendType = $("#bot-trendTypes").val()
             if (((trendType == "1" && tinhieu == "LONG") || (trendType == "2" && tinhieu == "SHORT") || trendType == "0")
                 && fullHopdong > 0) {
+                if (delay) {
+                    setTimeout(() => {
+                        //Vo 100%
+                        runBotNormal(tinhieu, giamua, fullHopdong)
 
-                //Vo 100%
-                runBotNormal(tinhieu, giamua, fullHopdong)
+                        //dao lenh
+                        tinhieu = daoLenh(tinhieu)
+                        runBotStopOrder(tinhieu, fullHopdong, catLo)
 
-                //dao lenh
-                tinhieu = tinhieu === "LONG" ? "SHORT" : "LONG"
-                runBotStopOrder(tinhieu, fullHopdong, catLo)
+                        //Chot 50%
+                        if (order50[0] > 0) {
+                            runBotNormal(tinhieu, tp1, order50[0])
+                        }
 
-                //Chot 50%
-                if (order50[0] > 0) {
-                    runBotNormal(tinhieu, tp1, order50[0])
+                        //Chot 25%
+                        if (order25[0] > 0) {
+                            runBotNormal(tinhieu, tp2, order25[0])
+                        }
+
+                        const funcTheoDoiGiaKhopLenh = () => {
+                            const giaKhop = document.getElementById("tbodyPhaisinhContent").childNodes[0]?.childNodes[10]
+                            if (!giaKhop) {
+                                setTimeout(funcTheoDoiGiaKhopLenh, 1000)
+                            }
+                            else {
+                                const ob = new MutationObserver(function (mutationsList) {
+                                    for (let mutation of mutationsList) {
+                                        if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                            const giaKhopLenh = parseFloat(mutation.target.textContent)
+
+                                            const isShort = tinhieu === "SHORT";
+
+                                            const condition1 = isShort
+                                                ? giaKhopLenh >= tp1 && giaKhopLenh < tp2
+                                                : giaKhopLenh <= tp1 && giaKhopLenh > tp2
+
+                                            const condition2 = isShort
+                                                ? giaKhopLenh >= tp2
+                                                : giaKhopLenh <= tp2
+
+                                            if (condition1 && !dadatTp1 && order50[0] > 0) {
+                                                huyLenhDieuKien()
+
+                                                setTimeout(() => runBotStopOrder(tinhieu, order50[0], giamua), 700)
+                                                dadatTp1 = true
+                                                logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", tp1, false)
+                                            }
+                                            else if (condition2 && !dadatTp2 && order25[0] > 0) {
+                                                huyLenhDieuKien()
+
+                                                setTimeout(() => runBotStopOrder(tinhieu, order25[0], tp1), 700)
+                                                dadatTp1 = true
+                                                dadatTp2 = true
+                                                logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", tp2, false)
+                                            }
+
+                                            const initCancelCondition = isShort
+                                                ? giaKhopLenh <= catLo && !dadatTp1 && !dadatTp2
+                                                : giaKhopLenh >= catLo && !dadatTp1 && !dadatTp2
+
+                                            const tp1Condition = isShort
+                                                ? giaKhopLenh <= giamua && dadatTp1 && !dadatTp2
+                                                : giaKhopLenh >= giamua && dadatTp1 && !dadatTp2
+
+                                            if (initCancelCondition) {
+                                                huyLenhThuong()
+                                                logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", catLo, true)
+                                            }
+                                            else if (tp1Condition) {
+                                                huyLenhThuong()
+                                                logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", giamua, true)
+                                            }
+                                        }
+                                    }
+                                });
+                                ob.observe(giaKhop, { characterData: true, childList: true, subtree: true })
+                            }
+                        }
+                        funcTheoDoiGiaKhopLenh()
+                    }, 500)
                 }
+                else {
+                    //Vo 100%
+                    runBotNormal(tinhieu, giamua, fullHopdong)
 
-                //Chot 25%
-                if (order25[0] > 0) {
-                    runBotNormal(tinhieu, tp2, order25[0])
-                }
+                    //dao lenh
+                    tinhieu = daoLenh(tinhieu)
+                    runBotStopOrder(tinhieu, fullHopdong, catLo)
 
-                const funcTheoDoiGiaKhopLenh = () => {
-                    const giaKhop = document.getElementById("tbodyPhaisinhContent").childNodes[0]?.childNodes[10]
-                    if (!giaKhop) {
-                        setTimeout(funcTheoDoiGiaKhopLenh, 1000)
+                    //Chot 50%
+                    if (order50[0] > 0) {
+                        runBotNormal(tinhieu, tp1, order50[0])
                     }
-                    else {
-                        const ob = new MutationObserver(function (mutationsList) {
-                            for (let mutation of mutationsList) {
-                                if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                                    const giaKhopLenh = parseFloat(mutation.target.textContent)
 
-                                    const isShort = tinhieu === "SHORT";
+                    //Chot 25%
+                    if (order25[0] > 0) {
+                        runBotNormal(tinhieu, tp2, order25[0])
+                    }
 
-                                    const condition1 = isShort
-                                        ? giaKhopLenh >= tp1 && giaKhopLenh < tp2
-                                        : giaKhopLenh <= tp1 && giaKhopLenh > tp2
+                    const funcTheoDoiGiaKhopLenh = () => {
+                        const giaKhop = document.getElementById("tbodyPhaisinhContent").childNodes[0]?.childNodes[10]
+                        if (!giaKhop) {
+                            setTimeout(funcTheoDoiGiaKhopLenh, 1000)
+                        }
+                        else {
+                            const ob = new MutationObserver(function (mutationsList) {
+                                for (let mutation of mutationsList) {
+                                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                        const giaKhopLenh = parseFloat(mutation.target.textContent)
 
-                                    const condition2 = isShort
-                                        ? giaKhopLenh >= tp2
-                                        : giaKhopLenh <= tp2
+                                        const isShort = tinhieu === "SHORT";
 
-                                    if (condition1 && !dadatTp1 && order50[0] > 0) {
-                                        huyLenhDieuKien();
-                                        runBotStopOrder(tinhieu, order50[0], giamua);
-                                        dadatTp1 = true;
-                                    }
-                                    else if (condition2 && !dadatTp2 && order25[0] > 0) {
-                                        huyLenhDieuKien();
-                                        runBotStopOrder(tinhieu, order25[0], tp1);
-                                        dadatTp1 = true;
-                                        dadatTp2 = true;
-                                    }
+                                        const condition1 = isShort
+                                            ? giaKhopLenh >= tp1 && giaKhopLenh < tp2
+                                            : giaKhopLenh <= tp1 && giaKhopLenh > tp2
 
-                                    const initCancelCondition = isShort
-                                        ? giaKhopLenh <= catLo && !dadatTp1 && !dadatTp2
-                                        : giaKhopLenh >= catLo && !dadatTp1 && !dadatTp2
+                                        const condition2 = isShort
+                                            ? giaKhopLenh >= tp2
+                                            : giaKhopLenh <= tp2
 
-                                    const tp1Condition = isShort
-                                        ? giaKhopLenh <= giamua && dadatTp1 && !dadatTp2
-                                        : giaKhopLenh >= giamua && dadatTp1 && !dadatTp2
+                                        if (condition1 && !dadatTp1 && order50[0] > 0) {
+                                            huyLenhDieuKien()
 
-                                    if (initCancelCondition || tp1Condition) {
-                                        huyLenhThuong()
+                                            setTimeout(() => runBotStopOrder(tinhieu, order50[0], giamua), 700)
+                                            dadatTp1 = true
+                                            logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", tp1, false)
+                                        }
+                                        else if (condition2 && !dadatTp2 && order25[0] > 0) {
+                                            huyLenhDieuKien()
+
+                                            setTimeout(() => runBotStopOrder(tinhieu, order25[0], tp1), 700)
+                                            dadatTp1 = true
+                                            dadatTp2 = true
+                                            logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", tp2, false)
+                                        }
+
+                                        let daHuyInitCancel = false
+                                        let daHuyTp1Cancel = false
+
+                                        const initCancelCondition = isShort
+                                            ? giaKhopLenh <= catLo && !dadatTp1 && !dadatTp2
+                                            : giaKhopLenh >= catLo && !dadatTp1 && !dadatTp2
+
+                                        const tp1Condition = isShort
+                                            ? giaKhopLenh <= giamua && dadatTp1 && !dadatTp2
+                                            : giaKhopLenh >= giamua && dadatTp1 && !dadatTp2
+
+                                        if (initCancelCondition && !daHuyInitCancel) {
+                                            huyLenhThuong()
+
+                                            daHuyInitCancel = true
+                                            logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", catLo, true)
+                                        }
+                                        else if (tp1Condition && !daHuyTp1Cancel) {
+                                            huyLenhThuong()
+
+                                            daHuyInitCancel = true
+                                            daHuyTp1Cancel = true
+                                            logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", giamua, true)
+                                        }
                                     }
                                 }
-                            }
-                        });
-                        ob.observe(giaKhop, { characterData: true, childList: true, subtree: true })
+                            });
+                            ob.observe(giaKhop, { characterData: true, childList: true, subtree: true })
+                        }
                     }
-                }
-                funcTheoDoiGiaKhopLenh()
+                    funcTheoDoiGiaKhopLenh()
+                }                
             }
+            
         }
-
-        //const test = `#VN30F1M Ngay 30/05/2024 2:13:48 CH bot web\nTin hieu long: Manh\nGia mua: 1311.4\nTarget 1: 1314.1\nTarget 2: 1317.0\nTarget 3: 1320.4\nTarget 4: 1323.1\nCat lo : 1308.3`.split("\n").map(line => line.trim())
-        //showTinHieu(test)
-        //botVolumeValue.attr("max", 30)
-        //botVolumeValue.val(6)
-        //setTimeout(() => botAutoClick(test), 3000)
-        //setTimeout(huyLenhDieuKien, 5000)
 
         if (botAutoOrder.is(":checked")) {
             sohodong.val(botVolumeValue.val())
@@ -912,43 +1122,64 @@ $(window).on('load', async () => {
             }))
         })
 
+        getBotSignal()
+        const debouncedGetBotSignal = debounce(() => {
+            $("#bot-tbl-signals tbody").empty();
+            getBotSignal()
+        }, 500);
+
+        $(".bot-signal-refresh").click(debouncedGetBotSignal)
+
         $(".satbot-logout").click(() => {
             if (confirm("Nhấn Ok để xác nhận Hủy liên kết, No để trở lại")) {
-                logout()
+                my_logout()
             }
         })
-         
+
         var connection = new signalR.HubConnectionBuilder()
             .withUrl(`${baseURL}/realtimeSignal`)
             .withAutomaticReconnect()
-            .build();
+            .build()
 
         connection.on("Signal", function (message) {
             const tinhieu = message.split("\n").map(line => line.trim())
             showTinHieu(tinhieu)
+
             if (botAutoOrder.is(":checked")) {
+                capNhatSoHopDong()
                 botAutoClick(tinhieu)
             }
-        });
+        })
+
+        connection.on("ServerMessage", function (message) {
+            if (message == "LOGOUT") {
+                server_logout()
+            }
+        })
 
         connection.on("AdminSignal", function (message) {
-            if (message == "CANCEL_ALL") {
-                huyLenhThuong()
-                huyLenhDieuKien()
-            }
-            else {
-                const arr = message.split("\n").map(line => line.trim())
-                const type = arr[arr.length - 1].split(" ")
-                showTinHieu(arr)
+            const arr = message.split("\n").map(line => line.trim())
+            showTinHieu(arr)
 
-                if (botAutoOrder.is(":checked")) {
+            if (botAutoOrder.is(":checked")) {
+                capNhatSoHopDong()
+                if (message == "CANCEL_ALL") {
+                    add_logs(message)
+
+                    huyLenhThuong()
+                    huyLenhDieuKien()
+                }
+                else if (message === "CANCEL_VITHE") {
+                    huyViTheHienTai()
+                }
+                else {
+                    const type = arr[arr.length - 1].split(" ")
+
                     let hopdong = botVolumeValue.val()
 
                     if ((type[1] || type[2]) && (parseInt(type[1]) > 0 || parseInt(type[2]) > 0)) {
                         let hd = parseInt(type[1]) || parseInt(type[2])
-                        if (hd < hopdong) {
-                            hopdong = hd
-                        }
+                        hopdong = hd
                     }
 
                     if (type[0] === "NO_STOP_ORDER" || type[1] === "NO_STOP_ORDER") {
@@ -967,22 +1198,18 @@ $(window).on('load', async () => {
                     }
                 }
             }
-        });
+        })
 
         await connection.start().then(() => add_logs("Đã kết nối với realtime signal")).catch((err) => console.error(err))
-        
-        getBotSignal()
-        const debouncedGetBotSignal = debounce(() => {
-            $("#bot-tbl-signals tbody").empty();
-            getBotSignal()
-        }, 500);
 
-        $(".bot-signal-refresh").click(debouncedGetBotSignal)
+        $('a[data-original-title="Logout"]').click(function () {
+            connection.stop()
+        })
 
         add_logs("Hệ thống sẳn sàng")
     }
 
-    if (getCurrentUser()) {
+    if (getCurrentUser() && getCookie("USER")) {
         loggingAndBot()
     }
     else {
@@ -1014,8 +1241,9 @@ $(window).on('load', async () => {
                 }).done((data) => {
                     if (data.access_token) {
                         setCookie("auth_token", data.access_token, 5);
-                        setCookie("bot_data", JSON.stringify(data), 30 * 24 * 60)
-                        loggingAndBot()
+                        delete data.access_token
+                        setCookie("bot_data", JSON.stringify(data), 1 * 24 * 60)
+                        loggingAndBot("login")
                     } else $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger')
                 }).fail((e, error) => {
                     error === 'timeout'

@@ -35,8 +35,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
     //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
 });
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<MyDbContext>()
@@ -80,7 +80,8 @@ builder.Services.AddCors(opt =>
     {
         opt.WithOrigins("https://smartpro.vps.com.vn",
             "https://smarteasy.vps.com.vn",
-            "http://localhost:3000")
+            "http://localhost:3000",
+            "http://192.168.1.171:3000")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();

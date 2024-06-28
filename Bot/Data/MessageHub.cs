@@ -12,5 +12,9 @@ namespace Bot.Data
         {
             await Clients.All.SendAsync("AdminSignal", message);
         }
+        public async Task ServerMessage(string message)
+        {
+            await Clients.All.SendAsync("ServerMessage", message);
+        }
     }
 }

@@ -8,14 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="wwwroot\backup-v2.js" />
-    <Content Remove="wwwroot\backup-v3.js" />
-    <Content Remove="wwwroot\backup-v4.js" />
-    <Content Remove="wwwroot\script.js" />
-    <Content Remove="wwwroot\telegramScript.js" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="MailKit" Version="4.6.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.6" />

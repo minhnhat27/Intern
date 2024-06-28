@@ -34,7 +34,7 @@ namespace Bot.Controllers
             var message = "";
             var messageResponse = "";
 
-            if (request.Status == "CANCEL_ALL")
+            if (request.Status == "CANCEL_ALL" || request.Status == "CANCEL_VITHE")
             {
                 messageResponse = request.Status;
             }
