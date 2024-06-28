@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bot.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240627022617_initial")]
-    partial class initial
+    [Migration("20240628084624_init")]
+    partial class init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -106,6 +106,15 @@ namespace Bot.Migrations
 
                     b.Property<bool>("IsSL")
                         .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("NumberContract")
+                        .HasColumnType("int");
+
+                    b.Property<double>("PriceBuy")
+                        .HasColumnType("double");
+
+                    b.Property<double>("Profit")
+                        .HasColumnType("double");
 
                     b.Property<double>("ProfitPointTP")
                         .HasColumnType("double");

@@ -68,7 +68,7 @@ namespace Bot.Controllers
         }
 
         [HttpDelete("delete")]
-        [Authorize(Roles = "Admin")
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteUserBot([FromQuery] string userId, [FromQuery] int botTradingId)
         {
             try

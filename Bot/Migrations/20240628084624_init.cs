@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Bot.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -227,6 +227,9 @@ namespace Bot.Migrations
                         .Annotation("MySQL:ValueGenerationStrategy", MySQLValueGenerationStrategy.IdentityColumn),
                     Signal = table.Column<string>(type: "longtext", nullable: false),
                     ProfitPointTP = table.Column<double>(type: "double", nullable: false),
+                    PriceBuy = table.Column<double>(type: "double", nullable: false),
+                    NumberContract = table.Column<int>(type: "int", nullable: false),
+                    Profit = table.Column<double>(type: "double", nullable: false),
                     IsSL = table.Column<bool>(type: "tinyint(1)", nullable: false),
                     DateTime = table.Column<DateTime>(type: "datetime(6)", nullable: false),
                     UserId = table.Column<string>(type: "varchar(255)", nullable: true)
