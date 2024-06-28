@@ -2,11 +2,13 @@
 using Bot.Data;
 using Bot.Request;
 using Bot.Services.MiniServiceBotTrading;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bot.Controllers
 {
     [Route("/api/botTrading")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class BotTradingController : ControllerBase
     {
         private readonly IBotTradingService _botTradingService;
@@ -31,8 +33,9 @@ namespace Bot.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        
         [HttpGet("getAll")]
+        [AllowAnonymous]
         public async Task<IActionResult> GetBotTradings()
         {
             try

@@ -2,10 +2,12 @@
 using Bot.Data;
 using Bot.Request;
 using Bot.Services.MiniServiceExpense;
+using Microsoft.AspNetCore.Authorization;
 namespace Bot.Controllers
 {
     [Route("/api/expense")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class ExpenseControlller : ControllerBase
     {
         private readonly IExpenseService _expenseService;

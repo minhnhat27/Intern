@@ -2,11 +2,13 @@
 using System.Threading.Tasks;
 using Bot.DTO;
 using Bot.Services.MiniServiceUserBot;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bot.Controllers
 {
     [Route("/api/userBot")]
     [ApiController]
+    [Authorize]
     public class UserBotController : ControllerBase
     {
         private readonly IUserBotService _userBotService;
@@ -19,6 +21,7 @@ namespace Bot.Controllers
         }
 
         [HttpPost("add")]
+        [Authorize(Roles ="Admin")]
         public async Task<IActionResult> AddUserBot([FromBody] UserBotCreateDTO userBot)
         {
             try
@@ -46,8 +49,8 @@ namespace Bot.Controllers
             }
         }
 
-        [HttpGet("get/{userId}/{botTradingId}")]
-        public async Task<IActionResult> GetUserBot(string userId, int botTradingId)
+        [HttpGet("get")]
+        public async Task<IActionResult> GetUserBot([FromQuery] string userId, [FromQuery] int botTradingId)
         {
             try
             {
@@ -64,8 +67,9 @@ namespace Bot.Controllers
             }
         }
 
-        [HttpDelete("delete/{userId}/{botTradingId}")]
-        public async Task<IActionResult> DeleteUserBot(string userId, int botTradingId)
+        [HttpDelete("delete")]
+        [Authorize(Roles = "Admin")
+        public async Task<IActionResult> DeleteUserBot([FromQuery] string userId, [FromQuery] int botTradingId)
         {
             try
             {

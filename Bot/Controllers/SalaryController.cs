@@ -2,11 +2,13 @@
 using Bot.DTO;
 using System.Threading.Tasks;
 using Bot.Services.MiniServiceSalary;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bot.Controllers
 {
     [Route("/api/salary")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class SalaryController : ControllerBase
     {
         private readonly ISalaryService _salaryService;
@@ -46,8 +48,8 @@ namespace Bot.Controllers
             }
         }
 
-        [HttpPut("update/{month}/{year}/{userId}")]
-        public async Task<IActionResult> UpdateSalary([FromBody] SalaryUpdateDTO salary, int month, int year, string userId)
+        [HttpPut("update")]
+        public async Task<IActionResult> UpdateSalary([FromBody] SalaryUpdateDTO salary, [FromQuery] int month, [FromQuery] int year, [FromQuery] string userId)
         {
             try
             {
@@ -64,8 +66,8 @@ namespace Bot.Controllers
             }
         }
 
-        [HttpDelete("delete/{month}/{year}/{userId}")]
-        public async Task<IActionResult> DeleteSalary(int month, int year, string userId)
+        [HttpDelete("delete")]
+        public async Task<IActionResult> DeleteSalary([FromQuery] int month, [FromQuery] int year, [FromQuery] string userId)
         {
             try
             {

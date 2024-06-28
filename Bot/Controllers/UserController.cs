@@ -2,11 +2,13 @@
 using Bot.DTO;
 using System.Threading.Tasks;
 using Bot.Services.MiniServiceUser;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bot.Controllers
 {
     [Route("/api/user")]
     [ApiController]
+    [Authorize(Roles ="Admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;

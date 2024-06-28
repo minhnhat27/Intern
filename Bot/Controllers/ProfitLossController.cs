@@ -2,11 +2,13 @@
 using System.Threading.Tasks;
 using Bot.DTO;
 using Bot.Services.MiniServiceProfitLoss;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bot.Controllers
 {
     [Route("/api/profitLoss")]
     [ApiController]
+    [Authorize]
     public class ProfitLossController : ControllerBase
     {
         private readonly IProfitLossService _profitLossService;
@@ -19,6 +21,7 @@ namespace Bot.Controllers
         }
 
         [HttpPost("add")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddProfitLoss([FromBody] ProfitLossCreateDTO profitLoss)
         {
             try
@@ -47,6 +50,7 @@ namespace Bot.Controllers
         }
 
         [HttpPut("update/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateProfitLoss([FromBody] ProfitLossUpdateDTO profitLoss, int id)
         {
             try
@@ -65,6 +69,7 @@ namespace Bot.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteProfitLoss(int id)
         {
             try
@@ -75,6 +80,48 @@ namespace Bot.Controllers
                     return Ok("Delete successful");
                 }
                 return BadRequest("Delete failed");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("GetProfitLossMoth")]
+        public async Task<IActionResult> GetProfitLossMonth([FromQuery]int month, [FromQuery] int year, [FromQuery] string user)
+        {
+            try
+            {
+                var result =await _profitLossService.getProfitLossMonth(month, year, user);
+                return Ok(result);
+            }
+            catch(Exception ex) 
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("GetProfitLossYear")]
+        public async Task<IActionResult> GetProfitLossYear([FromQuery] int year, [FromQuery] string user)
+        {
+            try
+            {
+                var result = await _profitLossService.getProfitLossYear( year, user);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("GetProfitLossAll")]
+        public async Task<IActionResult> GetProfitLossAll([FromQuery] string user)
+        {
+            try
+            {
+                var result = await _profitLossService.getProfitLossAll(user);
+                return Ok(result);
             }
             catch (Exception ex)
             {

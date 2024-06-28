@@ -3,11 +3,13 @@ using Bot.DTO;
 using Microsoft.IdentityModel.Tokens;
 using Bot.Response;
 using Bot.Services.MiniServicePurchaseHistory;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Bot.Controllers
 {
     [Route("/api/purchaseHistory")]
     [ApiController]
+    [Authorize]
     public class PurchaseHistoryController : ControllerBase
     {
         private readonly IPurchaseHistoryService _purchaseHistoryService;
@@ -48,6 +50,7 @@ namespace Bot.Controllers
         }
 
         [HttpPut("update/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdatePurchaseHistory([FromBody] PurchaseHistoryUpdateDTO purchaseHistory, int id)
         {
             try
@@ -66,6 +69,7 @@ namespace Bot.Controllers
         }
 
         [HttpDelete("delete/{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeletePurchaseHistory(int id)
         {
             try
@@ -82,7 +86,6 @@ namespace Bot.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
 
         [HttpGet("getPurchaseMonthByUser")]
         public async Task<IActionResult> GetPurchaseMonthByUser([FromQuery] string userId, [FromQuery] int month, [FromQuery] int? year)
@@ -172,6 +175,7 @@ namespace Bot.Controllers
         }
 
         [HttpGet("getRevenueMonth")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRevenueMonth([FromQuery] int month, [FromQuery] int? year)
         {
             try
@@ -190,6 +194,7 @@ namespace Bot.Controllers
         }
 
         [HttpGet("getRevenueYear")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRevenueYear([FromQuery] int? year)
         {
             try
