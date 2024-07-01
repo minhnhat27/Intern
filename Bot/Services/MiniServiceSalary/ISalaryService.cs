@@ -11,5 +11,6 @@ namespace Bot.Services.MiniServiceSalary
         Task<SalaryDTO> UpdateSalary(int month, int year, string userId, SalaryUpdateDTO salary);
         Task<SalaryResponse> GetSalaryByYear(int year);
         Task<SalaryResponse> GetSalaryByMonth(int month, int year);
+        Task<SalaryResponse> GetSalaryDate(DateTime from, DateTime to);
     }
 }

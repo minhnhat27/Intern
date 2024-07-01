@@ -87,6 +87,20 @@ namespace Bot.Controllers
             }
         }
 
+        [HttpGet("GetProfitLossDay")]
+        public async Task<IActionResult> GetProfitLossDay([FromQuery] int day,[FromQuery] int month, [FromQuery] int year, [FromQuery] string user)
+        {
+            try
+            {
+                var result = await _profitLossService.getProfitLossDay(day,month, year, user);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpGet("GetProfitLossMoth")]
         public async Task<IActionResult> GetProfitLossMonth([FromQuery]int month, [FromQuery] int year, [FromQuery] string user)
         {

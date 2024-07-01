@@ -12,7 +12,8 @@ namespace Bot.Services.MiniServicePurchaseHistory
         Task<IList<PurchaseHistoryDTO>> GetPurchaseHistoriesMonthByUser(string userId, int month, int year);
         Task<IList<PurchaseHistoryDTO>> GetPurchaseHistoriesYearByUser(string userId, int year);
         Task<IList<PurchaseHistoryDTO>> GetPurchaseHistoriesAllByUser(string userId);
-        Task<IList<PurchaseHistoryResponse>> GetRevenueMonth(int month, int year);
-        Task<IList<PurchaseHistoryResponse>> GetRevenueYear(int year);
+        Task<PurchaseHistoryResponse> GetRevenueMonth(int month, int year);
+        Task<PurchaseHistoryResponse> GetRevenueYear(int year);
+        Task<PurchaseHistoryResponse> GetRevenueDate(DateTime from, DateTime to);
     }
 }

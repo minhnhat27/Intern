@@ -22,6 +22,7 @@ using Bot.Services.MiniServicePurchaseHistory;
 using Bot.Services.MiniServiceSendMail;
 using Bot.Services.MiniServiceUserBot;
 using Bot.Services.MiniServiceUser;
+using Bot.Services.MiniServiceStatistics;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,7 +37,7 @@ builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
     //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
-    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
 });
 builder.Services.AddIdentity<User, IdentityRole>()
     .AddEntityFrameworkStores<MyDbContext>()
@@ -108,6 +109,7 @@ builder.Services.AddScoped<IPurchaseHistoryService, PurchaseHistoryService>();
 builder.Services.AddScoped<ISalaryService, SalaryService>();
 builder.Services.AddScoped<IUserBotService, UserBotService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 
 var app = builder.Build();
 

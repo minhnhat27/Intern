@@ -105,5 +105,14 @@ namespace Bot.Services.MiniServiceSalary
             var total = result.Sum(s => s.Price + s.Bonus);
             return new SalaryResponse { SalaryList = result, Total = total };
         }
+
+        public async Task<SalaryResponse> GetSalaryDate(DateTime from, DateTime to)
+        {
+            var result = await _dbContext.Salaries.Where(sa =>
+                 sa.Month >= from.Month && sa.Month <= to.Month && sa.Year >= from.Year && sa.Year <= to.Year
+            ).ToListAsync();
+            var total = result.Sum(s => s.Price + s.Bonus);
+            return new SalaryResponse { SalaryList = result, Total = total };
+        }
     }
 }

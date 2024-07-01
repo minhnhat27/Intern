@@ -12,6 +12,7 @@ namespace Bot.Services.MiniServiceExpense
         Task<ExpenseResponse> GetExpenseByDate(int day, int month, int year);
         Task<ExpenseResponse> GetExpenseByMonth(int month, int year);
         Task<ExpenseResponse> GetExpenseByYear(int year);
+        Task<ExpenseResponse> GetExpenseDate(DateTime from, DateTime to);
 
     }
 }

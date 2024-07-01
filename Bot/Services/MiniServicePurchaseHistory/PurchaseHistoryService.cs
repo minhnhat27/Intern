@@ -178,7 +178,7 @@ namespace Bot.Services.MiniServicePurchaseHistory
         //    return convertResponse;
         //}
 
-        public async Task<IList<PurchaseHistoryResponse>> GetRevenueMonth(int month, int year)
+        public async Task<PurchaseHistoryResponse> GetRevenueMonth(int month, int year)
         {
             var purchaseHistories = await _dbContext.PurchaseHistories
                 .Where(ph => ph.Date.Month == month && ph.Date.Year == year)
@@ -204,10 +204,10 @@ namespace Bot.Services.MiniServicePurchaseHistory
                 Total = totalRevenue
             };
 
-            return new List<PurchaseHistoryResponse> { response };
+            return response;
         }
 
-        public async Task<IList<PurchaseHistoryResponse>> GetRevenueYear(int year)
+        public async Task<PurchaseHistoryResponse> GetRevenueYear(int year)
         {
             var purchaseHistories = await _dbContext.PurchaseHistories
                 .Where(ph => ph.Date.Year == year)
@@ -233,7 +233,35 @@ namespace Bot.Services.MiniServicePurchaseHistory
                 Total = totalRevenue
             };
 
-            return new List<PurchaseHistoryResponse> { response };
+            return response;
+        }
+
+        public async Task<PurchaseHistoryResponse> GetRevenueDate(DateTime from, DateTime to)
+        {
+            var purchaseHistories = await _dbContext.PurchaseHistories
+                .Where(ph => ph.Date >= from && ph.Date <= to)
+                .ToListAsync();
+            var purchaseHistoryDTOs = purchaseHistories.Select(ph => new PurchaseHistoryDTO
+            {
+                Id = ph.Id,
+                PriceBot = ph.PriceBot,
+                StartDate = ph.StartDate,
+                EndDate = ph.EndDate,
+                PaymentMethod = ph.PaymentMethod,
+                Status = ph.Status,
+                Date = ph.Date,
+                UserId = ph.UserId
+            }).ToList();
+
+            var totalRevenue = purchaseHistories.Sum(ph => ph.PriceBot);
+
+            var response = new PurchaseHistoryResponse
+            {
+                Purchases = purchaseHistoryDTOs,
+                Total = totalRevenue
+            };
+
+            return response;
         }
     }
 }

@@ -95,5 +95,21 @@ namespace Bot.Services.MiniServiceExpense
             var totalExpense = result.Sum(ex => ex.Price);
             return new ExpenseResponse { ExpenseList = result, Total = totalExpense };
         }
+
+        public async Task<ExpenseResponse> GetExpenseDate(DateTime from, DateTime to)
+        {
+            var result = await _dbContext.Expenses
+                .Where(ex => ex.Date >= from && ex.Date <= to)
+                .ToListAsync();
+
+            var totalExpense = result.Sum(ex => ex.Price);
+
+            return new ExpenseResponse
+            {
+                ExpenseList = result,
+                Total = totalExpense
+            };
+        }
+
     }
 }
