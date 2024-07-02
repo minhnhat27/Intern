@@ -9,5 +9,6 @@ namespace Bot.Services.MiniServiceBotTrading
         Task<bool> DeleteBotTrading(int id);
         Task<List<BotTrading>> GetBotTradings();
         Task<BotTrading> UpdateBotTrading(int id, BotTradingRequest botTrading);
+        Task<BotTrading> GetBotTrading(int botId);
     }
 }

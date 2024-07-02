@@ -8,6 +8,7 @@
         public double Price { get; set; }
         public double Bonus { get; set; }
         public string Description { get; set; }
+        public string FullName { get; set; }    
     }
 
     public class SalaryCreateDTO

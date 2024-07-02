@@ -53,7 +53,7 @@ namespace Bot.Services.MiniServiceSalary
 
         public async Task<List<SalaryDTO>> GetSalaries()
         {
-            return await _dbContext.Salaries
+            return await _dbContext.Salaries.Include(s => s.User)
                 .Select(s => new SalaryDTO
                 {
                     Month = s.Month,
@@ -61,7 +61,8 @@ namespace Bot.Services.MiniServiceSalary
                     UserId = s.UserId,
                     Price = s.Price,
                     Bonus = s.Bonus,
-                    Description = s.Description
+                    Description = s.Description,
+                    FullName = s.User.Fullname
                 }).ToListAsync();
         }
 

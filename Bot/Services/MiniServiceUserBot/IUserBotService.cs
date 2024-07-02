@@ -1,4 +1,5 @@
 ﻿using Bot.DTO;
+using Bot.Response;
 
 namespace Bot.Services.MiniServiceUserBot
 {
@@ -6,7 +7,7 @@ namespace Bot.Services.MiniServiceUserBot
     {
         Task<UserBotDTO> AddUserBot(UserBotCreateDTO userBot);
         Task<bool> DeleteUserBot(string userId, int botTradingId);
-        Task<List<UserBotDTO>> GetUserBots();
+        Task<List<UserBotResponse>> GetUserBots();
         Task<UserBotDTO> GetUserBot(string userId, int botTradingId);
     }
 }

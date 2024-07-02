@@ -62,5 +62,11 @@ namespace Bot.Services.MiniServiceBotTrading
             await _dbContext.SaveChangesAsync();
             return existingBotTrading;
         }
+
+        public async Task <BotTrading> GetBotTrading(int botId)
+        {
+            var result = await _dbContext.BotsTrading.FindAsync(botId);
+            return result;
+        }
     }
 }

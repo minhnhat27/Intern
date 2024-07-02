@@ -1,6 +1,9 @@
 ﻿using Bot.Data;
 using Bot.DTO;
 using Bot.Models;
+using Bot.Response;
+using Bot.Services.MiniServiceBotTrading;
+using Bot.Services.MiniServiceUser;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bot.Services.MiniServiceUserBot
@@ -8,9 +11,13 @@ namespace Bot.Services.MiniServiceUserBot
     public class UserBotService : IUserBotService
     {
         private readonly MyDbContext _dbContext;
-        public UserBotService(MyDbContext myDbContext)
+        private readonly IUserService _userService;
+        private readonly IBotTradingService _botTradingService;
+        public UserBotService(MyDbContext myDbContext, IBotTradingService botTradingService, IUserService userService)
         {
             _dbContext = myDbContext;
+            _userService = userService;
+            _botTradingService = botTradingService;
         }
 
         public async Task<UserBotDTO> AddUserBot(UserBotCreateDTO userBot)
@@ -41,15 +48,20 @@ namespace Bot.Services.MiniServiceUserBot
             return false;
         }
 
-        public async Task<List<UserBotDTO>> GetUserBots()
+        public async Task<List<UserBotResponse>> GetUserBots()
         {
-            return await _dbContext.UserBots
-                .Select(ub => new UserBotDTO
+            var userBots = await _dbContext.UserBots.Include(e => e.User).Select(e => new UserBotResponse
+            {
+                User = new UserDTO
                 {
-                    UserId = ub.UserId,
-                    BotTradingId = ub.BotTradingId
-                }).ToListAsync();
+                    Email=e.User.Email, UserId = e.User.Id,Fullname=e.User.Fullname,UserName=e.User.UserName
+                },
+                Bot = e.BotTradings
+            }).ToListAsync();
+
+            return userBots; 
         }
+
 
         public async Task<UserBotDTO> GetUserBot(string userId, int botTradingId)
         {
