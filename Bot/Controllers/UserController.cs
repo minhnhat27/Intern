@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Bot.DTO;
-using System.Threading.Tasks;
 using Bot.Services.MiniServiceUser;
 using Microsoft.AspNetCore.Authorization;
+using Bot.Request;
+using Bot.Data;
 
 namespace Bot.Controllers
 {
@@ -26,7 +27,7 @@ namespace Bot.Controllers
                 var result = await _userService.AddUser(user);
                 return Ok(result);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -40,9 +41,9 @@ namespace Bot.Controllers
                 var result = await _userService.GetUsers();
                 return Ok(result);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -56,9 +57,9 @@ namespace Bot.Controllers
                 {
                     return Ok(result);
                 }
-                return NotFound("User not found");
+                return NotFound(ErrorMessage.USER_NOT_FOUND);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -76,7 +77,7 @@ namespace Bot.Controllers
                 }
                 return BadRequest("Update failed");
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
@@ -94,9 +95,37 @@ namespace Bot.Controllers
                 }
                 return BadRequest("Delete failed");
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("lockout")]
+        public async Task<IActionResult> Lockout([FromBody] UserIdRequest request)
+        {
+            try
+            {
+                await _userService.LockoutUser(request.UserId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("unlock")]
+        public async Task<IActionResult> Unlock([FromBody] UserIdRequest request)
+        {
+            try
+            {
+                await _userService.UnlockUser(request.UserId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
     }

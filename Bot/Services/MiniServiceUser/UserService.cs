@@ -65,8 +65,35 @@ namespace Bot.Services.MiniServiceUser
                     UserName = u.UserName,
                     Email = u.Email,
                     Fullname = u.Fullname,
-                    // Map other properties
+                    LockoutEnable = u.LockoutEnd != null && u.LockoutEnd > DateTimeOffset.Now,
+                    LockoutEnd = u.LockoutEnd,
                 }).ToListAsync();
+        }
+
+        public async Task LockoutUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception(ErrorMessage.USER_NOT_FOUND);
+            }
+            user.LockoutEnd = DateTimeOffset.Now.AddYears(100);
+
+            await _userManager.UpdateAsync(user);
+            await _userManager.UpdateSecurityStampAsync(user);
+        }
+
+        public async Task UnlockUser(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception(ErrorMessage.USER_NOT_FOUND);
+            }
+            user.LockoutEnd = null;
+
+            await _userManager.UpdateAsync(user);
+            await _userManager.UpdateSecurityStampAsync(user);
         }
 
         public async Task<UserDTO> GetUser(string userId)

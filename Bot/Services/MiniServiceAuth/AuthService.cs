@@ -8,8 +8,6 @@ using Bot.Services.MiniServiceSendMail;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
-using NuGet.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -78,21 +76,25 @@ namespace Bot.Services.MiniServiceAuth
                 var user = await _userManager.FindByNameAsync(request.Username);
                 if (user != null)
                 {
+                    var now = DateTimeOffset.Now;
                     var roles = await _userManager.GetRolesAsync(user);
                     var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
                     var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(1), true);
 
-                    var provider = "Bot";
-                    var name = "Refresh_Token";
-
-                    var existUserLogin = await _userManager.GetAuthenticationTokenAsync(user, provider, name);
-                    if(existUserLogin != null)
+                    if (request.Ext != null && request.Ext == true && now < user.ServiceEndDate)
                     {
-                        await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
-                    }
+                        var provider = "Ext";
+                        var name = "Refresh_Token";
 
-                    await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
-                    await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
+                        var existUserLogin = await _userManager.GetAuthenticationTokenAsync(user, provider, name);
+                        if (existUserLogin != null)
+                        {
+                            await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
+                        }
+                        await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
+                        await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
+                    }
+                    else throw new Exception(ErrorMessage.SERVICE_EXPIRE);
 
                     return new JwtResponse
                     {
@@ -105,12 +107,12 @@ namespace Bot.Services.MiniServiceAuth
                         PhoneNumber = user.PhoneNumber,
                     };
                 }
-                throw new Exception("User not found");
+                throw new Exception(ErrorMessage.USER_NOT_FOUND);
             }
             return null;
         }
 
-        private string? ValidateToken(string token, bool validateLifetime)
+        private string? ValidateToken(string token, bool validateLifetime, bool isRefreshToken)
         {
             var parameters = new TokenValidationParameters
             {
@@ -125,23 +127,43 @@ namespace Bot.Services.MiniServiceAuth
             var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken securityToken);
             JwtSecurityToken jwtSecurityToken = (JwtSecurityToken)securityToken;
 
+            var versionClaim = principal.FindFirstValue(ClaimTypes.Version);
+            if (isRefreshToken && versionClaim != "Refresh_Token")
+            {
+                throw new Exception(ErrorMessage.INVALID_TOKEN);
+            }
+
             if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
-                throw new SecurityTokenException("Invalid Refresh token");
+                throw new SecurityTokenException(ErrorMessage.INVALID_TOKEN);
 
             return principal.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
         public async Task<TokenModel?> RefreshToken(TokenModel token)
         {
-            var userId = ValidateToken(token.Refresh_token, true);
+            var isRefreshToken = false;
+            if (token.Ext != null && token.Ext == true)
+            {
+                isRefreshToken = true;
+            }
+
+            var userId = ValidateToken(token.Refresh_token, true, isRefreshToken);
             if (userId == null)
             {
-                throw new Exception("Invalid refresh token");
+                throw new Exception(ErrorMessage.INVALID_TOKEN);
             }
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new Exception("UserId not found");
+                throw new Exception(ErrorMessage.USER_NOT_FOUND);
+            }
+            if (isRefreshToken)
+            {
+                var userToken = await _userManager.GetAuthenticationTokenAsync(user, "Ext", "Refresh_Token");
+                if (userToken == null || !userToken.Equals(token.Refresh_token))
+                {
+                    throw new Exception(ErrorMessage.INVALID_TOKEN);
+                }
             }
 
             var roles = await _userManager.GetRolesAsync(user);
@@ -173,27 +195,25 @@ namespace Bot.Services.MiniServiceAuth
 
                 return await _userManager.CreateAsync(User, request.Password);
             }
-            else throw new Exception("Invalid token.");
+            else throw new Exception(ErrorMessage.INVALID_TOKEN);
             
         }
 
         public async Task Logout(TokenModel token)
         {
-            var userId = ValidateToken(token.Refresh_token, false);
+            var userId = ValidateToken(token.Refresh_token, false, true);
             if (userId == null)
             {
-                throw new ArgumentNullException();
+                throw new Exception(ErrorMessage.INVALID_TOKEN);
             }
             var user = await _userManager.FindByIdAsync(userId);
             if (user == null)
             {
-                throw new ArgumentNullException();
+                throw new Exception(ErrorMessage.USER_NOT_FOUND);
             }
-            var provider = "Bot";
-            var name = "Refresh_Token";
-            await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
+
+            await _userManager.RemoveAuthenticationTokenAsync(user, "Ext", "Refresh_Token");
             await _userManager.UpdateSecurityStampAsync(user);
-            await _signInManager.SignOutAsync();
         }
 
         public async Task<bool> SendRegisterTokenAsync(string email)
