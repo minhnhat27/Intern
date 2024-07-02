@@ -1,7 +1,7 @@
 ﻿"use strict"
 
-const baseURL = "https://minhnhat27.id.vn"
-//const baseURL = "http://localhost:5131"
+//const baseURL = "https://minhnhat27.id.vn"
+const baseURL = "http://localhost:5131"
 
 const api_auth = `${baseURL}/api/auth`
 const api_signal = `${baseURL}/api/signal`
@@ -680,7 +680,6 @@ $(window).on('load', async () => {
                         }
                     }
                 });
-
                 observer.observe(sucmua, { characterData: true, childList: true, subtree: true });
             }
         }
@@ -698,7 +697,10 @@ $(window).on('load', async () => {
             $('.cancel-all-confirm').css('display', '')
             $('#use_stopOrder').prop('checked', false)
 
+            $('#modal_price').text(giadat)
+            objConfig.CONFIRM_ORDER = false
             $("#right_price").val(giadat)
+
             $("#sohopdong").val(hopdong)
 
             tinhieu === "LONG" ? $('input[name="type"]').val("B") : $('input[name="type"]').val("S")
@@ -706,7 +708,7 @@ $(window).on('load', async () => {
             isDemo
                 ? saveOrder()
                 : saveOrderNew()
-
+                
             add_logs(`Đã đặt lệnh ${tinhieu} giá ${giadat} với ${hopdong} hợp đồng`)
         }
 
@@ -730,8 +732,10 @@ $(window).on('load', async () => {
             else {
                 changeSelectionType($("#select_condition_order_wrapper"))
                 changeSelectOrder($('#select_order_type').children().eq(1)[0])
+
                 $('#modal_price').text("MTL")
                 objConfig.CONFIRM_ORDER = false
+
                 $("#right_order_type").data("2")
                 $("#right_stock_cd_code").data("3")
 
@@ -740,20 +744,20 @@ $(window).on('load', async () => {
                 $('#right_stopOrderIndex').val(stopOrderValue)
 
                 saveOrderNew()
+
                 changeSelectionType($("#select_normal_order_wrapper"))
             }
             add_logs(`Đã đặt lệnh ${tinhieu} Stop Order: ${stopOrderValue}, MTL với ${hopdong} hợp đồng`)
         }
 
         const huyLenhThuong = () => {
-            if (isDemo) {
-                $('.cancel-all-confirm').css('display', 'none')
-                saveOrder()
-                $('.cancel-all-confirm').css('display', '')
-            }
-            else {
-                saveOrderNew()
-            }
+            $('.cancel-all-confirm').css('display', 'none')
+
+            isDemo
+                ? saveOrder()
+                : saveOrderNew()
+
+            $('.cancel-all-confirm').css('display', '')
             add_logs("Đã hủy tất cả lệnh thường")
         }
 

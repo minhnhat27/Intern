@@ -18,8 +18,8 @@ namespace Bot.Middleware
                     {
                         context.Database.Migrate();
                     }
+                    await InitializeRoles(scope.ServiceProvider, context);
                 }
-                await InitializeRoles(scope.ServiceProvider, context);
             }
         }
         private static async Task InitializeRoles(IServiceProvider serviceProvider, MyDbContext context)
