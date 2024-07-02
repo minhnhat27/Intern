@@ -7,7 +7,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace Bot.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -36,6 +36,7 @@ namespace Bot.Migrations
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false),
                     Fullname = table.Column<string>(type: "longtext", nullable: false),
+                    ServiceEndDate = table.Column<DateTimeOffset>(type: "datetime", nullable: true),
                     UserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "varchar(256)", maxLength: 256, nullable: true),

@@ -413,6 +413,24 @@ const liPanel = `<li class="nav-item text-center">
                         </a>
                     </li>`
 
+const timezone7 = 7 * 60 * 60 * 1000; //ms
+
+const getISOStringNow = () => {
+    var time = new Date().getTime() + timezone7;
+    return new Date(time).toISOString();
+}
+
+const logHistory = (signal, priceBuy, profitPointTP, numberContract, isSL) => {
+    const userId = getCurrentUser().userId
+    const dateTime = getISOStringNow()
+    const data = JSON.stringify({ signal, priceBuy, profitPointTP, numberContract, isSL, dateTime, userId })
+    $.ajax({
+        url: api_logHistory + "/add",
+        method: "POST",
+        data: data,
+    }).fail((_, error) => console.log(error))
+}
+
 const add_logs = (text) => {
     var now = new Date()
     text = now.toLocaleTimeString('vi-VN') + ": " + text
@@ -482,6 +500,8 @@ const getCurrentUser = () => {
     return my_user ? JSON.parse(my_user) : my_user
 }
 
+const getAccessToken = () => getCookie("auth_token")
+
 const my_logout = () => {
     const refresh_token = getCurrentUser()?.refresh_token;
     const json = JSON.stringify({ refresh_token })
@@ -520,34 +540,10 @@ const refreshToken = () => {
         if (data.access_token) {
             setCookie("auth_token", data.access_token, 5);
         }
-    }).fail((_, error) => {
-        error === 'timeout'
-            ? add_logs("Mạng yếu, vui lòng thử lại.")
-            : add_logs(error)
+    }).fail(() => {
+        setCookie("bot_data", "", -1)
+        window.location.reload()
     })
-}
-
-Date.prototype.getUTCTime = function () {
-    var time = this.getTime();
-    return time + UTC_OFFSET;
-};
-
-const timezone7 = 7 * 60 * 60 * 1000; //ms
-
-const getISOStringNow = () => {
-    var time = new Date().getTime() + timezone7;
-    return new Date(time).toISOString();
-};
-
-const logHistory = (signal, profitPointTP, isSL) => {
-    const userId = getCurrentUser().userId
-    const dateTime = getISOStringNow()
-    const data = JSON.stringify({ signal, profitPointTP, isSL, dateTime, userId })
-    $.ajax({
-        url: api_logHistory + "/add",
-        method: "POST",
-        data: data
-    }).fail((_, error) => console.log(error))
 }
 
 const botSettings = {
@@ -586,6 +582,10 @@ $(window).on('load', async () => {
 
         const my_user = getCurrentUser()
         $("#my-name").text(my_user.name)
+
+        $.ajaxSetup({
+            headers: { 'Authorization': 'Bearer ' + getAccessToken() }
+        })
 
         const extContent = $("#ext-content")
         extContent.children().replaceWith(loggingHtml)
@@ -798,22 +798,23 @@ $(window).on('load', async () => {
 
         const daoLenh = (tinhieu) => tinhieu === "LONG" ? "SHORT" : "LONG"
 
-        const botAutoClick = (arr, fullHopdong = botVolumeValue.val()) => {
+        let obs
+        const botAutoClick = (arr, fullHopdong = parseInt(botVolumeValue.val())) => {
             let tinhieu = arr[1] === "Tin hieu long: Manh" ? "LONG" : "SHORT"
 
             add_logs("Tính hiệu: " + tinhieu)
 
-            fullHopdong = parseInt(fullHopdong) 
-
             let dadatTp1 = false
             let dadatTp2 = false
+            let daHuyInitCancel = false
+            let daHuyTp1Cancel = false
 
             const type = arr[arr.length - 1].split(" ")
             const daoChieu = arr[arr.length - 1] === "REVERSE" || type[0] === "REVERSE"
 
             const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
 
-            let delay = false
+            let delay = 0
 
             let my_hd = fullHopdong
 
@@ -881,7 +882,7 @@ $(window).on('load', async () => {
                 huyLenhThuong()
                 huyLenhDieuKien()
 
-                delay = true
+                delay = 500
             }
             else {
                 if (fullHopdong > ngDat) {
@@ -911,88 +912,7 @@ $(window).on('load', async () => {
             const trendType = $("#bot-trendTypes").val()
             if (((trendType == "1" && tinhieu == "LONG") || (trendType == "2" && tinhieu == "SHORT") || trendType == "0")
                 && fullHopdong > 0) {
-                if (delay) {
-                    setTimeout(() => {
-                        //Vo 100%
-                        runBotNormal(tinhieu, giamua, fullHopdong)
-
-                        //dao lenh
-                        tinhieu = daoLenh(tinhieu)
-                        runBotStopOrder(tinhieu, fullHopdong, catLo)
-
-                        //Chot 50%
-                        if (order50[0] > 0) {
-                            runBotNormal(tinhieu, tp1, order50[0])
-                        }
-
-                        //Chot 25%
-                        if (order25[0] > 0) {
-                            runBotNormal(tinhieu, tp2, order25[0])
-                        }
-
-                        const funcTheoDoiGiaKhopLenh = () => {
-                            const giaKhop = document.getElementById("tbodyPhaisinhContent").childNodes[0]?.childNodes[10]
-                            if (!giaKhop) {
-                                setTimeout(funcTheoDoiGiaKhopLenh, 1000)
-                            }
-                            else {
-                                const ob = new MutationObserver(function (mutationsList) {
-                                    for (let mutation of mutationsList) {
-                                        if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                                            const giaKhopLenh = parseFloat(mutation.target.textContent)
-
-                                            const isShort = tinhieu === "SHORT";
-
-                                            const condition1 = isShort
-                                                ? giaKhopLenh >= tp1 && giaKhopLenh < tp2
-                                                : giaKhopLenh <= tp1 && giaKhopLenh > tp2
-
-                                            const condition2 = isShort
-                                                ? giaKhopLenh >= tp2
-                                                : giaKhopLenh <= tp2
-
-                                            if (condition1 && !dadatTp1 && order50[0] > 0) {
-                                                huyLenhDieuKien()
-
-                                                setTimeout(() => runBotStopOrder(tinhieu, order50[0], giamua), 700)
-                                                dadatTp1 = true
-                                                logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", tp1, false)
-                                            }
-                                            else if (condition2 && !dadatTp2 && order25[0] > 0) {
-                                                huyLenhDieuKien()
-
-                                                setTimeout(() => runBotStopOrder(tinhieu, order25[0], tp1), 700)
-                                                dadatTp1 = true
-                                                dadatTp2 = true
-                                                logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", tp2, false)
-                                            }
-
-                                            const initCancelCondition = isShort
-                                                ? giaKhopLenh <= catLo && !dadatTp1 && !dadatTp2
-                                                : giaKhopLenh >= catLo && !dadatTp1 && !dadatTp2
-
-                                            const tp1Condition = isShort
-                                                ? giaKhopLenh <= giamua && dadatTp1 && !dadatTp2
-                                                : giaKhopLenh >= giamua && dadatTp1 && !dadatTp2
-
-                                            if (initCancelCondition) {
-                                                huyLenhThuong()
-                                                logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", catLo, true)
-                                            }
-                                            else if (tp1Condition) {
-                                                huyLenhThuong()
-                                                logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", giamua, true)
-                                            }
-                                        }
-                                    }
-                                });
-                                ob.observe(giaKhop, { characterData: true, childList: true, subtree: true })
-                            }
-                        }
-                        funcTheoDoiGiaKhopLenh()
-                    }, 500)
-                }
-                else {
+                setTimeout(() => {
                     //Vo 100%
                     runBotNormal(tinhieu, giamua, fullHopdong)
 
@@ -1011,17 +931,20 @@ $(window).on('load', async () => {
                     }
 
                     const funcTheoDoiGiaKhopLenh = () => {
-                        const giaKhop = document.getElementById("tbodyPhaisinhContent").childNodes[0]?.childNodes[10]
-                        if (!giaKhop) {
+                        const nodeGiaKhop = document.getElementById("tbodyPhaisinhContent").childNodes[0]?.childNodes[10]
+                        if (!nodeGiaKhop) {
                             setTimeout(funcTheoDoiGiaKhopLenh, 1000)
                         }
                         else {
-                            const ob = new MutationObserver(function (mutationsList) {
+                            if (obs) {
+                                obs.disconnect()
+                            }
+                            obs = new MutationObserver(function (mutationsList) {
                                 for (let mutation of mutationsList) {
                                     if (mutation.type === 'characterData' || mutation.type === 'childList') {
                                         const giaKhopLenh = parseFloat(mutation.target.textContent)
 
-                                        const isShort = tinhieu === "SHORT";
+                                        const isShort = tinhieu === "SHORT"
 
                                         const condition1 = isShort
                                             ? giaKhopLenh >= tp1 && giaKhopLenh < tp2
@@ -1031,24 +954,29 @@ $(window).on('load', async () => {
                                             ? giaKhopLenh >= tp2
                                             : giaKhopLenh <= tp2
 
+                                        const lenhBanDau = daoLenh(tinhieu)
+
                                         if (condition1 && !dadatTp1 && order50[0] > 0) {
                                             huyLenhDieuKien()
 
-                                            setTimeout(() => runBotStopOrder(tinhieu, order50[0], giamua), 700)
+                                            isDemo
+                                                ? setTimeout(() => runBotStopOrder(tinhieu, order50[0], giamua), delay)
+                                                : runBotStopOrder(tinhieu, order50[0], giamua)
+
                                             dadatTp1 = true
-                                            logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", tp1, false)
+                                            logHistory(lenhBanDau, giamua, tp1, order50[0], false)
                                         }
                                         else if (condition2 && !dadatTp2 && order25[0] > 0) {
                                             huyLenhDieuKien()
 
-                                            setTimeout(() => runBotStopOrder(tinhieu, order25[0], tp1), 700)
+                                            isDemo
+                                                ? setTimeout(() => runBotStopOrder(tinhieu, order25[0], tp1), delay)
+                                                : runBotStopOrder(tinhieu, order25[0], tp1)
+
                                             dadatTp1 = true
                                             dadatTp2 = true
-                                            logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", tp2, false)
+                                            logHistory(lenhBanDau, tp1, tp2, order25[0], false)
                                         }
-
-                                        let daHuyInitCancel = false
-                                        let daHuyTp1Cancel = false
 
                                         const initCancelCondition = isShort
                                             ? giaKhopLenh <= catLo && !dadatTp1 && !dadatTp2
@@ -1062,23 +990,24 @@ $(window).on('load', async () => {
                                             huyLenhThuong()
 
                                             daHuyInitCancel = true
-                                            logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", catLo, true)
+                                            logHistory(lenhBanDau, giamua, catLo, my_hd, true)
                                         }
                                         else if (tp1Condition && !daHuyTp1Cancel) {
                                             huyLenhThuong()
 
                                             daHuyInitCancel = true
                                             daHuyTp1Cancel = true
-                                            logHistory(tinhieu === "SHORT" ? "LONG" : "SHORT", giamua, true)
+                                            logHistory(lenhBanDau, giamua, tp1, (my_hd - parseInt(order50[0])), true)
                                         }
                                     }
                                 }
                             });
-                            ob.observe(giaKhop, { characterData: true, childList: true, subtree: true })
+                            
+                            obs.observe(nodeGiaKhop, { characterData: true, childList: true, subtree: true })
                         }
                     }
                     funcTheoDoiGiaKhopLenh()
-                }                
+                }, delay)           
             }
             
         }
@@ -1158,9 +1087,6 @@ $(window).on('load', async () => {
         })
 
         connection.on("AdminSignal", function (message) {
-            const arr = message.split("\n").map(line => line.trim())
-            showTinHieu(arr)
-
             if (botAutoOrder.is(":checked")) {
                 capNhatSoHopDong()
                 if (message == "CANCEL_ALL") {
@@ -1169,10 +1095,14 @@ $(window).on('load', async () => {
                     huyLenhThuong()
                     huyLenhDieuKien()
                 }
-                else if (message === "CANCEL_VITHE") {
+                else if (message == "CANCEL_VITHE") {
+                    add_logs("Hủy vị thế hiện tại")
+
                     huyViTheHienTai()
                 }
                 else {
+                    const arr = message.split("\n").map(line => line.trim())
+                    showTinHieu(arr)
                     const type = arr[arr.length - 1].split(" ")
 
                     let hopdong = botVolumeValue.val()
@@ -1260,10 +1190,3 @@ $(window).on('load', async () => {
 })
 
 //  ssh -R 80:localhost:5131 localhost.run
-
-//  <ItemGroup>
-//  <Content Include="Response\script.js">
-//      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
-//      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-//  </Content>
-//  </ItemGroup>

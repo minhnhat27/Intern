@@ -1,4 +1,5 @@
-﻿using Bot.DTO;
+﻿using Bot.Data;
+using Bot.DTO;
 using Bot.Request;
 using Bot.Services.MiniServiceAuth;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +28,7 @@ namespace Bot.Controllers
                 {
                     return Ok(result);
                 }
-                else return Unauthorized("Tên tài khoản hoặc mật khẩu không chính xác");
+                else return Unauthorized(ErrorMessage.INCORRECT_PASSWORD);
             }
             catch (Exception ex)
             {

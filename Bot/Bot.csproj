@@ -30,4 +30,7 @@
   <ItemGroup>
     <Content Include="Response\**\*.js" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\script.js" />
+  </ItemGroup>
 </Project>

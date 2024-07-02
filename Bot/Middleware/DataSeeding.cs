@@ -51,7 +51,8 @@ namespace Bot.Middleware
                 PhoneNumber = "0123456789",
                 EmailConfirmed = true,
                 PhoneNumberConfirmed = true,
-                SecurityStamp = Guid.NewGuid().ToString()
+                SecurityStamp = Guid.NewGuid().ToString(),
+                ServiceEndDate = DateTime.Now.AddYears(1),
             };
 
             if (!context.Users.Any(u => u.UserName == user.UserName))

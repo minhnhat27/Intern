@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bot.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240628084624_init")]
-    partial class init
+    [Migration("20240701100021_initial")]
+    partial class initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -292,6 +292,9 @@ namespace Bot.Migrations
 
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
+
+                    b.Property<DateTimeOffset?>("ServiceEndDate")
+                        .HasColumnType("datetime");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");
