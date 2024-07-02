@@ -290,6 +290,9 @@ namespace Bot.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("longtext");
 
+                    b.Property<DateTimeOffset?>("ServiceEndDate")
+                        .HasColumnType("datetime");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("tinyint(1)");
 

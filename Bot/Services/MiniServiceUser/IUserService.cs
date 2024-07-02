@@ -8,5 +8,7 @@ namespace Bot.Services.MiniServiceUser
         Task<List<UserDTO>> GetUsers();
         Task<UserDTO> GetUser(string userId);
         Task<UserDTO> UpdateUser(string userId, UserUpdateDTO user);
+        Task LockoutUser(string userId);
+        Task UnlockUser(string userId);
     }
 }
