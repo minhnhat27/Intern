@@ -68,7 +68,7 @@ namespace Bot.Services.MiniServiceAuth
             return new JwtSecurityTokenHandler().WriteToken(jwtToken);
         }
 
-        public async Task<JwtResponse?> Login(LoginRequest request)
+        public async Task<JwtResponse?> Login(LoginRequest request, bool isExtension)
         {
             var result = await _signInManager.PasswordSignInAsync(request.Username, request.Password, false, false);
             if (result.Succeeded)
@@ -76,25 +76,28 @@ namespace Bot.Services.MiniServiceAuth
                 var user = await _userManager.FindByNameAsync(request.Username);
                 if (user != null)
                 {
-                    var now = DateTimeOffset.Now;
+                    var now = DateTime.Now;
                     var roles = await _userManager.GetRolesAsync(user);
                     var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
                     var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(1), true);
 
-                    if (request.Ext != null && request.Ext == true && now < user.ServiceEndDate)
+                    if (isExtension)
                     {
-                        var provider = "Ext";
-                        var name = "Refresh_Token";
-
-                        var existUserLogin = await _userManager.GetAuthenticationTokenAsync(user, provider, name);
-                        if (existUserLogin != null)
+                        if(now < user.ServiceEndDate)
                         {
-                            await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
+                            var provider = "Ext";
+                            var name = "Refresh_Token";
+
+                            var existUserLogin = await _userManager.GetAuthenticationTokenAsync(user, provider, name);
+                            if (existUserLogin != null)
+                            {
+                                await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
+                            }
+                            await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
+                            await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
                         }
-                        await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
-                        await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
+                        else throw new Exception(ErrorMessage.SERVICE_EXPIRE);
                     }
-                    else throw new Exception(ErrorMessage.SERVICE_EXPIRE);
 
                     return new JwtResponse
                     {
@@ -139,15 +142,9 @@ namespace Bot.Services.MiniServiceAuth
             return principal.FindFirstValue(ClaimTypes.NameIdentifier);
         }
 
-        public async Task<TokenModel?> RefreshToken(TokenModel token)
+        public async Task<TokenModel> RefreshToken(TokenModel token, bool isExtension)
         {
-            var isRefreshToken = false;
-            if (token.Ext != null && token.Ext == true)
-            {
-                isRefreshToken = true;
-            }
-
-            var userId = ValidateToken(token.Refresh_token, true, isRefreshToken);
+            var userId = ValidateToken(token.Refresh_token, true, isExtension);
             if (userId == null)
             {
                 throw new Exception(ErrorMessage.INVALID_TOKEN);
@@ -157,7 +154,7 @@ namespace Bot.Services.MiniServiceAuth
             {
                 throw new Exception(ErrorMessage.USER_NOT_FOUND);
             }
-            if (isRefreshToken)
+            if (isExtension)
             {
                 var userToken = await _userManager.GetAuthenticationTokenAsync(user, "Ext", "Refresh_Token");
                 if (userToken == null || !userToken.Equals(token.Refresh_token))

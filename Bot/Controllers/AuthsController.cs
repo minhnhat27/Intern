@@ -23,7 +23,13 @@ namespace Bot.Controllers
         {
             try
             {
-                var result = await _authService.Login(request);
+                var origin = Request.Headers["Origin"];
+                bool isExtension = false;
+                if (origin.Contains("https://smartpro.vps.com.vn") || origin.Contains("https://smarteasy.vps.com.vn"))
+                {
+                    isExtension = true;
+                }
+                var result = await _authService.Login(request, isExtension);
                 if (result != null)
                 {
                     return Ok(result);
@@ -59,12 +65,13 @@ namespace Bot.Controllers
         {
             try
             {
-                var result = await _authService.RefreshToken(token);
-                if (result != null)
+                var origin = Request.Headers["Origin"];
+                bool isExtension = false;
+                if (origin.Contains("https://smartpro.vps.com.vn") || origin.Contains("https://smarteasy.vps.com.vn"))
                 {
-                    return Ok(result);
+                    isExtension = true;
                 }
-                else return Unauthorized("Invalid attempt!");
+                return Ok(await _authService.RefreshToken(token, isExtension));
             }
             catch (Exception ex)
             {
