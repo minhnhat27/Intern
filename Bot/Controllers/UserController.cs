@@ -3,6 +3,7 @@ using Bot.DTO;
 using System.Threading.Tasks;
 using Bot.Services.MiniServiceUser;
 using Microsoft.AspNetCore.Authorization;
+using Bot.Data;
 
 namespace Bot.Controllers
 {

@@ -1,4 +1,5 @@
-﻿using Bot.DTO;
+﻿using Bot.Data;
+using Bot.DTO;
 using Bot.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -69,8 +70,8 @@ namespace Bot.Services.MiniServiceUser
                     Email = user.Email,
                     Fullname = user.Fullname,
                     Roles = roles,
-                    LockoutEnable = u.LockoutEnd != null && u.LockoutEnd > DateTimeOffset.Now,
-                    LockoutEnd = u.LockoutEnd
+                    LockoutEnable = user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now,
+                    LockoutEnd = user.LockoutEnd
                     // Map other properties
                 };
                 userDtos.Add(userDto);
