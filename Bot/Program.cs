@@ -23,6 +23,7 @@ using Bot.Services.MiniServiceSendMail;
 using Bot.Services.MiniServiceUserBot;
 using Bot.Services.MiniServiceUser;
 using Bot.Services.MiniServiceStatistics;
+using Bot.Services.MiniServiceRole;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -95,6 +96,7 @@ builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ICachingService, CachingService>();
 
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IRoleService,RoleService>();
 builder.Services.AddScoped<IBotSignalService, BotSignalService>();
 
 builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
