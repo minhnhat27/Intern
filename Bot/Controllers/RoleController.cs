@@ -1,4 +1,5 @@
 ﻿using Bot.DTO;
+using Bot.Request;
 using Bot.Services.MiniServiceRole;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -19,11 +20,11 @@ namespace Bot.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> AddRole([FromBody]string role)
+        public async Task<IActionResult> AddRole([FromBody] RoleRequest request)
         {
             try
             {
-                var result = await _roleService.AddRole(role);
+                var result = await _roleService.AddRole(request.role);
                 if (result.Succeeded)
                 {
                     return Ok("Thêm Role thành công");
@@ -37,12 +38,12 @@ namespace Bot.Controllers
             
         }
 
-        [HttpDelete("delete")]
-        public async Task<IActionResult> DeleteRole([FromBody] string roleId)
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteRole(string id)
         {
             try
             {
-                var result = await _roleService.DeleteRole(roleId);
+                var result = await _roleService.DeleteRole(id);
                 if (result.Succeeded)
                 {
                     return Ok("Xóa Role thành công");
