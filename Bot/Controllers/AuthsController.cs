@@ -52,7 +52,7 @@ namespace Bot.Controllers
                 {
                     return NoContent();
                 }
-                else return BadRequest(result.Errors);
+                else return BadRequest(result.Errors.FirstOrDefault()?.Description);
             }
             catch (Exception ex)
             {

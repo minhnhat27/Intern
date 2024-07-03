@@ -27,6 +27,5 @@ namespace Bot.Services.MiniServiceStatistics
             var SumTotal = ListPurchaseHistory.Total - (ListSalary.Total + ListExpense.Total);
             return new StatisticsResponse { Expense = ListExpense, PurchaseHistory = ListPurchaseHistory, Salary = ListSalary,Total=SumTotal };
         }
-
     }
 }

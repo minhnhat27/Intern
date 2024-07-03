@@ -239,6 +239,7 @@ namespace Bot.Services.MiniServicePurchaseHistory
         public async Task<PurchaseHistoryResponse> GetRevenueDate(DateTime from, DateTime to)
         {
             var purchaseHistories = await _dbContext.PurchaseHistories
+                .Include(ph => ph.User)
                 .Where(ph => ph.Date >= from && ph.Date <= to)
                 .ToListAsync();
             var purchaseHistoryDTOs = purchaseHistories.Select(ph => new PurchaseHistoryDTO
@@ -250,7 +251,7 @@ namespace Bot.Services.MiniServicePurchaseHistory
                 PaymentMethod = ph.PaymentMethod,
                 Status = ph.Status,
                 Date = ph.Date,
-                UserId = ph.UserId
+                UserId = ph.User.Fullname,
             }).ToList();
 
             var totalRevenue = purchaseHistories.Sum(ph => ph.PriceBot);

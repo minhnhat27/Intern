@@ -1,7 +1,7 @@
 ﻿"use strict"
 
-//const baseURL = "https://minhnhat27.id.vn"
-const baseURL = "http://localhost:5131"
+const baseURL = "https://minhnhat27.id.vn"
+//const baseURL = "http://localhost:5131"
 
 const api_auth = `${baseURL}/api/auth`
 const api_signal = `${baseURL}/api/signal`

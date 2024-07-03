@@ -93,7 +93,17 @@ namespace Bot.Services.MiniServiceSalary
         {
             var result = await _dbContext.Salaries.Where(sa =>
                  sa.Month == month && sa.Year == year
-            ).ToListAsync();
+            ).Select(e => new SalaryDTO
+            {
+                Bonus = e.Bonus,
+                Description = e.Description,
+                FullName = e.User.Fullname,
+                Month = e.Month,
+                Year = e.Year,
+                Price = e.Price,
+                UserId = e.UserId
+
+            }).ToListAsync();
             var total = result.Sum(s => s.Price + s.Bonus);
             return new SalaryResponse { SalaryList = result, Total = total };
         }
@@ -102,16 +112,37 @@ namespace Bot.Services.MiniServiceSalary
         {
             var result = await _dbContext.Salaries.Where(sa =>
                  sa.Year == year
-            ).ToListAsync();
+            ).Select(e => new SalaryDTO
+            {
+                Bonus = e.Bonus,
+                Description = e.Description,
+                FullName = e.User.Fullname,
+                Month = e.Month,
+                Year = e.Year,
+                Price = e.Price,
+                UserId = e.UserId
+
+            }).ToListAsync();
             var total = result.Sum(s => s.Price + s.Bonus);
             return new SalaryResponse { SalaryList = result, Total = total };
         }
 
         public async Task<SalaryResponse> GetSalaryDate(DateTime from, DateTime to)
         {
-            var result = await _dbContext.Salaries.Where(sa =>
-                 sa.Month >= from.Month && sa.Month <= to.Month && sa.Year >= from.Year && sa.Year <= to.Year
-            ).ToListAsync();
+            var result = await _dbContext.Salaries
+                .Where(sa => (sa.Year > from.Year || (sa.Year == from.Year && sa.Month >= from.Month)) &&
+                                (sa.Year < to.Year || (sa.Year == to.Year && sa.Month <= to.Month)))
+                .Select(e => new SalaryDTO
+                    {
+                        Bonus = e.Bonus,
+                        Description = e.Description,
+                        FullName = e.User.Fullname,
+                        Month = e.Month,
+                        Year = e.Year,
+                        Price = e.Price,
+                        UserId = e.UserId
+                    }).ToListAsync();
+
             var total = result.Sum(s => s.Price + s.Bonus);
             return new SalaryResponse { SalaryList = result, Total = total };
         }
