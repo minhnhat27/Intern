@@ -7,6 +7,7 @@ using Bot.Services.MiniServiceCaching;
 using Bot.Services.MiniServiceSendMail;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -23,10 +24,12 @@ namespace Bot.Services.MiniServiceAuth
         private readonly ISendMailService _emailSender;
         private readonly ICachingService _cachingService;
         private readonly IHubContext<MessageHub> _hubContext;
+        private readonly MyDbContext _dbContext;
         public AuthService(SignInManager<User> signInManager,
             UserManager<User> userManager, IConfiguration configuration,
-            ILogger<AuthService> logger, ISendMailService emailSender, 
+            ILogger<AuthService> logger, ISendMailService emailSender,
             ICachingService cachingService,
+            MyDbContext dbContext,
             IHubContext<MessageHub> hubContext)
         {
             _signInManager = signInManager;
@@ -36,6 +39,7 @@ namespace Bot.Services.MiniServiceAuth
             _emailSender = emailSender;
             _cachingService = cachingService;
             _hubContext = hubContext;
+            _dbContext = dbContext;
         }
         private string CreateJwt(User user, IEnumerable<string> roles, DateTime time, bool RefreshToken)
         {
@@ -177,20 +181,34 @@ namespace Bot.Services.MiniServiceAuth
             var isTokenValid = VerifyResetToken(request.Email, request.Token);
             if (isTokenValid)
             {
-                var User = new User()
+                using (var transaction = await _dbContext.Database.BeginTransactionAsync())
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    Email = request.Email,
-                    NormalizedEmail = request.Email,
-                    UserName = request.PhoneNumber,
-                    NormalizedUserName = request.PhoneNumber,
-                    PhoneNumber = request.PhoneNumber,
-                    Fullname = request.Name,
-                    SecurityStamp = Guid.NewGuid().ToString(),
-                    ConcurrencyStamp = Guid.NewGuid().ToString(),
-                };
+                    try
+                    {
+                        var User = new User()
+                        {
+                            Id = Guid.NewGuid().ToString(),
+                            Email = request.Email,
+                            NormalizedEmail = request.Email,
+                            UserName = request.PhoneNumber,
+                            NormalizedUserName = request.PhoneNumber,
+                            PhoneNumber = request.PhoneNumber,
+                            Fullname = request.Name,
+                            SecurityStamp = Guid.NewGuid().ToString(),
+                            ConcurrencyStamp = Guid.NewGuid().ToString(),
+                        };
+                        await _userManager.CreateAsync(User, request.Password);
+                        await _userManager.AddToRoleAsync(User, "User");
+                        await transaction.CommitAsync();
+                        return IdentityResult.Success;
+                    }
+                    catch (Exception ex)
+                    {
+                        await transaction.RollbackAsync();
+                        throw new Exception(ex.Message);
+                    }
 
-                return await _userManager.CreateAsync(User, request.Password);
+                }
             }
             else throw new Exception(ErrorMessage.INVALID_TOKEN);
             
