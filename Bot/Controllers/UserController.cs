@@ -99,5 +99,77 @@ namespace Bot.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpGet("getByRole/{role}")]
+        public async Task<IActionResult> GetUserByRoles(string role)
+        {
+            try
+            {
+                var result = await _userService.GetUserByRole(role);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                return NotFound("User not found");
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("addRoleUser")]
+        public async Task<IActionResult> AddRoleUser([FromBody] RoleUserDTO addRole)
+        {
+            try
+            {
+                var result = await _userService.AddRoleUser(addRole.UserId, addRole.Role);
+                if (result)
+                {
+                    return Ok("Add role successful");
+                }
+                return BadRequest("Add role failed");
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpDelete("removeRoleUser")]
+        public async Task<IActionResult> RemoveRoleUser([FromBody] RoleUserDTO removeRole)
+        {
+            try
+            {
+                var result = await _userService.RemoveRoleUser(removeRole.UserId, removeRole.Role);
+                if (result)
+                {
+                    return Ok("Remove role successful");
+                }
+                return BadRequest("Remove role failed");
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpGet("getRolesUser/{userId}")]
+        public async Task<IActionResult> GetRolesUser(string userId)
+        {
+            try
+            {
+                var result = await _userService.GetRolesUser(userId);
+                if (result != null)
+                {
+                    return Ok(result);
+                }
+                return NotFound("User not found");
+            }
+            catch (System.Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
     }
 }

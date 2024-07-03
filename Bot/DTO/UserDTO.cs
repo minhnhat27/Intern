@@ -6,6 +6,7 @@
         public string? UserName { get; set; }
         public string? Email { get; set; }
         public string Fullname { get; set; }
+        public IList<string> Roles { get; set; }
         // Add other properties as needed
     }
 
@@ -23,5 +24,12 @@
         public string Email { get; set; }
         public string Fullname { get; set; }
         // Add other properties as needed
+    }
+
+    public class RoleUserDTO
+    {
+        public string UserId { get; set; }
+
+        public string Role { get; set; }
     }
 }
