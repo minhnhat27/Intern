@@ -10,11 +10,13 @@ namespace Bot.Services.MiniServiceUser
     {
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
+        private readonly IPasswordHasher<User> _passwordHasher;
 
-        public UserService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager)
+        public UserService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager,IPasswordHasher<User> passwordHasher)
         {
             _userManager = userManager;
             _roleManager = roleManager;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<UserDTO> AddUser(UserCreateDTO user)
@@ -132,9 +134,11 @@ namespace Bot.Services.MiniServiceUser
             }
             existingUser.Email = user.Email;
             existingUser.Fullname = user.Fullname;
+            existingUser.PasswordHash= _passwordHasher.HashPassword(existingUser, user.Password);
             // Update other properties
 
             var result = await _userManager.UpdateAsync(existingUser);
+            
             if (result.Succeeded)
             {
                 return new UserDTO
