@@ -1,4 +1,5 @@
 ﻿using Bot.DTO;
+using Microsoft.AspNetCore.Identity;
 namespace Bot.Services.MiniServiceUser
 {
     public interface IUserService
@@ -14,5 +15,7 @@ namespace Bot.Services.MiniServiceUser
         Task<IList<String>> GetRolesUser(string userId);
         Task LockoutUser(string userId);
         Task UnlockUser(string userId);
+        Task<bool> AddUserRoles(string userId, IEnumerable<string> roles);
+        Task<bool> DeleteUserRoles(string userId, IEnumerable<string> roles);
     }
 }

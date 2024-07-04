@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Bot.Services.MiniServiceUser;
 using Microsoft.AspNetCore.Authorization;
 using Bot.Data;
+using Bot.Request;
 
 namespace Bot.Controllers
 {
@@ -62,6 +63,34 @@ namespace Bot.Controllers
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("lockout")]
+        public async Task<IActionResult> Lockout([FromBody] UserIdRequest request)
+        {
+            try
+            {
+                await _userService.LockoutUser(request.UserId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpPost("unlock")]
+        public async Task<IActionResult> Unlock([FromBody] UserIdRequest request)
+        {
+            try
+            {
+                await _userService.UnlockUser(request.UserId);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
 
@@ -134,6 +163,35 @@ namespace Bot.Controllers
             catch (System.Exception ex)
             {
                 return BadRequest(ex.Message);
+            }
+        }
+
+        [HttpPost("addUserRoles")]
+        public async Task<IActionResult> AddUserRoles([FromBody] AddUserRolesRequest request)
+        {
+            try
+            {
+                var result = await _userService.AddUserRoles(request.UserId, request.Roles);
+                return result ? NoContent() : BadRequest("Add roles failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        [HttpDelete("deleteUserRoles/{id}")]
+        public async Task<IActionResult> DeleteUserRoles(string id, [FromBody] DeleteUserRolesRequest roles)
+        {
+            var r = Request;
+            try
+            {
+                var result = await _userService.DeleteUserRoles(id, roles.Roles);
+                return result ? NoContent() : BadRequest("Delete role failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
             }
         }
 

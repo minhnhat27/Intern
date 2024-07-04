@@ -68,7 +68,7 @@ namespace Bot.Services.MiniServicePurchaseHistory
                     PaymentMethod = ph.PaymentMethod,
                     Status = ph.Status,
                     Date = ph.Date,
-                    UserId = ph.UserId
+                    UserId = ph.User.Fullname
                 }).ToListAsync();
         }
 

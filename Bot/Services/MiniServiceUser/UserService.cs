@@ -11,39 +11,59 @@ namespace Bot.Services.MiniServiceUser
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IPasswordHasher<User> _passwordHasher;
+        private readonly MyDbContext _dbContext;
 
-        public UserService(UserManager<User> userManager, RoleManager<IdentityRole> roleManager,IPasswordHasher<User> passwordHasher)
+        public UserService(UserManager<User> userManager, 
+            RoleManager<IdentityRole> roleManager,
+            IPasswordHasher<User> passwordHasher,
+            MyDbContext dbContext)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _passwordHasher = passwordHasher;
+            _dbContext = dbContext;
         }
 
         public async Task<UserDTO> AddUser(UserCreateDTO user)
         {
-            var entity = new User
+            using (var transaction = await _dbContext.Database.BeginTransactionAsync())
             {
-                UserName = user.UserName,
-                Email = user.Email,
-                Fullname = user.Fullname,
-                // Set other properties
-            };
-            var result = await _userManager.CreateAsync(entity, user.Password);
-            if (result.Succeeded)
-            {
-                return new UserDTO
+                try
                 {
-                    UserId = entity.Id,
-                    UserName = entity.UserName,
-                    Email = entity.Email,
-                    Fullname = entity.Fullname,
-                    // Map other properties
-                };
+                    var userModel = new User()
+                    {
+                        Email = user.Email,
+                        NormalizedEmail = user.Email,
+                        UserName = user.UserName,
+                        NormalizedUserName = user.UserName,
+                        Fullname = user.Fullname,
+                        SecurityStamp = Guid.NewGuid().ToString(),
+                        ConcurrencyStamp = Guid.NewGuid().ToString(),
+                    };
+                    var result = await _userManager.CreateAsync(userModel, user.Password);
+                    if(!result.Succeeded)
+                    {
+                        throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
+                    }
+                    await _userManager.AddToRoleAsync(userModel, "User");
+                    await transaction.CommitAsync();
+                    return new UserDTO
+                    {
+                        UserId = userModel.Id,
+                        Email = userModel.Email,
+                        UserName = userModel.UserName,
+                        Fullname = userModel.Fullname,
+                        Roles = ["User"]
+                    };
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    throw new Exception(ex.Message);
+                }
+
             }
-            else
-            {
-                throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
-            }
+
         }
 
         public async Task<bool> DeleteUser(string userId)
@@ -134,7 +154,10 @@ namespace Bot.Services.MiniServiceUser
             }
             existingUser.Email = user.Email;
             existingUser.Fullname = user.Fullname;
-            existingUser.PasswordHash= _passwordHasher.HashPassword(existingUser, user.Password);
+            if(user.Password != null)
+            {
+                existingUser.PasswordHash = _passwordHasher.HashPassword(existingUser, user.Password);
+            }
             // Update other properties
 
             var result = await _userManager.UpdateAsync(existingUser);
@@ -202,6 +225,25 @@ namespace Bot.Services.MiniServiceUser
             }
             return await _userManager.GetRolesAsync(user);
         }
-
+        public async Task<bool> AddUserRoles(string userId, IEnumerable<string> roles)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if(user != null)
+            {
+                var result = await _userManager.AddToRolesAsync(user, roles);
+                return result.Succeeded ? true : false;
+            }
+            else throw new Exception(ErrorMessage.USER_NOT_FOUND);
+        }
+        public async Task<bool> DeleteUserRoles(string userId, IEnumerable<string> roles)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user != null)
+            {
+                var result = await _userManager.RemoveFromRolesAsync(user, roles);
+                return result.Succeeded ? true : false;
+            }
+            else throw new Exception(ErrorMessage.USER_NOT_FOUND);
+        }
     }
 }

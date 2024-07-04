@@ -8,12 +8,12 @@ namespace Bot.Controllers
     [Route("/api/expense")]
     [ApiController]
     [Authorize(Roles ="Admin")]
-    public class ExpenseControlller : ControllerBase
+    public class ExpenseController : ControllerBase
     {
         private readonly IExpenseService _expenseService;
         private readonly IConfiguration _configuration;
 
-        public ExpenseControlller(IConfiguration configuration, IExpenseService expenseService)
+        public ExpenseController(IConfiguration configuration, IExpenseService expenseService)
         {
             _configuration = configuration;
             _expenseService = expenseService;

@@ -185,9 +185,8 @@ namespace Bot.Services.MiniServiceAuth
                 {
                     try
                     {
-                        var User = new User()
+                        var userModel = new User()
                         {
-                            Id = Guid.NewGuid().ToString(),
                             Email = request.Email,
                             NormalizedEmail = request.Email,
                             UserName = request.PhoneNumber,
@@ -197,8 +196,8 @@ namespace Bot.Services.MiniServiceAuth
                             SecurityStamp = Guid.NewGuid().ToString(),
                             ConcurrencyStamp = Guid.NewGuid().ToString(),
                         };
-                        await _userManager.CreateAsync(User, request.Password);
-                        await _userManager.AddToRoleAsync(User, "User");
+                        await _userManager.CreateAsync(userModel, request.Password);
+                        await _userManager.AddToRoleAsync(userModel, "User");
                         await transaction.CommitAsync();
                         return IdentityResult.Success;
                     }
