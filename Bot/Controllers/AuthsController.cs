@@ -3,6 +3,7 @@ using Bot.DTO;
 using Bot.Request;
 using Bot.Services.MiniServiceAuth;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Bot.Controllers
 {
@@ -24,8 +25,11 @@ namespace Bot.Controllers
             try
             {
                 var origin = Request.Headers["Origin"];
+                var referer = Request.Headers["Referer"].FirstOrDefault() ?? "";
                 bool isExtension = false;
-                if (origin.Contains("https://smartpro.vps.com.vn") || origin.Contains("https://smarteasy.vps.com.vn"))
+
+                if (origin.Contains("smartpro.vps.com.vn") || origin.Contains("smarteasy.vps.com.vn")
+                    || referer.Contains("smartpro.vps.com.vn") || referer.Contains("smarteasy.vps.com.vn"))
                 {
                     isExtension = true;
                 }
@@ -66,8 +70,11 @@ namespace Bot.Controllers
             try
             {
                 var origin = Request.Headers["Origin"];
+                var referer = Request.Headers["Referer"].FirstOrDefault() ?? "";
                 bool isExtension = false;
-                if (origin.Contains("https://smartpro.vps.com.vn") || origin.Contains("https://smarteasy.vps.com.vn"))
+
+                if (origin.Contains("smartpro.vps.com.vn") || origin.Contains("smarteasy.vps.com.vn")
+                    || referer.Contains("smartpro.vps.com.vn") || referer.Contains("smarteasy.vps.com.vn"))
                 {
                     isExtension = true;
                 }

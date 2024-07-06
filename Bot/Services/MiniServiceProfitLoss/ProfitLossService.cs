@@ -1,10 +1,10 @@
-﻿using Bot.Data;
-using Bot.Models;
+﻿using Bot.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Bot.DTO;
 using Bot.Response;
+using Bot.DbContext;
 
 namespace Bot.Services.MiniServiceProfitLoss
 {

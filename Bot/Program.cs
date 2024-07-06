@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Security.Claims;
 using System.Text;
-using Bot.Controllers;
 using Bot.Services.MiniServiceExpense;
 using Bot.Services.MiniServiceBotTrading;
 using Bot.Services.MiniServiceSalary;
@@ -24,6 +23,8 @@ using Bot.Services.MiniServiceUserBot;
 using Bot.Services.MiniServiceUser;
 using Bot.Services.MiniServiceStatistics;
 using Bot.Services.MiniServiceRole;
+using Bot.Services.MiniServicePayment;
+using Bot.DbContext;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,12 +38,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
-    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
+    //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
 });
-builder.Services.AddIdentity<User, IdentityRole>()
+builder.Services.AddIdentity<User, IdentityRole>(opt => { 
+    opt.Password.RequireNonAlphanumeric = false;
+    opt.User.RequireUniqueEmail = true;
+})
     .AddEntityFrameworkStores<MyDbContext>()
-    .AddTokenProvider("Bot", typeof(DataProtectorTokenProvider<User>))
+    .AddTokenProvider("Ext", typeof(DataProtectorTokenProvider<User>))
     .AddDefaultTokenProviders();
 
 builder.Services.AddAuthentication(options =>
@@ -52,7 +56,6 @@ builder.Services.AddAuthentication(options =>
     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 }).AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false;
     options.TokenValidationParameters = new TokenValidationParameters()
     {
         ValidateAudience = true,
@@ -71,7 +74,6 @@ builder.Services.AddAuthentication(options =>
             {
                 context.Fail("Requests with refresh tokens are not allowed.");
             }
-
             return Task.CompletedTask;
         }
     };
@@ -80,10 +82,12 @@ builder.Services.AddCors(opt =>
 {
     opt.AddPolicy("MyCors", opt =>
     {
-        opt.WithOrigins("https://smartpro.vps.com.vn",
+        opt.WithOrigins("https://smartpro.vps.com.vn", 
             "https://smarteasy.vps.com.vn",
-            "http://localhost:3000",
-            "http://192.168.1.171:3000")
+            "https://admin-bot-pink.vercel.app",
+            "https://webbot-phi.vercel.app",
+            "https://admin.minhnhat27.id.vn",
+            "https://botvip.minhnhat27.id.vn")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -112,6 +116,7 @@ builder.Services.AddScoped<ISalaryService, SalaryService>();
 builder.Services.AddScoped<IUserBotService, UserBotService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 var app = builder.Build();
 

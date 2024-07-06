@@ -9,5 +9,6 @@ namespace Bot.Services.MiniServiceUserBot
         Task<bool> DeleteUserBot(string userId, int botTradingId);
         Task<List<UserBotResponse>> GetUserBots();
         Task<UserBotDTO> GetUserBot(string userId, int botTradingId);
+        Task<bool> ExistUserBot(string userId, int botTradingId);
     }
 }

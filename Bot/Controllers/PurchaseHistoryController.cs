@@ -36,6 +36,7 @@ namespace Bot.Controllers
         }
 
         [HttpGet("getAll")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetPurchaseHistories()
         {
             try

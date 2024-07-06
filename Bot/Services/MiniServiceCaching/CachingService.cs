@@ -18,6 +18,11 @@ namespace Bot.Services.MiniServiceCaching
             _memoryCache.Set(cacheKey, value, time);
         }
 
+        public void Set<T>(string cacheKey, T value, MemoryCacheEntryOptions options)
+        {
+            _memoryCache.Set(cacheKey, value, options);
+        }
+
         public void Remove(string cacheKey)
         {
             _memoryCache.Remove(cacheKey);

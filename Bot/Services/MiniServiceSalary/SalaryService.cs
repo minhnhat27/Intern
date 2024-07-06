@@ -1,4 +1,4 @@
-﻿using Bot.Data;
+﻿using Bot.DbContext;
 using Bot.DTO;
 using Bot.Models;
 using Bot.Response;

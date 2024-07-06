@@ -1,11 +1,11 @@
-﻿using Bot.Data;
-using Bot.DTO;
+﻿using Bot.DTO;
 using Bot.Models;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using Bot.Response;
+using Bot.DbContext;
 
 namespace Bot.Services.MiniServicePurchaseHistory
 {
@@ -54,6 +54,14 @@ namespace Bot.Services.MiniServicePurchaseHistory
                 return true;
             }
             return false;
+        }
+
+        public async Task<PurchaseHistory?> GetFirstPurchaseByUser(string userId)
+        {
+            return await _dbContext.PurchaseHistories
+                .Where(e => e.UserId == userId)
+                .OrderBy(e => e.Date)
+                .FirstOrDefaultAsync();
         }
 
         public async Task<List<PurchaseHistoryDTO>> GetPurchaseHistories()

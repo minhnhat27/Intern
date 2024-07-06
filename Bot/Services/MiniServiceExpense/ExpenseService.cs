@@ -1,8 +1,8 @@
-﻿using Bot.Data;
-using Bot.Models;
+﻿using Bot.Models;
 using Bot.Request;
 using Microsoft.EntityFrameworkCore;
 using Bot.Response;
+using Bot.DbContext;
 
 namespace Bot.Services.MiniServiceExpense
 {

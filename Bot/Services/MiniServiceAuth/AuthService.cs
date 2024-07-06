@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.DbContext;
 using Bot.DTO;
 using Bot.Models;
 using Bot.Request;
@@ -87,16 +88,11 @@ namespace Bot.Services.MiniServiceAuth
 
                     if (isExtension)
                     {
-                        if(now < user.ServiceEndDate)
+                        if(user.ServiceEndDate.HasValue && (now < user.ServiceEndDate.Value))
                         {
                             var provider = "Ext";
                             var name = "Refresh_Token";
-
-                            var existUserLogin = await _userManager.GetAuthenticationTokenAsync(user, provider, name);
-                            if (existUserLogin != null)
-                            {
-                                await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
-                            }
+                            await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
                             await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
                             await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
                         }
@@ -196,8 +192,16 @@ namespace Bot.Services.MiniServiceAuth
                             SecurityStamp = Guid.NewGuid().ToString(),
                             ConcurrencyStamp = Guid.NewGuid().ToString(),
                         };
-                        await _userManager.CreateAsync(userModel, request.Password);
-                        await _userManager.AddToRoleAsync(userModel, "User");
+                        var result = await _userManager.CreateAsync(userModel, request.Password);
+                        if (!result.Succeeded)
+                        {
+                            throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
+                        }
+                        var roleResult = await _userManager.AddToRoleAsync(userModel, "User");
+                        if (!roleResult.Succeeded)
+                        {
+                            throw new Exception(string.Join("; ", roleResult.Errors.Select(e => e.Description)));
+                        }
                         await transaction.CommitAsync();
                         return IdentityResult.Success;
                     }

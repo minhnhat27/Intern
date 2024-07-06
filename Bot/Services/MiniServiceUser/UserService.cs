@@ -1,4 +1,5 @@
 ﻿using Bot.Data;
+using Bot.DbContext;
 using Bot.DTO;
 using Bot.Models;
 using Microsoft.AspNetCore.Identity;
@@ -45,7 +46,11 @@ namespace Bot.Services.MiniServiceUser
                     {
                         throw new Exception(string.Join("; ", result.Errors.Select(e => e.Description)));
                     }
-                    await _userManager.AddToRoleAsync(userModel, "User");
+                    var roleResult = await _userManager.AddToRoleAsync(userModel, "User");
+                    if (!roleResult.Succeeded)
+                    {
+                        throw new Exception(string.Join("; ", roleResult.Errors.Select(e => e.Description)));
+                    }
                     await transaction.CommitAsync();
                     return new UserDTO
                     {
@@ -100,6 +105,12 @@ namespace Bot.Services.MiniServiceUser
             }
 
             return userDtos;
+        }
+
+        public async Task UpdateServiceEndDate(User user, DateTimeOffset dateTimeOffset)
+        {
+            user.ServiceEndDate = dateTimeOffset;
+            await _userManager.UpdateAsync(user);
         }
 
         public async Task LockoutUser(string userId)

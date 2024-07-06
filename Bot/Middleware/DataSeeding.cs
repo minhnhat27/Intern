@@ -1,4 +1,4 @@
-﻿using Bot.Data;
+﻿using Bot.DbContext;
 using Bot.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

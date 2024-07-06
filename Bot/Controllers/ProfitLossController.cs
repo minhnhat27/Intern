@@ -21,7 +21,7 @@ namespace Bot.Controllers
         }
 
         [HttpPost("add")]
-        [Authorize(Roles = "Admin")]
+        //[Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddProfitLoss([FromBody] ProfitLossCreateDTO profitLoss)
         {
             try
@@ -36,6 +36,7 @@ namespace Bot.Controllers
         }
 
         [HttpGet("getAll")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetProfitLosses()
         {
             try

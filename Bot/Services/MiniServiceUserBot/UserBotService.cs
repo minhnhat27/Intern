@@ -1,4 +1,4 @@
-﻿using Bot.Data;
+﻿using Bot.DbContext;
 using Bot.DTO;
 using Bot.Models;
 using Bot.Response;
@@ -46,6 +46,12 @@ namespace Bot.Services.MiniServiceUserBot
                 return true;
             }
             return false;
+        }
+
+        public async Task<bool> ExistUserBot(string userId, int botTradingId)
+        {
+            var userBot = await _dbContext.UserBots.FindAsync(userId, botTradingId);
+            return userBot != null ? true : false;
         }
 
         public async Task<List<UserBotResponse>> GetUserBots()

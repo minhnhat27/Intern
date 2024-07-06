@@ -1,4 +1,5 @@
 ﻿using Bot.DTO;
+using Bot.Models;
 using Microsoft.AspNetCore.Identity;
 namespace Bot.Services.MiniServiceUser
 {
@@ -17,5 +18,6 @@ namespace Bot.Services.MiniServiceUser
         Task UnlockUser(string userId);
         Task<bool> AddUserRoles(string userId, IEnumerable<string> roles);
         Task<bool> DeleteUserRoles(string userId, IEnumerable<string> roles);
+        Task UpdateServiceEndDate(User user, DateTimeOffset dateTimeOffset);
     }
 }
