@@ -50,7 +50,9 @@ namespace Bot.Services.MiniServiceLogHistory
 
         public Task<List<LogHistory>> GetLogHistory()
         {
-            return _dbContext.LogHistorys.ToListAsync();
+            return _dbContext.LogHistorys
+                .Include(logHistory => logHistory.User)
+                .ToListAsync();
         }
 
         public async Task<LogHistory> UpdateLogHistory(int id, LogHistoryRequest logHistory)

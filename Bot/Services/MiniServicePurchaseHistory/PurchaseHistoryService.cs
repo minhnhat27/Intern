@@ -56,12 +56,12 @@ namespace Bot.Services.MiniServicePurchaseHistory
             return false;
         }
 
-        public async Task<PurchaseHistory?> GetFirstPurchaseByUser(string userId)
+        public async Task<PurchaseHistory?> GetLastPurchaseByUser(string userId)
         {
             return await _dbContext.PurchaseHistories
                 .Where(e => e.UserId == userId)
                 .OrderBy(e => e.Date)
-                .FirstOrDefaultAsync();
+                .LastOrDefaultAsync();
         }
 
         public async Task<List<PurchaseHistoryDTO>> GetPurchaseHistories()

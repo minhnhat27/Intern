@@ -124,10 +124,18 @@ namespace Bot.Services.MiniServicePayment
                         if (user.ServiceEndDate.HasValue && DateTimeOffset.Now < user.ServiceEndDate.Value)
                         {
                             endDate = user.ServiceEndDate.Value.AddMonths(data.Month);
-                            var firstPurchase = await _purchaseHistoryService.GetFirstPurchaseByUser(userId);
-                            if (firstPurchase != null)
+
+                            var lastPurchase = await _purchaseHistoryService.GetLastPurchaseByUser(userId);
+                            if (lastPurchase != null)
                             {
-                                purchaseHistory.StartDate = firstPurchase.StartDate;
+                                if(lastPurchase.EndDate < DateTime.Now)
+                                {
+                                    purchaseHistory.StartDate = lastPurchase.EndDate;
+                                }
+                                else
+                                {
+                                    purchaseHistory.StartDate = DateTime.Now;
+                                }
                             }
                         }
                         else

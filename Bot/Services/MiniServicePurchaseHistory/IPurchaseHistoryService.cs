@@ -10,7 +10,7 @@ namespace Bot.Services.MiniServicePurchaseHistory
         Task<bool> DeletePurchaseHistory(int id);
         Task<List<PurchaseHistoryDTO>> GetPurchaseHistories();
         Task<PurchaseHistoryDTO> UpdatePurchaseHistory(int id, PurchaseHistoryUpdateDTO purchaseHistory);
-        Task<PurchaseHistory?> GetFirstPurchaseByUser(string userId);
+        Task<PurchaseHistory?> GetLastPurchaseByUser(string userId);
         Task<IList<PurchaseHistoryDTO>> GetPurchaseHistoriesMonthByUser(string userId, int month, int year);
         Task<IList<PurchaseHistoryDTO>> GetPurchaseHistoriesYearByUser(string userId, int year);
         Task<IList<PurchaseHistoryDTO>> GetPurchaseHistoriesAllByUser(string userId);
