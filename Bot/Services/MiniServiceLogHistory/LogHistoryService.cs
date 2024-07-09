@@ -26,9 +26,18 @@ namespace Bot.Services.MiniServiceLogHistory
                 ProfitPointTP = logHistory.ProfitPointTP,
                 NumberContract = logHistory.NumberContract,
                 PriceBuy = logHistory.PriceBuy,
-                UserId = logHistory.UserId,
-                Profit = Math.Round(logHistory.NumberContract*(logHistory.ProfitPointTP-logHistory.PriceBuy)*100000)
+                UserId = logHistory.UserId
             };
+
+            if (logHistory.Signal == "LONG")
+            {
+                _logHistory.Profit = Math.Round(logHistory.NumberContract * (logHistory.ProfitPointTP - logHistory.PriceBuy) * 100000);
+            }
+            else if (logHistory.Signal == "SHORT")
+            {
+                _logHistory.Profit = Math.Round(logHistory.NumberContract * (logHistory.PriceBuy - logHistory.ProfitPointTP) * 100000);
+            }
+
             await _dbContext.LogHistorys.AddAsync(_logHistory);
             await _dbContext.SaveChangesAsync();
             return _logHistory;
