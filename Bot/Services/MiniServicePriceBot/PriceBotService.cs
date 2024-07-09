@@ -20,7 +20,8 @@ namespace Bot.Services.MiniServicePriceBot
                 Month = priceBot.Month,
                 Price = priceBot.Price,
                 Discount = priceBot.Discount,
-                BotTradingId = priceBot.BotTradingId
+                BotTradingId = priceBot.BotTradingId,
+                Description = priceBot.Description
             };
             await _dbContext.PriceBots.AddAsync(entity);
             await _dbContext.SaveChangesAsync();
@@ -29,7 +30,8 @@ namespace Bot.Services.MiniServicePriceBot
                 Month = entity.Month,
                 Price = entity.Price,
                 Discount = entity.Discount,
-                BotTradingId = entity.BotTradingId
+                BotTradingId = entity.BotTradingId,
+                Description = entity.Description
             };
         }
 
@@ -53,7 +55,8 @@ namespace Bot.Services.MiniServicePriceBot
                     Month = pb.Month,
                     Price = pb.Price,
                     Discount = pb.Discount,
-                    BotTradingId = pb.BotTradingId
+                    BotTradingId = pb.BotTradingId,
+                    Description = pb.Description
                 }).ToListAsync();
         }
 
@@ -69,7 +72,8 @@ namespace Bot.Services.MiniServicePriceBot
                 Month = priceBot.Month,
                 Price = priceBot.Price,
                 Discount = priceBot.Discount,
-                BotTradingId = priceBot.BotTradingId
+                BotTradingId = priceBot.BotTradingId,
+                Description = priceBot.Description
             };
         }
 
@@ -82,6 +86,7 @@ namespace Bot.Services.MiniServicePriceBot
             }
             existingPriceBot.Price = priceBot.Price;
             existingPriceBot.Discount = priceBot.Discount;
+            existingPriceBot.Description = priceBot.Description;
 
             await _dbContext.SaveChangesAsync();
             return new PriceBotDTO
@@ -89,7 +94,8 @@ namespace Bot.Services.MiniServicePriceBot
                 Month = existingPriceBot.Month,
                 Price = existingPriceBot.Price,
                 Discount = existingPriceBot.Discount,
-                BotTradingId = existingPriceBot.BotTradingId
+                BotTradingId = existingPriceBot.BotTradingId,
+                Description = existingPriceBot.Description
             };
         }
     }
