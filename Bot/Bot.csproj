@@ -27,7 +27,6 @@
 
   <ItemGroup>
     <None Include="wwwroot\**\*.js" />
-    <None Include="wwwroot\ext.rar" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Response\**\*.js" CopyToOutputDirectory="PreserveNewest" />

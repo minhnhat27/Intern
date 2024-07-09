@@ -85,9 +85,11 @@ builder.Services.AddCors(opt =>
         opt.WithOrigins("https://smartpro.vps.com.vn", 
             "https://smarteasy.vps.com.vn",
             "https://admin-bot-pink.vercel.app",
-            "https://webbot-phi.vercel.app",
-            "https://admin.minhnhat27.id.vn",
-            "https://botvip.minhnhat27.id.vn")
+            "http://42.96.5.76",
+            "http://autobotps.com",
+            "https://autobotps.com",
+            "http://admin.autobotps.com",
+            "https://admin.autobotps.com")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();
@@ -117,6 +119,7 @@ builder.Services.AddScoped<IUserBotService, UserBotService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IStatisticsService, StatisticsService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+
 
 var app = builder.Build();
 

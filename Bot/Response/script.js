@@ -1,6 +1,6 @@
 ﻿"use strict"
 
-const baseURL = "https://minhnhat27.id.vn"
+const baseURL = "https://autobotps.com/v1"
 
 const api_auth = `${baseURL}/api/auth`
 const api_signal = `${baseURL}/api/signal`
@@ -167,9 +167,7 @@ function checkTimeAndAddProfitLoss() {
         const today = now.toISOString().split('T')[0];
         const lastCalled = getCookie('lastCalledDate');
         if (lastCalled !== today) {
-            if ($("#bot-auto-order").is(":checked")) {
-                profitLoss(parseFloat($("#vmAccInfo").text()));
-            }
+            profitLoss(parseFloat($("#vmAccInfo").text()));
             setCookie('lastCalledDate', today, 2 * 24 * 60);
             clearInterval(checkAdded)
         }
@@ -490,7 +488,7 @@ $(window).on('load', async () => {
         const daoLenh = (tinhieu) => tinhieu === "LONG" ? "SHORT" : "LONG"
 
         let obs
-        const botAutoClick = (arr, fullHopdong = parseInt(botVolumeValue.val())) => {
+        const botAutoClick = (arr, fullHopdong = parseInt(botVolumeValue.val()), isAdmin = false) => {
             let tinhieu = arr[1].includes("Tin hieu long: Manh") ? "LONG" : "SHORT"
 
             add_logs("Tính hiệu: " + tinhieu)
@@ -519,6 +517,11 @@ $(window).on('load', async () => {
                 if (botVolume.val() === "0") {
                     if (soViThe && !soSucMua) {
                         if (Math.abs(soViThe) >= fullHopdong) {
+
+                            if (!isAdmin) {
+                                my_hd = fullHopdong + Math.abs(soViThe) 
+                            }
+
                             fullHopdong += Math.abs(soViThe)
                         }
                         else {
@@ -537,9 +540,13 @@ $(window).on('load', async () => {
                             my_hd = (Math.abs(soViThe) + ngDat)
                             fullHopdong = Math.abs(soViThe) * 2 + ngDat // hoac (Math.abs(soViThe) + botVolumeValue.val()) + Math.abs(soViThe)
                         }
-                        else if ((Math.abs(soViThe) + ngDat) >= fullHopdong) {
+                        else {
                             my_hd = fullHopdong
                             fullHopdong += Math.abs(soViThe)
+
+                            if (!isAdmin) {
+                                my_hd = fullHopdong + Math.abs(soViThe)
+                            }
                         }
                     }
                 }
@@ -765,7 +772,7 @@ $(window).on('load', async () => {
                         runBotNormal(tinhieu, giamua, hopdong)
                     }
                     else {
-                        botAutoClick(arr, hopdong)
+                        botAutoClick(arr, hopdong, true)
                     }
                 }
             }

@@ -43,21 +43,21 @@ namespace Bot.Middleware
 
             var user = new User
             {
-                Fullname = "Admin",
-                Email = "minhnhat012340@gmail.com",
-                NormalizedEmail = "minhnhat012340@gmail.com",
-                UserName = "0123456789",
-                NormalizedUserName = "0123456789",
-                PhoneNumber = "0123456789",
+                Fullname = "Ly Duc Minh",
+                Email = "ducminh200692@gmail.com",
+                NormalizedEmail = "ducminh200692@gmail.com",
+                UserName = "0936793913",
+                NormalizedUserName = "0936793913",
+                PhoneNumber = "0936793913",
                 EmailConfirmed = true,
                 PhoneNumberConfirmed = true,
                 SecurityStamp = Guid.NewGuid().ToString(),
-                ServiceEndDate = DateTime.Now.AddYears(1),
+                ServiceEndDate = DateTimeOffset.Now.AddYears(30),
             };
 
             if (!context.Users.Any(u => u.UserName == user.UserName))
             {
-                await userManager.CreateAsync(user, "Admin@123");
+                await userManager.CreateAsync(user, "Minh@123");
                 await userManager.AddToRolesAsync(user, roles);
             }
         }

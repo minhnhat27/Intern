@@ -132,5 +132,29 @@ namespace Bot.Controllers
             }
 
         }
+
+        [HttpPost("upload-ext")]
+        public async Task<IActionResult> UploadExt(IFormFile file)
+        {
+            try
+            {
+                if (Path.GetExtension(file.FileName) != ".rar")
+                {
+                    throw new Exception("File rar only");
+                }
+
+                var path = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "ext.rar");
+                using (var stream = new FileStream(path, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+        }
     }
 }
