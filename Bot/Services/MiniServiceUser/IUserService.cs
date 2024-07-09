@@ -19,5 +19,7 @@ namespace Bot.Services.MiniServiceUser
         Task<bool> AddUserRoles(string userId, IEnumerable<string> roles);
         Task<bool> DeleteUserRoles(string userId, IEnumerable<string> roles);
         Task UpdateServiceEndDate(User user, DateTimeOffset dateTimeOffset);
+        Task<User> GetUserModel(string userId);
+        Task<bool> UpdateServiceEndDateAdmin(User user, DateTimeOffset dateTimeOffset);
     }
 }

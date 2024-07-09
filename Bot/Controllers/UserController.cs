@@ -230,5 +230,25 @@ namespace Bot.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+        [HttpPut("updateServiceEndDate")]
+        public async Task<IActionResult> UpdateServiceEndDate([FromBody] UpdateServiceEndDateRequest request)
+        {
+            try
+            {
+                var user = await _userService.GetUserModel(request.UserId);
+                if (user == null)
+                {
+                    return NotFound(ErrorMessage.USER_NOT_FOUND);
+                }
+                var result =await _userService.UpdateServiceEndDateAdmin(user, request.ServiceEndDate);
+                return result ? NoContent() : BadRequest("Update service end date failed");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
     }
 }
