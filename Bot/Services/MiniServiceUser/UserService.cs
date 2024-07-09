@@ -97,6 +97,7 @@ namespace Bot.Services.MiniServiceUser
                     Email = user.Email,
                     Fullname = user.Fullname,
                     Roles = roles,
+                    ServiceEndDate = user.ServiceEndDate,
                     LockoutEnable = user.LockoutEnd != null && user.LockoutEnd > DateTimeOffset.Now,
                     LockoutEnd = user.LockoutEnd
                     // Map other properties
@@ -111,6 +112,17 @@ namespace Bot.Services.MiniServiceUser
         {
             user.ServiceEndDate = dateTimeOffset;
             await _userManager.UpdateAsync(user);
+        }
+
+        public async Task<bool> UpdateServiceEndDateAdmin(User user, DateTimeOffset dateTimeOffset)
+        {
+            user.ServiceEndDate = dateTimeOffset;
+            var updateResult = await _userManager.UpdateAsync(user);
+            if (updateResult.Succeeded)
+            {
+                return true;
+            }
+            return false;
         }
 
         public async Task LockoutUser(string userId)
@@ -154,6 +166,16 @@ namespace Bot.Services.MiniServiceUser
                 Fullname = user.Fullname,
                 Roles = _userManager.GetRolesAsync(user).Result.ToList()
             };
+        }
+
+        public async Task <User> GetUserModel(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return null;
+            }
+            return user;
         }
 
         public async Task<UserDTO> UpdateUser(string userId, UserUpdateDTO user)

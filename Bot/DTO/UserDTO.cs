@@ -6,6 +6,7 @@
         public string? UserName { get; set; }
         public string? Email { get; set; }
         public string Fullname { get; set; }
+        public DateTimeOffset? ServiceEndDate { get; set; }
         public bool LockoutEnable { get; set; }
         public DateTimeOffset? LockoutEnd { get; set; }
         public IList<string> Roles { get; set; }
