@@ -9,6 +9,7 @@ namespace Bot.Models
         public double Price { get; set; }
         public int Discount { get; set; }
         public int BotTradingId { get; set; }
+        public string Description { get; set; }
         public BotTrading BotTrading { get; set; }
 
     }
