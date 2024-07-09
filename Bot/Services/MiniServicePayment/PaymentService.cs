@@ -1,6 +1,7 @@
 ﻿using Bot.Data;
 using Bot.DbContext;
 using Bot.DTO;
+using Bot.Models;
 using Bot.Request;
 using Bot.Services.MiniServiceCaching;
 using Bot.Services.MiniServicePurchaseHistory;
@@ -10,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Net.payOS;
 using Net.payOS.Types;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Bot.Services.MiniServicePayment
 {
@@ -47,16 +49,72 @@ namespace Bot.Services.MiniServicePayment
 
         public struct Order
         {
+            public string UserId { get; set; }
             public long OrderCode { get; set; }
             public int Month { get; set; }
             public int BotTradingId { get; set; }
         }
 
-        private void PaymentCallBack(object key, object value, EvictionReason reason, object? state)
+        private async void PaymentCallBack(object key, object value, EvictionReason reason, object? state)
         {
             var data = (Order)value;
-            payOS.cancelPaymentLink(data.OrderCode);
-            Console.WriteLine("Cancel Order " + data.OrderCode);
+
+            var paymentInfo = await payOS.getPaymentLinkInformation(data.OrderCode);
+            if (paymentInfo.status == "PAID")
+            {
+                var user = await _context.Users.FindAsync(data.UserId);
+                if (user != null)
+                {
+                    PurchaseHistoryCreateDTO purchaseHistory = new()
+                    {
+                        UserId = data.UserId,
+                        Date = DateTime.Now,
+                        PaymentMethod = "PayOS",
+                        Status = paymentInfo.status,
+                        PriceBot = paymentInfo.amount,
+                    };
+
+                    DateTimeOffset endDate;
+                    if (user.ServiceEndDate.HasValue && DateTimeOffset.Now < user.ServiceEndDate.Value)
+                    {
+                        endDate = user.ServiceEndDate.Value.AddMonths(data.Month);
+
+                        var lastPurchase = await _purchaseHistoryService.GetLastPurchaseByUser(data.UserId);
+                        if (lastPurchase != null)
+                        {
+                            if (lastPurchase.EndDate < DateTime.Now)
+                            {
+                                purchaseHistory.StartDate = lastPurchase.EndDate;
+                            }
+                            else
+                            {
+                                purchaseHistory.StartDate = DateTime.Now;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        endDate = DateTimeOffset.Now.AddMonths(data.Month);
+                        purchaseHistory.StartDate = DateTime.Now;
+
+                        var exist = await _userBotService.ExistUserBot(data.UserId, data.BotTradingId);
+                        if (!exist)
+                        {
+                            var userBot = new UserBotCreateDTO
+                            {
+                                BotTradingId = data.BotTradingId,
+                                UserId = data.UserId,
+                            };
+                            await _userBotService.AddUserBot(userBot);
+                        }
+                    }
+
+                    purchaseHistory.EndDate = endDate.DateTime;
+                    await _userService.UpdateServiceEndDate(user, endDate);
+                    await _purchaseHistoryService.AddPurchaseHistory(purchaseHistory);
+                }
+                else await payOS.cancelPaymentLink(data.OrderCode);
+            }
         }
 
         public async Task<string> CreatePaymentLink(PaymentRequest request)
@@ -70,7 +128,11 @@ namespace Bot.Services.MiniServicePayment
             {
                 throw new Exception(ErrorMessage.NOT_FOUND);
             }
-            int price = (int)Math.Floor(priceBot.Price - priceBot.Price * (priceBot.Discount / 100));
+
+            double basePrice = priceBot.Price;
+            double discount = priceBot.Discount / 100.0;
+            double discountedPrice = basePrice - (basePrice * discount);
+            int price = (int)Math.Floor(discountedPrice);
 
             string description = priceBot.BotTrading.Name + " gói " + priceBot.Month + " tháng";
 
@@ -83,6 +145,7 @@ namespace Bot.Services.MiniServicePayment
 
             var data = new Order
             {
+                UserId = request.UserId,
                 OrderCode = orderCode,
                 Month = priceBot.Month,
                 BotTradingId = priceBot.BotTradingId,

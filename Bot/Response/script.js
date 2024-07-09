@@ -1,6 +1,4 @@
-﻿"use strict"
-
-const baseURL = "https://autobotps.com/v1"
+﻿const baseURL = "https://autobotps.com/v1"
 
 const api_auth = `${baseURL}/api/auth`
 const api_signal = `${baseURL}/api/signal`
@@ -167,7 +165,9 @@ function checkTimeAndAddProfitLoss() {
         const today = now.toISOString().split('T')[0];
         const lastCalled = getCookie('lastCalledDate');
         if (lastCalled !== today) {
-            profitLoss(parseFloat($("#vmAccInfo").text()));
+            let str = $("#vmAccInfo").text()
+            let num = parseInt(str.replace(/,/g, ''), 10);
+            profitLoss(num);
             setCookie('lastCalledDate', today, 2 * 24 * 60);
             clearInterval(checkAdded)
         }
@@ -193,9 +193,6 @@ $(window).on('load', async () => {
         timeout: 20000
     })
 
-    checkTimeAndAddProfitLoss()
-    checkAdded = setInterval(checkTimeAndAddProfitLoss, 60000);
-
     const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
 
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
@@ -211,12 +208,8 @@ $(window).on('load', async () => {
         isLogin || refreshToken()
         setInterval(() => refreshToken(), 300000)
 
-        const my_user = getCurrentUser()
-        $("#my-name").text(my_user.name)
-
-        $.ajaxSetup({
-            headers: { 'Authorization': 'Bearer ' + getAccessToken() }
-        })
+        checkTimeAndAddProfitLoss()
+        checkAdded = setInterval(checkTimeAndAddProfitLoss, 60000);
 
         const extContent = $("#ext-content")
         extContent.children().replaceWith(loggingHtml)
@@ -506,8 +499,102 @@ $(window).on('load', async () => {
             let delay = 100
 
             let my_hd = fullHopdong
-
             const ngDat = parseInt(botVolumeValue.val())
+
+            // if(daoChieu){
+            //     add_logs("Tính hiệu đảo chiều!")
+
+            //     const soViThe = parseInt(vithe)
+            //     const soSucMua = parseInt(sucMua.text())
+
+            //     if (botVolume.val() === "0") {
+            //         if (soViThe && !soSucMua) {
+            //             if(isAdmin){
+            //                 if (Math.abs(soViThe) >= fullHopdong) {
+
+            //                     if (!isAdmin) {
+            //                         my_hd = fullHopdong + Math.abs(soViThe) 
+            //                     }
+    
+            //                     fullHopdong += Math.abs(soViThe)
+            //                 }
+            //                 else {
+            //                     my_hd = Math.abs(soViThe)
+            //                     fullHopdong = Math.abs(soViThe) * 2
+            //                 }
+            //             }
+            //             else{
+
+            //             }
+
+
+            //             if (Math.abs(soViThe) >= fullHopdong) {
+
+            //                 if (!isAdmin) {
+            //                     my_hd = fullHopdong + Math.abs(soViThe) 
+            //                 }
+
+            //                 fullHopdong += Math.abs(soViThe)
+            //             }
+            //             else {
+            //                 my_hd = Math.abs(soViThe)
+            //                 fullHopdong = Math.abs(soViThe) * 2
+            //             }
+            //         }
+            //         else if (!soViThe && soSucMua) {
+            //             if (fullHopdong > ngDat) {
+            //                 my_hd = ngDat
+            //                 fullHopdong = ngDat
+            //             }
+            //         }
+            //         else if (soViThe && soSucMua) {
+            //             if ((Math.abs(soViThe) + ngDat) < fullHopdong) {
+            //                 my_hd = (Math.abs(soViThe) + ngDat)
+            //                 fullHopdong = Math.abs(soViThe) * 2 + ngDat // hoac (Math.abs(soViThe) + botVolumeValue.val()) + Math.abs(soViThe)
+            //             }
+            //             else {
+            //                 my_hd = fullHopdong
+            //                 fullHopdong += Math.abs(soViThe)
+
+            //                 if (!isAdmin) {
+            //                     my_hd = fullHopdong + Math.abs(soViThe)
+            //                 }
+            //             }
+            //         }
+            //     }
+            //     else {
+            //         if (soViThe && !soSucMua) {
+            //             if (Math.abs(soViThe) >= fullHopdong) {
+            //                 fullHopdong += Math.abs(soViThe)
+            //             }
+            //             else {
+            //                 my_hd = Math.abs(soViThe)
+            //                 fullHopdong = Math.abs(soViThe) * 2
+            //             }
+            //         }
+            //         else if (!soViThe && soSucMua) {
+            //             if (fullHopdong > ngDat) {
+            //                 my_hd = ngDat
+            //                 fullHopdong = ngDat
+            //             }
+            //         }
+            //         else if (soViThe && soSucMua) {
+            //             if (fullHopdong > ngDat) {
+            //                 my_hd = ngDat
+            //                 fullHopdong = ngDat + Math.abs(soViThe)
+            //             }
+            //             else {
+            //                 fullHopdong += Math.abs(soViThe)
+            //             }
+            //         }
+            //     }
+
+            //     huyLenhThuong()
+            //     huyLenhDieuKien()
+
+            //     delay = 1000
+            // }
+
             if (daoChieu) {
                 add_logs("Tính hiệu đảo chiều!")
 
@@ -580,7 +667,7 @@ $(window).on('load', async () => {
                 huyLenhThuong()
                 huyLenhDieuKien()
 
-                delay = 500
+                delay = 1000
             }
             else {
                 if (fullHopdong > ngDat) {
@@ -738,15 +825,15 @@ $(window).on('load', async () => {
             if (botAutoOrder.is(":checked")) {
                 capNhatSoHopDong()
                 if (message == "CANCEL_ALL") {
-                    add_logs(message)
-
+                    add_logs("Admin: Hủy tất cả lệnh" )
                     huyLenhThuong()
                     huyLenhDieuKien()
+                    obs && obs.disconnect()
                 }
                 else if (message == "CANCEL_VITHE") {
-                    add_logs("Hủy vị thế hiện tại")
-
+                    add_logs("Admin: Hủy vị thế hiện tại")
                     huyViTheHienTai()
+                    obs && obs.disconnect()
                 }
                 else {
                     const arr = message.split("\n").map(line => line.trim())

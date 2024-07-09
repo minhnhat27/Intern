@@ -78,7 +78,8 @@ namespace Bot.Controllers
                 {
                     isExtension = true;
                 }
-                return Ok(await _authService.RefreshToken(token, isExtension));
+                var result = await _authService.RefreshToken(token, isExtension);
+                return Ok(result);
             }
             catch (Exception ex)
             {

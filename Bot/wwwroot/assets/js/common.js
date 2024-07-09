@@ -251,12 +251,12 @@ const loginFormHtml = `
                 <button id="cb_login" type="button" class="btn btn-primary">Đăng nhập</button>
             </div>
             <div class="form-group mb-1">
-                <a href="https://tradingbot-beta.vercel.app/register" target="_blank" title="Đăng ký tài khoản mới">
+                <a href="https://autobotps.com/register" target="_blank" title="Đăng ký tài khoản mới">
                     Chưa có tài khoản? Đăng ký tại đây
                 </a>
             </div>
             <div class="form-group mb-1">
-                <a href="https://tradingbot-beta.vercel.app/forget-password" target="_blank" title="Quên mật khẩu? Click vào đây">
+                <a href="https://autobotps.com/forgetPass" target="_blank" title="Quên mật khẩu? Click vào đây">
                     Quên mật khẩu?
                 </a>
             </div>
@@ -266,16 +266,13 @@ const loginFormHtml = `
 const loggingHtml = `
          <div class="text-left border-bottom mb-2">
              <div class="d-flex">
-                 <div class="mr-auto">
+                 <div class="mr-auto d-flex align-items-center">
                      <i class="fa fa-copy"></i>
-                     <a href="https://tradingbot-beta.vercel.app" target="_blank" title="Bot phân tán thực hiện bởi ...">
-                        <div id="my-name"></div>
+                     <a href="https://autobotps.com" target="_blank" class="mx-2" title="Bot phân tán thực hiện bởi Autobotps.com">
+                        Autobotps.com
                      </a>
                  </div>
                  <div class="px-2">
-                     <a href="javascript:void(0)" class="satbot-settings" title="Cài đặt">
-                         <i class="fa fa-cog"></i>
-                     </a>
                      <a href="javascript:void(0)" class="satbot-logout" title="Đăng xuất">
                          <i class="fa fa-sign-out"></i>
                      </a>
@@ -283,28 +280,10 @@ const loggingHtml = `
              </div>
          </div>
 
-         <div id="ext-test" class="d-none bot-test text-center py-2">
-             <div class="row justify-content-center">
-                 <div class="col">
-                     <button type="button" class="btn btn-success btn-test-buy px-2">BUY</button>
-                     <button type="button" class="btn btn-danger btn-test-sell px-2">SELL</button>
-                     <button type="button" class="btn btn-danger btn-test-short px-2">SHORT</button>
-                     <button type="button" class="btn btn-success btn-test-cover px-2">COVER</button>
-                 </div>
-             </div>
-             <div class="row justify-content-center py-2">
-                 <div class="col">
-                     <button type="button" class="btn btn-warning btn-test-wait px-2">WAIT</button>
-                     <button type="button" class="btn btn-warning btn-test-activate px-2">Kích hoạt</button>
-                     <button type="button" class="btn btn-danger btn-test-reset px-2">Reset</button>
-                 </div>
-             </div>
-         </div>
-
          <div class="d-none bot-expired alert alert-danger text-center">
              Bot đã hết hạn sử dụng <br> Vui lòng đăng ký lại.
              <br>
-             <a href="https://tradingbot-beta.vercel.app" type="button" class="btn btn-primary">Đăng ký</a>
+             <a href="https://autobotps.com" type="button" class="btn btn-primary">Đăng ký</a>
          </div>
 
          <div class="text-left border-bottom d-flex">

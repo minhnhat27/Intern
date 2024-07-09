@@ -92,7 +92,7 @@ namespace Bot.Services.MiniServiceAuth
                         {
                             var provider = "Ext";
                             var name = "Refresh_Token";
-                            await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
+                            //await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
                             await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
                             await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
                         }
@@ -154,14 +154,14 @@ namespace Bot.Services.MiniServiceAuth
             {
                 throw new Exception(ErrorMessage.USER_NOT_FOUND);
             }
-            if (isExtension)
-            {
-                var userToken = await _userManager.GetAuthenticationTokenAsync(user, "Ext", "Refresh_Token");
-                if (userToken == null || !userToken.Equals(token.Refresh_token))
-                {
-                    throw new Exception(ErrorMessage.INVALID_TOKEN);
-                }
-            }
+            //if (isExtension)
+            //{
+            //    var userToken = await _userManager.GetAuthenticationTokenAsync(user, "Ext", "Refresh_Token");
+            //    if (userToken == null || !userToken.Equals(token.Refresh_token))
+            //    {
+            //        throw new Exception(ErrorMessage.INVALID_TOKEN);
+            //    }
+            //}
 
             var roles = await _userManager.GetRolesAsync(user);
             var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(5), false);
