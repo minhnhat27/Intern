@@ -3,6 +3,7 @@ using Bot.Models;
 using Bot.Request;
 using Bot.Response;
 using Microsoft.EntityFrameworkCore;
+using Bot.DTO;
 
 namespace Bot.Services.MiniServiceLogHistory
 {
@@ -48,12 +49,29 @@ namespace Bot.Services.MiniServiceLogHistory
             }
         }
 
-        public Task<List<LogHistory>> GetLogHistory()
+        public async Task<LogHistoryList> GetLogHistory()
         {
-            return _dbContext.LogHistorys
-                .Include(logHistory => logHistory.User)
+            var result = await _dbContext.LogHistorys
+                .Include(lh => lh.User)
                 .ToListAsync();
+
+            var resultConvert = result.Select(lh => new LogHistoryDTO
+            {
+                Id = lh.Id,
+                Signal = lh.Signal,
+                DateTime = lh.DateTime,
+                IsSL = lh.IsSL,
+                ProfitPointTP = lh.ProfitPointTP,
+                NumberContract = lh.NumberContract,
+                PriceBuy = lh.PriceBuy,
+                UserId = lh.UserId,
+                Profit = lh.Profit,
+                Fullname= lh.User.Fullname
+            }).ToList();
+
+            return new LogHistoryList { LogHistory = resultConvert };
         }
+
 
         public async Task<LogHistory> UpdateLogHistory(int id, LogHistoryRequest logHistory)
         {
