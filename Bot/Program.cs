@@ -38,8 +38,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<MyDbContext>(opt =>
 {
     //opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
-    //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
-    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
+    opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlConnection") ?? "");
+    //opt.UseMySQL(builder.Configuration.GetConnectionString("MysqlCloudConnection") ?? "");
 });
 builder.Services.AddIdentity<User, IdentityRole>(opt => { 
     opt.Password.RequireNonAlphanumeric = false;

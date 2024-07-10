@@ -137,7 +137,7 @@ const server_logout = () => {
 }
 
 const refreshToken = () => {
-    const refresh_token = getCurrentUser()?.refresh_token;
+    const refresh_token = getCurrentUser().refresh_token;
     const data = JSON.stringify({ refresh_token })
 
     $.ajax({
@@ -204,6 +204,7 @@ $(window).on('load', async () => {
     root.append(loginFormHtml)
 
     async function loggingAndBot(isLogin = '') {
+        var obs
         //5m
         isLogin || refreshToken()
         setInterval(() => refreshToken(), 300000)
@@ -265,6 +266,8 @@ $(window).on('load', async () => {
                 sohodong.val($(this).val())
             }
 
+            add_logs(botVolume.find(":selected").text() + " " + $(this).val())
+
             localStorage.setItem("autoBotSettings", JSON.stringify({
                 ...settings() ?? botSettings,
                 volume: {
@@ -286,6 +289,9 @@ $(window).on('load', async () => {
             }
             else {
                 sohodong.val(1)
+                if (obs) {
+                    obs.disconnect()
+                }
                 add_logs("Đã tắt bot hỗ trợ đặt lệnh")
                 console.log("Đã tắt bot hỗ trợ đặt lệnh");
             }
@@ -328,6 +334,33 @@ $(window).on('load', async () => {
             }
         })
 
+        var giabandau;
+        if(isDemo){
+            $("#acceptCreateOrder").click(() => {
+                if(obs){
+                    const th = $("#modal_order_type").text()
+                    const shd = $("#modal_sohopdong").text()
+                    const gd = $("#modal_price").text()
+                    
+                    obs.disconnect()
+                    logHistory(th, giabandau, gd, shd, false)
+                }
+            })
+        }
+        else{
+            $("#acceptCreateOrderNew").click(() => {
+                if(obs){
+                    const th = $("#modal_order_type").text()
+                    const shd = $("#modal_sohopdong").text()
+                    const gd = $("#modal_price").text()
+
+                    obs.disconnect()
+                    logHistory(th, giabandau, gd, shd, false)
+                }
+            })
+        }
+        
+
         const funcTheoDoiSucMua = () => {
             const sucmua = document.getElementById("sucmua-int")
             if (!sucmua) {
@@ -340,10 +373,15 @@ $(window).on('load', async () => {
                             const newValue = parseInt(mutation.target.textContent) //sucMua.text()
 
                             botVolumeValue.attr("max", newValue)
-                            if (newValue < botVolumeValue.val()) {
-                                botVolumeValue.val(newValue)
-                            }
-                            else if (newValue > botVolumeValue.val() && botVolume.val() === "0") {
+                            
+                            // if (newValue < botVolumeValue.val()) {
+                            //     botVolumeValue.val(newValue)
+                            // }
+                            // else if (newValue > botVolumeValue.val() && botVolume.val() === "0") {
+                            //     botVolumeValue.val(newValue)
+                            // }
+
+                            if(botVolume.val() === "0"){
                                 botVolumeValue.val(newValue)
                             }
 
@@ -480,7 +518,6 @@ $(window).on('load', async () => {
 
         const daoLenh = (tinhieu) => tinhieu === "LONG" ? "SHORT" : "LONG"
 
-        let obs
         const botAutoClick = (arr, fullHopdong = parseInt(botVolumeValue.val()), isAdmin = false) => {
             let tinhieu = arr[1].includes("Tin hieu long: Manh") ? "LONG" : "SHORT"
 
@@ -501,7 +538,7 @@ $(window).on('load', async () => {
             let my_hd = fullHopdong
             const ngDat = parseInt(botVolumeValue.val())
 
-            if (daoChieu) {
+            if(daoChieu){
                 add_logs("Tính hiệu đảo chiều!")
 
                 const soViThe = parseInt(vithe)
@@ -509,63 +546,90 @@ $(window).on('load', async () => {
 
                 if (botVolume.val() === "0") {
                     if (soViThe && !soSucMua) {
-                        if (Math.abs(soViThe) >= fullHopdong) {
-
-                            if (!isAdmin) {
-                                my_hd = fullHopdong + Math.abs(soViThe) 
+                        if(isAdmin){
+                            if (Math.abs(soViThe) >= fullHopdong) {    
+                                fullHopdong += Math.abs(soViThe)
                             }
-
-                            fullHopdong += Math.abs(soViThe)
+                            else {
+                                my_hd = Math.abs(soViThe)
+                                fullHopdong = Math.abs(soViThe) * 2
+                            }
                         }
-                        else {
-                            my_hd = Math.abs(soViThe)
+                        else{
+                            my_hd = Math.abs(soViThe) 
                             fullHopdong = Math.abs(soViThe) * 2
                         }
                     }
                     else if (!soViThe && soSucMua) {
-                        if (fullHopdong > ngDat) {
+                        if(isAdmin){
+                            if (fullHopdong > ngDat) {
+                                my_hd = ngDat
+                                fullHopdong = ngDat
+                            }
+                        }
+                        else{
                             my_hd = ngDat
                             fullHopdong = ngDat
                         }
                     }
                     else if (soViThe && soSucMua) {
-                        if ((Math.abs(soViThe) + ngDat) < fullHopdong) {
-                            my_hd = (Math.abs(soViThe) + ngDat)
-                            fullHopdong = Math.abs(soViThe) * 2 + ngDat // hoac (Math.abs(soViThe) + botVolumeValue.val()) + Math.abs(soViThe)
-                        }
-                        else {
-                            my_hd = fullHopdong
-                            fullHopdong += Math.abs(soViThe)
-
-                            if (!isAdmin) {
-                                my_hd = fullHopdong + Math.abs(soViThe)
+                        if(isAdmin){
+                            if ((Math.abs(soViThe) + ngDat) < fullHopdong) {
+                                my_hd = (Math.abs(soViThe) + ngDat)
+                                fullHopdong = Math.abs(soViThe) * 2 + ngDat // hoac (Math.abs(soViThe) + botVolumeValue.val()) + Math.abs(soViThe)
                             }
+                            else {
+                                my_hd = fullHopdong
+                                fullHopdong += Math.abs(soViThe)
+                            }
+                        }
+                        else{
+                            my_hd = (Math.abs(soViThe) + ngDat)
+                            fullHopdong = Math.abs(soViThe) * 2 + ngDat
                         }
                     }
                 }
                 else {
                     if (soViThe && !soSucMua) {
-                        if (Math.abs(soViThe) >= fullHopdong) {
-                            fullHopdong += Math.abs(soViThe)
+                        if(isAdmin){
+                            if (Math.abs(soViThe) >= fullHopdong) {
+                                fullHopdong += Math.abs(soViThe)
+                            }
+                            else {
+                                my_hd = Math.abs(soViThe)
+                                fullHopdong = Math.abs(soViThe) * 2
+                            }
                         }
-                        else {
+                        else{
                             my_hd = Math.abs(soViThe)
-                            fullHopdong = Math.abs(soViThe) * 2
+                            fullHopdong += Math.abs(soViThe)
                         }
                     }
                     else if (!soViThe && soSucMua) {
-                        if (fullHopdong > ngDat) {
+                        if(isAdmin){
+                            if (fullHopdong > ngDat) {
+                                my_hd = ngDat
+                                fullHopdong = ngDat
+                            }
+                        }
+                        else{
                             my_hd = ngDat
                             fullHopdong = ngDat
                         }
                     }
                     else if (soViThe && soSucMua) {
-                        if (fullHopdong > ngDat) {
+                        if(isAdmin){
+                            if (fullHopdong > ngDat) {
+                                my_hd = ngDat
+                                fullHopdong = ngDat + Math.abs(soViThe)
+                            }
+                            else {
+                                fullHopdong += Math.abs(soViThe)
+                            }
+                        }
+                        else{
                             my_hd = ngDat
                             fullHopdong = ngDat + Math.abs(soViThe)
-                        }
-                        else {
-                            fullHopdong += Math.abs(soViThe)
                         }
                     }
                 }
@@ -573,25 +637,35 @@ $(window).on('load', async () => {
                 huyLenhThuong()
                 huyLenhDieuKien()
 
-                delay = 1000
+                delay += 1000
             }
             else {
-                if (fullHopdong > ngDat) {
+                if(isAdmin){
+                    if (fullHopdong > ngDat) {
+                        my_hd = ngDat
+                        fullHopdong = ngDat
+                    } 
+                }
+                else {
                     my_hd = ngDat
                     fullHopdong = ngDat
                 }
             }
 
             let giamua = convertFloatToFixed(arr[2])
-            tinhieu === "LONG"
-                ? giamua += 0.2
-                : giamua -= 0.2
-            giamua = giamua.toFixed(1)
-
             let catLo = convertFloatToFixed(arr[7])
-            tinhieu === "LONG"
-                ? catLo -= 0.3
-                : catLo += 0.3
+
+            if(!isAdmin){
+                if(tinhieu === "LONG"){
+                    giamua += 0.2
+                    catLo -= 0.3
+                }
+                else{
+                    giamua -= 0.2
+                    catLo += 0.3
+                }
+            }
+            giamua = giamua.toFixed(1)
             catLo = catLo.toFixed(1)
 
             const tp1 = convertFloatToFixed(arr[3])
@@ -606,6 +680,8 @@ $(window).on('load', async () => {
                 setTimeout(() => {
                     //Vo 100%
                     runBotNormal(tinhieu, giamua, fullHopdong)
+                    logHistory(tinhieu, giamua, giamua, my_hd, false)
+                    giabandau = giamua
 
                     //dao lenh
                     tinhieu = daoLenh(tinhieu)
@@ -648,7 +724,8 @@ $(window).on('load', async () => {
                                             : giaKhopLenh <= tp2
 
                                         //const lenhBanDau = daoLenh(tinhieu)
-
+                                        
+                                        //tp
                                         if (condition1 && !dadatTp1 && order50[0] > 0) {
                                             huyLenhDieuKien()
 
@@ -671,6 +748,7 @@ $(window).on('load', async () => {
                                             logHistory(tinhieu, tp1, tp2, order25[0], false)
                                         }
 
+                                        //sl
                                         const initCancelCondition = isShort
                                             ? giaKhopLenh <= catLo && !dadatTp1 && !dadatTp2
                                             : giaKhopLenh >= catLo && !dadatTp1 && !dadatTp2

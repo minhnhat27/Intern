@@ -114,7 +114,7 @@ namespace Bot.Services.MiniServiceUser
             await _userManager.UpdateAsync(user);
         }
 
-        public async Task<bool> UpdateServiceEndDateAdmin(User user, DateTimeOffset dateTimeOffset)
+        public async Task<bool> UpdateServiceEndDateAdmin(User user, DateTimeOffset? dateTimeOffset)
         {
             user.ServiceEndDate = dateTimeOffset;
             var updateResult = await _userManager.UpdateAsync(user);
