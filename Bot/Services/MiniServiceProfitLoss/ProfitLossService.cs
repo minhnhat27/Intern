@@ -55,7 +55,8 @@ namespace Bot.Services.MiniServiceProfitLoss
                     Id = pl.Id,
                     Price = pl.Price,
                     Date = pl.Date,
-                    UserId = pl.UserId
+                    UserId = pl.UserId,
+                    Fullname = pl.User.Fullname
                 }).ToListAsync();
         }
 
@@ -90,7 +91,8 @@ namespace Bot.Services.MiniServiceProfitLoss
                     Price = s.Price,
                     Date = s.Date,
                     UserId = s.UserId,
-                    Id = s.Id
+                    Id = s.Id,
+                    Fullname= s.User.Fullname
                 }
                 ).ToListAsync();
             var count = result.Sum(pl => pl.Price);
@@ -107,7 +109,8 @@ namespace Bot.Services.MiniServiceProfitLoss
                     Price = s.Price,
                     Date = s.Date,
                     UserId = s.UserId,
-                    Id = s.Id
+                    Id = s.Id,
+                    Fullname = s.User.Fullname
                 }
                 ).ToListAsync();
             var count = result.Sum(pl => pl.Price);
@@ -123,7 +126,8 @@ namespace Bot.Services.MiniServiceProfitLoss
                     Price = s.Price,
                     Date = s.Date,
                     UserId = s.UserId,
-                    Id = s.Id
+                    Id = s.Id,
+                    Fullname = s.User.Fullname
                 }
                 ).ToListAsync();
             var count = result.Sum(pl => pl.Price);
@@ -140,7 +144,8 @@ namespace Bot.Services.MiniServiceProfitLoss
                     Price = s.Price,
                     Date = s.Date,
                     UserId = s.UserId,
-                    Id = s.Id
+                    Id = s.Id,
+                    Fullname = s.User.Fullname
                 }
                 ).ToListAsync();
             var count = result.Sum(pl => pl.Price);
