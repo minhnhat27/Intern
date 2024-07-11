@@ -1,4 +1,5 @@
-﻿using Bot.Data;
+﻿using Azure.Core;
+using Bot.Data;
 using Bot.DbContext;
 using Bot.DTO;
 using Bot.Models;
@@ -10,6 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -82,6 +85,26 @@ namespace Bot.Services.MiniServiceAuth
                 if (user != null)
                 {
                     var now = DateTime.Now;
+                    var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+
+                    if (isAdmin)
+                    {
+                        var token = new Random().Next(100000, 999999).ToString();
+                        _cachingService.Set("Admin Login " + user.Id, token, TimeSpan.FromMinutes(2));
+
+                        var title = "Bạn vừa đăng nhập vào Admin";
+                        var message = $"Mã xác thực của bạn là: {token}.\n" +
+                                        "Mã sẽ hết hạn sau 2 phút.";
+                        await _emailSender.SendEmailAsync(user.Email ?? throw new Exception(ErrorMessage.EMAIL_NOT_FOUND), title, message);
+
+                        return new JwtResponse
+                        {
+                            Name = user.Fullname,
+                            UserId = user.Id,
+                            Email = user.Email ?? "",
+                        };
+                    }
+
                     var roles = await _userManager.GetRolesAsync(user);
                     var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
                     var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(1), true);
@@ -115,6 +138,38 @@ namespace Bot.Services.MiniServiceAuth
             return null;
         }
 
+        public async Task<JwtResponse> VerifyAdminLogin(string userId, string token)
+        {
+            var cachedToken = _cachingService.Get<string>("Admin Login " + userId);
+            if(cachedToken != null && cachedToken.Equals(token))
+            {
+                var user = await _userManager.FindByIdAsync(userId);
+                if(user == null)
+                {
+                    throw new Exception(ErrorMessage.USER_NOT_FOUND);
+                }
+
+                var roles = await _userManager.GetRolesAsync(user);
+                var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
+                var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddHours(4), true);
+
+                _cachingService.Remove("Admin Login " + userId);
+                return new JwtResponse
+                {
+                    Access_token = access_token,
+                    Refresh_token = refresh_token,
+                    Name = user.Fullname,
+                    Roles = roles,
+                    UserId = user.Id,
+                    Email = user.Email ?? "",
+                    PhoneNumber = user.PhoneNumber,
+                };
+            }
+            throw new Exception(ErrorMessage.INVALID_TOKEN);
+        }
+
+
+
         private string? ValidateToken(string token, bool validateLifetime, bool isRefreshToken)
         {
             var parameters = new TokenValidationParameters
@@ -144,7 +199,7 @@ namespace Bot.Services.MiniServiceAuth
 
         public async Task<TokenModel> RefreshToken(TokenModel token, bool isExtension)
         {
-            var userId = ValidateToken(token.Refresh_token, true, isExtension);
+            var userId = ValidateToken(token.Refresh_token, true, true);
             if (userId == null)
             {
                 throw new Exception(ErrorMessage.INVALID_TOKEN);
@@ -239,8 +294,9 @@ namespace Bot.Services.MiniServiceAuth
             var token = new Random().Next(100000, 999999).ToString();
             _cachingService.Set(email, token, TimeSpan.FromMinutes(5));
 
-            var message = $"Your code is: {token}";
-            await _emailSender.SendEmailAsync(email, "Register Code", message);
+            var message = $"Mã xác nhận của bạn là: {token}.\n" +
+                            "Mã sẽ hết hạn sau 5 phút.";
+            await _emailSender.SendEmailAsync(email, "Mã xác thực đăng ký tài khoản", message);
 
             return true;
         }

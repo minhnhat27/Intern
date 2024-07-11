@@ -46,6 +46,21 @@ namespace Bot.Controllers
             }
         }
 
+        [HttpPost("verifyLogin")]
+        public async Task<IActionResult> VerifyAdminLogin([FromBody] VerifyAdminLoginRequest request)
+        {
+            try
+            {
+                var result = await _authService.VerifyAdminLogin(request.UserId, request.Token);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterRequest request)
         {

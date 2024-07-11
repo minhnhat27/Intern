@@ -84,12 +84,17 @@ builder.Services.AddCors(opt =>
     {
         opt.WithOrigins("https://smartpro.vps.com.vn", 
             "https://smarteasy.vps.com.vn",
-            "https://admin-bot-pink.vercel.app",
+            "https://www.smartpro.vps.com.vn",
+            "https://www.smarteasy.vps.com.vn",
             "http://42.96.5.76",
             "http://autobotps.com",
             "https://autobotps.com",
+            "http://www.autobotps.com",
+            "https://www.autobotps.com",
             "http://admin.autobotps.com",
-            "https://admin.autobotps.com")
+            "https://admin.autobotps.com",
+            "http://www.admin.autobotps.com",
+            "https://www.admin.autobotps.com")
             .AllowAnyMethod()
             .AllowAnyHeader()
             .AllowCredentials();

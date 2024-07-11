@@ -7,5 +7,6 @@
         public const string SERVICE_EXPIRE = "Dịch vụ đã hết hạn. Vui lòng đăng ký gói mới";
         public const string INVALID_TOKEN = "Mã không hợp lệ";
         public const string NOT_FOUND = "Không tìm thấy";
+        public const string EMAIL_NOT_FOUND = "Người dùng chưa có địa chỉ email";
     }
 }
