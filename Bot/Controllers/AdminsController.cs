@@ -38,6 +38,13 @@ namespace Bot.Controllers
             {
                 messageResponse = request.Status;
             }
+            else if(request.Price == 0 && request.StopOrderValue != 0 && request.OrderNumber != 0)
+            {
+                messageResponse = "STOP_ORDER_ONLY\n" 
+                    + request.Status + "\n" 
+                    + request.OrderNumber + "\n"
+                    + request.StopOrderValue;
+            }
             else
             {
                 CultureInfo culture = new CultureInfo("en-US");

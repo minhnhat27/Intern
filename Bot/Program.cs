@@ -25,6 +25,7 @@ using Bot.Services.MiniServiceStatistics;
 using Bot.Services.MiniServiceRole;
 using Bot.Services.MiniServicePayment;
 using Bot.DbContext;
+using System.IO;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,8 +66,20 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration.GetSection("JWT:Issuer").Value,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration.GetSection("JWT:Key").Value ?? "")),
     };
+
     options.Events = new JwtBearerEvents()
     {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/realtimeSignal"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        },
         OnTokenValidated = context =>
         {
             var versionClaim = context.Principal?.FindFirstValue(ClaimTypes.Version);
@@ -100,8 +113,8 @@ builder.Services.AddCors(opt =>
             .AllowCredentials();
     });
 });
-
 builder.Services.AddSignalR();
+builder.Services.AddSingleton<UserConnectionManager>();
 
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<ICachingService, CachingService>();

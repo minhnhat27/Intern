@@ -3,7 +3,6 @@ using Bot.DTO;
 using Bot.Request;
 using Bot.Services.MiniServiceAuth;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 
 namespace Bot.Controllers
 {
@@ -24,16 +23,17 @@ namespace Bot.Controllers
         {
             try
             {
-                var origin = Request.Headers["Origin"];
+                var origin = Request.Headers["Origin"].FirstOrDefault() ?? "";
                 var referer = Request.Headers["Referer"].FirstOrDefault() ?? "";
-                bool isExtension = false;
 
-                if (origin.Contains("smartpro.vps.com.vn") || origin.Contains("smarteasy.vps.com.vn")
-                    || referer.Contains("smartpro.vps.com.vn") || referer.Contains("smarteasy.vps.com.vn"))
-                {
-                    isExtension = true;
-                }
-                var result = await _authService.Login(request, isExtension);
+                bool isAdmin = origin.Contains("admin.autobotps.com") || referer.Contains("admin.autobotps.com");
+
+                //bool isExtension = origin.Contains("smartpro.vps.com.vn") || origin.Contains("smarteasy.vps.com.vn")
+                //    || referer.Contains("smartpro.vps.com.vn") || referer.Contains("smarteasy.vps.com.vn");
+
+                bool isExtension = origin.Contains("smartpro.vps.com.vn") || referer.Contains("smartpro.vps.com.vn");
+
+                var result = await _authService.Login(request, isExtension, isAdmin);
                 if (result != null)
                 {
                     return Ok(result);
@@ -84,15 +84,15 @@ namespace Bot.Controllers
         {
             try
             {
-                var origin = Request.Headers["Origin"];
+                var origin = Request.Headers["Origin"].FirstOrDefault() ?? "";
                 var referer = Request.Headers["Referer"].FirstOrDefault() ?? "";
-                bool isExtension = false;
+                bool isAdmin = origin.Contains("admin.autobotps.com") || referer.Contains("admin.autobotps.com");
 
-                if (origin.Contains("smartpro.vps.com.vn") || origin.Contains("smarteasy.vps.com.vn")
-                    || referer.Contains("smartpro.vps.com.vn") || referer.Contains("smarteasy.vps.com.vn"))
-                {
-                    isExtension = true;
-                }
+                //bool isExtension = origin.Contains("smartpro.vps.com.vn") || origin.Contains("smarteasy.vps.com.vn")
+                //    || referer.Contains("smartpro.vps.com.vn") || referer.Contains("smarteasy.vps.com.vn");
+
+                bool isExtension = origin.Contains("smartpro.vps.com.vn") || referer.Contains("smartpro.vps.com.vn");
+
                 var result = await _authService.RefreshToken(token, isExtension);
                 return Ok(result);
             }

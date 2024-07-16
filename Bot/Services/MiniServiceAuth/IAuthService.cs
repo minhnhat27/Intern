@@ -7,7 +7,7 @@ namespace Bot.Services.MiniServiceAuth
 {
     public interface IAuthService
     {
-        Task<JwtResponse?> Login(LoginRequest request, bool isExtension);
+        Task<JwtResponse?> Login(LoginRequest request, bool isExtension, bool isAdmin);
         Task<JwtResponse> VerifyAdminLogin(string userId, string token);
         Task<IdentityResult> Register(RegisterRequest request);
         Task<TokenModel> RefreshToken(TokenModel token, bool isExtension);

@@ -32,6 +32,6 @@
     <Content Include="Response\**\*.js" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="wwwroot\backup" />
+    <None Remove="wwwroot\script.js" />
   </ItemGroup>
 </Project>

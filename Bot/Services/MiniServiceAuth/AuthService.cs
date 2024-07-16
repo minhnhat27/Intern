@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Bot.Data;
+﻿using Bot.Data;
 using Bot.DbContext;
 using Bot.DTO;
 using Bot.Models;
@@ -9,9 +8,8 @@ using Bot.Services.MiniServiceCaching;
 using Bot.Services.MiniServiceSendMail;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using MySqlX.XDevAPI;
 using System.Data;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -24,25 +22,26 @@ namespace Bot.Services.MiniServiceAuth
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _config;
-        private readonly ILogger<AuthService> _logger;
         private readonly ISendMailService _emailSender;
         private readonly ICachingService _cachingService;
         private readonly IHubContext<MessageHub> _hubContext;
+        private readonly UserConnectionManager _userConnectionManager;
         private readonly MyDbContext _dbContext;
         public AuthService(SignInManager<User> signInManager,
             UserManager<User> userManager, IConfiguration configuration,
-            ILogger<AuthService> logger, ISendMailService emailSender,
+            ISendMailService emailSender,
             ICachingService cachingService,
             MyDbContext dbContext,
+            UserConnectionManager userConnectionManager,
             IHubContext<MessageHub> hubContext)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _config = configuration;
-            _logger = logger;
             _emailSender = emailSender;
             _cachingService = cachingService;
             _hubContext = hubContext;
+            _userConnectionManager = userConnectionManager;
             _dbContext = dbContext;
         }
         private string CreateJwt(User user, IEnumerable<string> roles, DateTime time, bool RefreshToken)
@@ -76,36 +75,38 @@ namespace Bot.Services.MiniServiceAuth
             return new JwtSecurityTokenHandler().WriteToken(jwtToken);
         }
 
-        public async Task<JwtResponse?> Login(LoginRequest request, bool isExtension)
+        public async Task<JwtResponse?> Login(LoginRequest request, bool isExtension, bool isAdmin)
         {
             var result = await _signInManager.PasswordSignInAsync(request.Username, request.Password, false, false);
             if (result.Succeeded)
             {
                 var user = await _userManager.FindByNameAsync(request.Username);
+
                 if (user != null)
                 {
-                    var now = DateTime.Now;
-                    var isAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+                    var now = DateTimeOffset.Now;
+                    var isRoleAdmin = await _userManager.IsInRoleAsync(user, "Admin");
+                    var roles = await _userManager.GetRolesAsync(user);
 
-                    if (isAdmin)
+                    if (isAdmin && isRoleAdmin)
                     {
                         var token = new Random().Next(100000, 999999).ToString();
                         _cachingService.Set("Admin Login " + user.Id, token, TimeSpan.FromMinutes(2));
 
                         var title = "Bạn vừa đăng nhập vào Admin";
-                        var message = $"Mã xác thực của bạn là: {token}.\n" +
-                                        "Mã sẽ hết hạn sau 2 phút.";
+                        var message = $"<div><p>Mã xác thực của bạn là: {token}.</p>" +
+                                        "</br>" +
+                                        "<p>Mã sẽ hết hạn sau 2 phút.</p></div>";
                         await _emailSender.SendEmailAsync(user.Email ?? throw new Exception(ErrorMessage.EMAIL_NOT_FOUND), title, message);
 
                         return new JwtResponse
                         {
                             Name = user.Fullname,
                             UserId = user.Id,
-                            Email = user.Email ?? "",
+                            Roles = roles
                         };
                     }
 
-                    var roles = await _userManager.GetRolesAsync(user);
                     var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
                     var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(1), true);
 
@@ -115,7 +116,7 @@ namespace Bot.Services.MiniServiceAuth
                         {
                             var provider = "Ext";
                             var name = "Refresh_Token";
-                            //await _hubContext.Clients.All.SendAsync("ServerMessage", "LOGOUT");
+
                             await _userManager.RemoveAuthenticationTokenAsync(user, provider, name);
                             await _userManager.SetAuthenticationTokenAsync(user, provider, name, refresh_token);
                         }
@@ -168,8 +169,6 @@ namespace Bot.Services.MiniServiceAuth
             throw new Exception(ErrorMessage.INVALID_TOKEN);
         }
 
-
-
         private string? ValidateToken(string token, bool validateLifetime, bool isRefreshToken)
         {
             var parameters = new TokenValidationParameters
@@ -209,14 +208,14 @@ namespace Bot.Services.MiniServiceAuth
             {
                 throw new Exception(ErrorMessage.USER_NOT_FOUND);
             }
-            //if (isExtension)
-            //{
-            //    var userToken = await _userManager.GetAuthenticationTokenAsync(user, "Ext", "Refresh_Token");
-            //    if (userToken == null || !userToken.Equals(token.Refresh_token))
-            //    {
-            //        throw new Exception(ErrorMessage.INVALID_TOKEN);
-            //    }
-            //}
+            if (isExtension)
+            {
+                var userToken = await _userManager.GetAuthenticationTokenAsync(user, "Ext", "Refresh_Token");
+                if (userToken == null || !userToken.Equals(token.Refresh_token))
+                {
+                    throw new Exception(ErrorMessage.INVALID_TOKEN);
+                }
+            }
 
             var roles = await _userManager.GetRolesAsync(user);
             var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(5), false);
@@ -294,8 +293,9 @@ namespace Bot.Services.MiniServiceAuth
             var token = new Random().Next(100000, 999999).ToString();
             _cachingService.Set(email, token, TimeSpan.FromMinutes(5));
 
-            var message = $"Mã xác nhận của bạn là: {token}.\n" +
-                            "Mã sẽ hết hạn sau 5 phút.";
+            var message = $"<div><p>Mã xác nhận của bạn là: {token}.</p>" +
+                            "</br>" +
+                            "<p>Mã sẽ hết hạn sau 5 phút.</p></div>";
             await _emailSender.SendEmailAsync(email, "Mã xác thực đăng ký tài khoản", message);
 
             return true;

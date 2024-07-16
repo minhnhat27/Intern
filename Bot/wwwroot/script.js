@@ -14,17 +14,15 @@ const getISOStringNow = () => {
 
 const logHistory = (signal, priceBuy, profitPointTP, numberContract, isSL) => {
     try {
-        if (!isDemo) {
-            const userId = getCurrentUser().userId
-            const dateTime = getISOStringNow()
-            const data = JSON.stringify({ signal, profitPointTP, priceBuy, numberContract, isSL, dateTime, userId })
-            $.ajax({
-                url: api_logHistory + "/add",
-                method: "POST",
-                headers: { 'Authorization': 'Bearer ' + getAccessToken() },
-                data: data,
-            })
-        }
+        const userId = getCurrentUser().userId
+        const dateTime = getISOStringNow()
+        const data = JSON.stringify({ signal, profitPointTP, priceBuy, numberContract, isSL, dateTime, userId })
+        $.ajax({
+            url: api_logHistory + "/add",
+            method: "POST",
+            headers: { 'Authorization': 'Bearer ' + getAccessToken() },
+            data: data,
+        })
     } catch (error) {
         console.log(error)
     }
@@ -32,17 +30,15 @@ const logHistory = (signal, priceBuy, profitPointTP, numberContract, isSL) => {
 
 const profitLoss = (price) => {
     try {
-        if (!isDemo) {
-            const userId = getCurrentUser().userId
-            const date = getISOStringNow()
-            const data = JSON.stringify({ userId, date, price })
-            $.ajax({
-                url: api_profitLoss + "/add",
-                method: "POST",
-                headers: { 'Authorization': 'Bearer ' + getAccessToken() },
-                data: data,
-            })
-        }
+        const userId = getCurrentUser().userId
+        const date = getISOStringNow()
+        const data = JSON.stringify({ userId, date, price })
+        $.ajax({
+            url: api_profitLoss + "/add",
+            method: "POST",
+            headers: { 'Authorization': 'Bearer ' + getAccessToken() },
+            data: data,
+        })
     } catch (error) {
         console.log(error)
     }
@@ -189,11 +185,6 @@ function checkTimeAndAddProfitLoss() {
     let str = $("#vmAccInfo").text()
     let num = parseInt(str.replace(/,/g, ''), 10);
 
-    if (hours >= 17) {
-        clearInterval(checkAdded);
-        return;
-    }
-
     if ((hours > 11 || (hours === 11 && minutes >= 30)) && hours < 13) {
         const morning = getCookie('lastCalledMorning');
         if (morning !== today) {
@@ -201,7 +192,7 @@ function checkTimeAndAddProfitLoss() {
             setCookie('lastCalledMorning', today, 1 * 24 * 60);
         }
     }
-    else if ((hours > 14 || (hours === 14 && minutes >= 30)) && hours < 17) {
+    else if (hours > 14 || (hours === 14 && minutes >= 30) && hours < 17) {
         const afternoon = getCookie('lastCalledAfternoon');
         if (afternoon !== today) {
             profitLoss(num);
@@ -209,6 +200,7 @@ function checkTimeAndAddProfitLoss() {
             clearInterval(checkAdded)
         }
     }
+    else if (hours >= 17) clearInterval(checkAdded)
 }
 
 const botSettings = {
