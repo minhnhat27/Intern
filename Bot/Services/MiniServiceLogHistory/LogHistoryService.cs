@@ -81,7 +81,27 @@ namespace Bot.Services.MiniServiceLogHistory
             return new LogHistoryList { LogHistory = resultConvert };
         }
 
+        public async Task<LogHistoryList> GetLogHistoryById(string id)
+        {
+           var result = await _dbContext.Set<LogHistory>()
+                                       .Where(lh => lh.UserId == id)
+                                       .ToListAsync();
+            var resultConvert = result.Select(lh => new LogHistoryDTO
+            {
+                Id = lh.Id,
+                Signal = lh.Signal,
+                DateTime = lh.DateTime,
+                IsSL = lh.IsSL,
+                ProfitPointTP = lh.ProfitPointTP,
+                NumberContract = lh.NumberContract,
+                PriceBuy = lh.PriceBuy,
+                UserId = lh.UserId,
+                Profit = lh.Profit,
+                Fullname = lh.User.Fullname
+            }).ToList();
 
+            return new LogHistoryList { LogHistory = resultConvert };
+        }
         public async Task<LogHistory> UpdateLogHistory(int id, LogHistoryRequest logHistory)
         {
             var _logHistory = await _dbContext.LogHistorys.FindAsync(id);

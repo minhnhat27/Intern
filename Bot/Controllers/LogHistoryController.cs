@@ -8,7 +8,6 @@ namespace Bot.Controllers
 {
     [Route("/api/logHistory")]
     [ApiController]
-    [Authorize]
     public class LogHistoryController : ControllerBase
     {
         private readonly ILogHistoryService _logHistoryService;
@@ -137,5 +136,7 @@ namespace Bot.Controllers
                 return BadRequest(ex.Message);
             }
         }
+
+
     }
 }
