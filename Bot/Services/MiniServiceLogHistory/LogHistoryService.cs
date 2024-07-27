@@ -96,9 +96,7 @@ namespace Bot.Services.MiniServiceLogHistory
                 ProfitPointTP = lh.ProfitPointTP,
                 NumberContract = lh.NumberContract,
                 PriceBuy = lh.PriceBuy,
-                UserId = lh.UserId,
-                Profit = lh.Profit,
-                Fullname = lh.User.Fullname
+                Profit = lh.Profit
             }).ToList();
 
             return new LogHistoryList { LogHistory = resultConvert };

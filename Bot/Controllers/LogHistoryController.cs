@@ -26,6 +26,20 @@ namespace Bot.Controllers
             return Ok(result);
         }
 
+        [HttpGet("getLogHistory/{userId}")]
+        public async Task <IActionResult> GetLogHistoryById(string userId)
+        {
+            try
+            {
+                var result = await _logHistoryService.GetLogHistoryById(userId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
         [HttpPost("add")]
         public async Task<IActionResult> AddLogHistory([FromBody] LogHistoryRequest request)
         {

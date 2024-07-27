@@ -15,5 +15,6 @@ namespace Bot.Services.MiniServiceLogHistory
         Task<LogHistoryResponse> GetLogHistoryMonth(int month, int year, string userId);
         Task<LogHistoryResponse> GetLogHistoryYear(int year, string userId);
         Task<LogHistoryResponse> GetLogHistoryAllByUser(string userId);
+        Task<LogHistoryList> GetLogHistoryById(string id);
     }
 }
