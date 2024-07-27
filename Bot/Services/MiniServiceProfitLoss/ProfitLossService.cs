@@ -50,6 +50,7 @@ namespace Bot.Services.MiniServiceProfitLoss
         public async Task<List<ProfitLossDTO>> GetProfitLosses()
         {
             return await _dbContext.ProfitLosses
+                .OrderByDescending(p => p.Date)
                 .Select(pl => new ProfitLossDTO
                 {
                     Id = pl.Id,

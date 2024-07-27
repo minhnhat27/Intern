@@ -62,6 +62,7 @@ namespace Bot.Services.MiniServiceLogHistory
         {
             var result = await _dbContext.LogHistorys
                 .Include(lh => lh.User)
+                .OrderByDescending(p => p.DateTime)
                 .ToListAsync();
 
             var resultConvert = result.Select(lh => new LogHistoryDTO

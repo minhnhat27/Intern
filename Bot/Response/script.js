@@ -12,17 +12,20 @@ const getISOStringNow = () => {
     return new Date(time).toISOString();
 }
 
-const logHistory = (signal, priceBuy, profitPointTP, numberContract, isSL) => {
+const getAccessToken = () => getCookie("auth_token")
+
+const logHistory = (userId, signal, priceBuy, profitPointTP, numberContract, isSL) => {
     try {
+        const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
         if (!isDemo) {
-            const userId = getCurrentUser().userId
             const dateTime = getISOStringNow()
             const data = JSON.stringify({ signal, profitPointTP, priceBuy, numberContract, isSL, dateTime, userId })
             $.ajax({
                 url: api_logHistory + "/add",
                 method: "POST",
+                contentType: 'application/json',
                 headers: { 'Authorization': 'Bearer ' + getAccessToken() },
-                data: data,
+                data: data
             })
         }
     } catch (error) {
@@ -30,15 +33,17 @@ const logHistory = (signal, priceBuy, profitPointTP, numberContract, isSL) => {
     }
 }
 
-const profitLoss = (price) => {
+const profitLoss = (userId, price) => {
+    
     try {
+        const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
         if (!isDemo) {
-            const userId = getCurrentUser().userId
             const date = getISOStringNow()
             const data = JSON.stringify({ userId, date, price })
             $.ajax({
                 url: api_profitLoss + "/add",
                 method: "POST",
+                contentType: 'application/json',
                 headers: { 'Authorization': 'Bearer ' + getAccessToken() },
                 data: data,
             })
@@ -121,15 +126,18 @@ const getBotSignal = () => {
 }
 
 const getCurrentUser = () => {
-    const my_user = getCookie("bot_data")
-    return my_user ? JSON.parse(my_user) : my_user
+    try {
+        const my_user = getCookie("bot_data")
+        return my_user ? JSON.parse(my_user) : my_user
+    }
+    catch (error) {
+        console.log(error);
+    }
 }
-
-const getAccessToken = () => getCookie("auth_token")
 
 const my_logout = () => {
     try {
-        const refresh_token = getCurrentUser()?.refresh_token;
+        const refresh_token = getCurrentUser().refresh_token;
         const json = JSON.stringify({ refresh_token })
         $.ajax({
             url: api_auth + "/logout",
@@ -180,7 +188,7 @@ const refreshToken = async () => {
 }
 
 var checkAdded
-function checkTimeAndAddProfitLoss() {
+function checkTimeAndAddProfitLoss(userId) {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
@@ -197,14 +205,14 @@ function checkTimeAndAddProfitLoss() {
     if ((hours > 11 || (hours === 11 && minutes >= 30)) && hours < 13) {
         const morning = getCookie('lastCalledMorning');
         if (morning !== today) {
-            profitLoss(num);
+            profitLoss(userId, num);
             setCookie('lastCalledMorning', today, 1 * 24 * 60);
         }
     }
     else if ((hours > 14 || (hours === 14 && minutes >= 30)) && hours < 17) {
         const afternoon = getCookie('lastCalledAfternoon');
         if (afternoon !== today) {
-            profitLoss(num);
+            profitLoss(userId, num);
             setCookie('lastCalledAfternoon', today, 1 * 24 * 60);
             clearInterval(checkAdded)
         }
@@ -219,8 +227,6 @@ const botSettings = {
         value: 0
     }
 }
-// const scripts = `<script src="${baseURL}/assets/js/common.js"></script>
-//                 <script src="${baseURL}/assets/js/signalr/dist/browser/signalr.js"></script>`
 
 const scripts = [
    `${baseURL}/assets/js/common.js`,
@@ -249,13 +255,12 @@ async function loadScripts(scripts) {
 
 window.addEventListener('load', async () => {
     await loadScripts(scripts)
+    const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
 
     $.ajaxSetup({
         contentType: 'application/json',
         timeout: 10000
     })
-
-    const isDemo = window.location.href.includes("smarteasy.vps.com.vn")
 
     isDemo ? $(".btn.btn-block.btn-default.active.btn-cancel-all").addClass("text-white btn-warning")
         : $("#button_cancel_all_order_normal").addClass("text-white bg-warning")
@@ -265,12 +270,25 @@ window.addEventListener('load', async () => {
     web.append(root)
     root.append(loginFormHtml)
 
-    async function loggingAndBot(isLogin = '') {
-        var obs
-        var obsTheoDoiTrangThaiDat
+    async function loggingAndBot(isLogin = false, userId) {
+        let obsNangTP = null
+        let obsTheoDoiTrangThaiDat = null
 
-        checkTimeAndAddProfitLoss()
-        checkAdded = setInterval(checkTimeAndAddProfitLoss, 60000);
+        const obsDisconnect = () => {
+            if (obsNangTP) {
+                obsNangTP.disconnect()
+                obsNangTP = null
+            }
+            if (obsTheoDoiTrangThaiDat) {
+                obsTheoDoiTrangThaiDat.disconnect()
+                obsTheoDoiTrangThaiDat = null
+            }
+        }
+
+        if (!isDemo) {
+            checkTimeAndAddProfitLoss(userId)
+            checkAdded = setInterval(() => checkTimeAndAddProfitLoss(userId), 60000);
+        }
 
         const extContent = $("#ext-content")
         extContent.children().replaceWith(loggingHtml)
@@ -353,12 +371,7 @@ window.addEventListener('load', async () => {
             }
             else {
                 sohodong.val(1)
-                if (obs) {
-                    obs.disconnect()
-                }
-                if(obsTheoDoiTrangThaiDat){
-                    obsTheoDoiTrangThaiDat.disconnect()
-                }
+                obsDisconnect()
                 add_logs("Đã tắt bot hỗ trợ đặt lệnh")
                 console.log("Đã tắt bot hỗ trợ đặt lệnh");
             }
@@ -401,32 +414,29 @@ window.addEventListener('load', async () => {
             }
         })
 
-        var giabandau;
+        let giabandau = 0
         if(isDemo){
-            $("#acceptCreateOrder").click(() => {
-                if(obsTheoDoiTrangThaiDat || obs){
+            $("#acceptCreateOrder").click(function () {
+                if (obsTheoDoiTrangThaiDat || obsNangTP){
                     const th = $("#modal_order_type").text()
                     const shd = $("#modal_sohopdong").text()
                     const gd = $("#modal_price").text()
 
-                    obs && obs.disconnect()
-                    obsTheoDoiTrangThaiDat && obsTheoDoiTrangThaiDat.disconnect()
-
-                    logHistory(th + " - Lệnh tay", giabandau, gd, shd, false)
+                    obsDisconnect()
+                    logHistory(userId, th + " - Lệnh tay", giabandau, gd, shd, false)
                 }
             })
         }
         else{
             $("#acceptCreateOrderNew").click(() => {
-                if(obsTheoDoiTrangThaiDat || obs){
+                if (obsTheoDoiTrangThaiDat || obsNangTP){
                     const th = $("#modal_order_type").text()
                     const shd = $("#modal_sohopdong").text()
                     const gd = $("#modal_price").text()
 
-                    obs && obs.disconnect()
-                    obsTheoDoiTrangThaiDat && obsTheoDoiTrangThaiDat.disconnect()
+                    obsDisconnect()
 
-                    logHistory(th + " - Lệnh tay", giabandau, gd, shd, false)
+                    logHistory(userId, th + " - Lệnh tay", giabandau, gd, shd, false)
                 }
             })
         }
@@ -566,18 +576,22 @@ window.addEventListener('load', async () => {
         }
 
         const huyViTheHienTai = () => {
-            const vithe = parseInt($("#status-danhmuc-content").children().eq(0).children().eq(1).text())
-            if (vithe) {
-                vithe > 0
-                    ? runBotNormal("SHORT", "MTL", Math.abs(vithe))
-                    : runBotNormal("LONG", "MTL", Math.abs(vithe))
-            }
-        }
+            //const soViThe = parseInt($("#status-danhmuc-content")?.children()?.eq(0)?.children()?.eq(1)?.text())
+            
+            //if (soViThe) {
+            //    add_logs("Vị thế " + soViThe)
 
-        const capNhatSoHopDong = () => {
-            const li = ulPanel.children()
-            li.eq(0).children().click()
-            //li.eq(2).children().click()
+            //    const lenh = soViThe > 0 ? "SHORT" : "LONG"
+            //    runBotNormal(lenh, "MTL", Math.abs(soViThe))
+            //}
+            //else add_logs("Không có vị thế")
+            let vithe = $('#danhmuc_' + $('#right_stock_cd').val()).children('td').eq(1).html();
+
+            if (vithe != 'undefined' && typeof vithe != 'undefined' && vithe != '-') {
+                let soVithe = parseInt(vithe)
+                const lenh = soVithe > 0 ? "SHORT" : "LONG"
+                runBotNormal(lenh, "MTL", Math.abs(soVithe))
+            } else add_logs("Chưa có vị thế")
         }
 
         const daoLenh = (tinhieu) => tinhieu === "LONG" ? "SHORT" : "LONG"
@@ -588,12 +602,14 @@ window.addEventListener('load', async () => {
             objOrderPanel.showOrderList()
         }
 
+        const parseStrToFloat = (str) => parseFloat(str.replace(/,/g, ''))
+
         const botAutoClick = (arr, fullHopdong = parseInt(botVolumeValue.val()), isAdmin = false) => {
-            let tinhieu = arr[1].includes("Tin hieu long: Manh") ? "LONG" : "SHORT"
+            let tinhieu = arr[1] == "Tin hieu long: Manh" ? "LONG" : "SHORT"
 
-            add_logs("Tính hiệu: " + tinhieu)
+            add_logs("Tín hiệu: " + tinhieu)
 
-            obsTheoDoiTrangThaiDat && obsTheoDoiTrangThaiDat.disconnect()
+            obsDisconnect()
 
             let dadatTp1 = false
             let dadatTp2 = false
@@ -602,8 +618,8 @@ window.addEventListener('load', async () => {
 
             const type = arr[arr.length - 1].split(" ")
             const daoChieu = arr[arr.length - 1] === "REVERSE" || type[0] === "REVERSE"
-
-            const vithe = $("#status-danhmuc-content").children().eq(0).children().eq(1).text()
+            
+            const soViThe = parseInt($('#danhmuc_' + $('#right_stock_cd').val()).children('td').eq(1).html())
 
             let my_hd = fullHopdong
             const ngDat = parseInt(botVolumeValue.val())
@@ -611,7 +627,6 @@ window.addEventListener('load', async () => {
             if(daoChieu){
                 add_logs("Tính hiệu đảo chiều!")
 
-                const soViThe = parseInt(vithe)
                 const soSucMua = parseInt(sucMua.text())
 
                 if (botVolume.val() === "0") {
@@ -708,15 +723,32 @@ window.addEventListener('load', async () => {
                 huyLenhDieuKien()
             }
             else {
-                if(isAdmin){
-                    if (fullHopdong > ngDat) {
-                        my_hd = ngDat
+                if (soViThe) {
+                    if (isAdmin) {
+                        if (fullHopdong > ngDat) {
+                            my_hd = ngDat + Math.abs(soViThe)
+                            fullHopdong = ngDat
+                        }
+                        else {
+                            my_hd += Math.abs(soViThe)
+                        }
+                    }
+                    else {
+                        my_hd = ngDat + Math.abs(soViThe)
                         fullHopdong = ngDat
-                    } 
+                    }
                 }
                 else {
-                    my_hd = ngDat
-                    fullHopdong = ngDat
+                    if (isAdmin) {
+                        if (fullHopdong > ngDat) {
+                            my_hd = ngDat
+                            fullHopdong = ngDat
+                        }
+                    }
+                    else {
+                        my_hd = ngDat
+                        fullHopdong = ngDat
+                    }
                 }
             }
 
@@ -728,8 +760,8 @@ window.addEventListener('load', async () => {
                     ? giamua += 0.2
                     : giamua -= 0.2
             }
-            giamua = giamua.toFixed(1)
-            catLo = catLo.toFixed(1)
+            giamua = parseFloat(giamua.toFixed(1))
+            catLo = parseFloat(catLo.toFixed(1))
 
             const tp1 = convertFloatToFixed(arr[3])
             const tp2 = convertFloatToFixed(arr[4])
@@ -743,100 +775,104 @@ window.addEventListener('load', async () => {
                 runBotNormal(tinhieu, giamua, fullHopdong)
 
                 const funcNangTP = () => {
-                    logHistory(tinhieu, giamua, giamua, my_hd, false)
+                    logHistory(userId, tinhieu, giamua, giamua, fullHopdong, false)
                     giabandau = giamua
 
                     //dao lenh
-                    tinhieu = daoLenh(tinhieu)
-                    runBotStopOrder(tinhieu, fullHopdong, catLo)
+                    const tinHieuDao = daoLenh(tinhieu)
+
+                    runBotStopOrder(tinHieuDao, my_hd, catLo)
 
                     //Chot 50%
                     if (order50[0] > 0) {
-                        runBotNormal(tinhieu, tp1, order50[0])
+                        runBotNormal(tinHieuDao, tp1, order50[0])
                     }
 
                     //Chot 25%
                     if (order25[0] > 0) {
-                        runBotNormal(tinhieu, tp2, order25[0])
+                        runBotNormal(tinHieuDao, tp2, order25[0])
                     }
 
                     const funcTheoDoiGiaKhopLenh = () => {
-                        const nodeGiaKhop = document.getElementById("tbodyPhaisinhContent").children[0]?.children[10]
+                        const r = $('#right_stock_cd').val() + "row"
+                        //const nodeGiaKhop = document.getElementById("tbodyPhaisinhContent").children[0]?.children[10]
+                        const nodeGiaKhop = document.getElementById(r).children[10]
                         if (!nodeGiaKhop) {
                             setTimeout(funcTheoDoiGiaKhopLenh, 1000)
                         }
                         else {
-                            obs && obs.disconnect()
-                            
-                            obs = new MutationObserver(function (mutationsList) {
+                            obsNangTP = new MutationObserver(function (mutationsList) {
                                 for (let mutation of mutationsList) {
                                     if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                                        const giaKhopLenh = parseFloat(mutation.target.textContent)
+                                        //gia khop
+                                        const giaKhopLenh = parseStrToFloat(mutation.target.textContent)
                                         
                                         if (isNaN(giaKhopLenh)) continue;
 
                                         const isShort = tinhieu === "SHORT"
 
                                         const condition1 = isShort
-                                            ? giaKhopLenh >= tp1 && giaKhopLenh < tp2
-                                            : giaKhopLenh <= tp1 && giaKhopLenh > tp2
+                                            ? giaKhopLenh <= tp1 && giaKhopLenh > tp2
+                                            : giaKhopLenh >= tp1 && giaKhopLenh < tp2
 
                                         const condition2 = isShort
-                                            ? giaKhopLenh >= tp2
-                                            : giaKhopLenh <= tp2
+                                            ? giaKhopLenh <= tp2
+                                            : giaKhopLenh >= tp2
 
-                                        const lenhBanDau = daoLenh(tinhieu)
-                                        
+                                        const shdTP1 = my_hd - parseInt(order50[0])
+                                        const shdTP2 = my_hd - parseInt(order50[0]) - parseInt(order25[0])
                                         //tp
-                                        if (condition1 && !dadatTp1 && order50[0] > 0) {
+                                        if (condition1 && !dadatTp1 && shdTP1 > 0) {
                                             huyLenhDieuKien()
 
                                             isDemo
-                                                ? setTimeout(() => runBotStopOrder(tinhieu, order50[0], giamua), 1000)
-                                                : runBotStopOrder(tinhieu, order50[0], giamua)
-
+                                                ? setTimeout(() => runBotStopOrder(tinHieuDao, shdTP1, giamua), 1000)
+                                                : runBotStopOrder(tinHieuDao, shdTP1, giamua)
+                                            
                                             dadatTp1 = true
-                                            logHistory(lenhBanDau, giamua, tp1, order50[0], false)
+                                            logHistory(userId, tinhieu, giamua, tp1, shdTP1, false)
+                                            giabandau = tp1
                                         }
-                                        else if (condition2 && !dadatTp2 && order25[0] > 0) {
+                                        else if (condition2 && !dadatTp2 && shdTP2 > 0) {
                                             huyLenhDieuKien()
 
                                             isDemo
-                                                ? setTimeout(() => runBotStopOrder(tinhieu, order25[0], tp1), 1000)
-                                                : runBotStopOrder(tinhieu, order25[0], tp1)
+                                                ? setTimeout(() => runBotStopOrder(tinHieuDao, shdTP2, tp1), 1000)
+                                                : runBotStopOrder(tinHieuDao, shdTP2, tp1)
 
                                             dadatTp1 = true
                                             dadatTp2 = true
-                                            logHistory(lenhBanDau, tp1, tp2, order25[0], false)
+                                            logHistory(userId, tinhieu, tp1, tp2, shdTP2, false)
+                                            giabandau = tp2
                                         }
 
                                         //sl
                                         const initCancelCondition = isShort
-                                            ? giaKhopLenh <= catLo && !dadatTp1 && !dadatTp2
-                                            : giaKhopLenh >= catLo && !dadatTp1 && !dadatTp2
+                                            ? giaKhopLenh >= catLo && !dadatTp1 && !dadatTp2
+                                            : giaKhopLenh <= catLo && !dadatTp1 && !dadatTp2 
 
                                         const tp1Condition = isShort
-                                            ? giaKhopLenh <= giamua && dadatTp1 && !dadatTp2
-                                            : giaKhopLenh >= giamua && dadatTp1 && !dadatTp2
+                                            ? giaKhopLenh >= giamua && dadatTp1 && !dadatTp2
+                                            : giaKhopLenh <= giamua && dadatTp1 && !dadatTp2
 
                                         if (initCancelCondition && !daHuyInitCancel) {
                                             huyLenhThuong()
 
                                             daHuyInitCancel = true
-                                            logHistory(lenhBanDau, giamua, catLo, my_hd, true)
+                                            logHistory(userId, tinhieu, giamua, catLo, my_hd, true)
                                         }
                                         else if (tp1Condition && !daHuyTp1Cancel) {
                                             huyLenhThuong()
 
                                             daHuyInitCancel = true
                                             daHuyTp1Cancel = true
-                                            logHistory(lenhBanDau, giamua, tp1, (my_hd - parseInt(order50[0])), true)
+                                            logHistory(userId, tinhieu, giamua, tp1, shdTP1, true)
                                         }
                                     }
                                 }
                             });
                             
-                            obs.observe(nodeGiaKhop, { characterData: true, childList: true, subtree: true })
+                            obsNangTP.observe(nodeGiaKhop, { characterData: true, childList: true, subtree: true })
                         }
                     }
                     funcTheoDoiGiaKhopLenh()
@@ -856,14 +892,22 @@ window.addEventListener('load', async () => {
                         const trangthaiBanDau = lenhFullHd.textContent.trim()
                         if (trangthaiBanDau == 'Đã khớp') {
                             funcNangTP()
+                            if (obsTheoDoiTrangThaiDat) {
+                                obsTheoDoiTrangThaiDat.disconnect()
+                                obsTheoDoiTrangThaiDat = null
+                            }
                         }
                         else {
-                            let dslenhInterval = setInterval(capNhatDanhSachLenh, 1000)
+                            capNhatDanhSachLenh()
+                            const dslenhInterval = setInterval(capNhatDanhSachLenh, 1000)
                             setTimeout(() => {
                                 clearInterval(dslenhInterval)
-                                if(lenhFullHd.textContent.trim() == 'Chờ khớp'){
-                                    obsTheoDoiTrangThaiDat && obsTheoDoiTrangThaiDat.disconnect()
+                                if (lenhFullHd.textContent.trim() == 'Chờ khớp') {
                                     huyLenhThuong()
+                                    if (obsTheoDoiTrangThaiDat) {
+                                        obsTheoDoiTrangThaiDat.disconnect()
+                                        obsTheoDoiTrangThaiDat = null
+                                    }
                                 }
                             }, 30000)
 
@@ -876,18 +920,19 @@ window.addEventListener('load', async () => {
                                         if(trangthai == 'Đã khớp'){
                                             funcNangTP()
                                             obsThis.disconnect()
+                                            obsTheoDoiTrangThaiDat = null
                                             clearInterval(dslenhInterval)
                                         }
                                     }
                                 }
                             });
                             obsTheoDoiTrangThaiDat.observe(lenhFullHd, { characterData: true, childList: true, subtree: true });
-                            capNhatDanhSachLenh()
                         }
                     }
                 }
                 capNhatDanhSachLenh()
-                setTimeout(funcTheoDoiTrangThaiDat, 1200)
+                capNhatDanhSachLenh()
+                setTimeout(funcTheoDoiTrangThaiDat, 1500)
             }
         }
         
@@ -904,15 +949,13 @@ window.addEventListener('load', async () => {
             showTinHieu(tinhieu)
 
             if (botAutoOrder.is(":checked")) {
-                capNhatSoHopDong()
                 botAutoClick(tinhieu)
             }
         })
 
         connection.on("ServerMessage", function (message) {
             if (message == "LOGOUT") {
-                obs && obs.disconnect()
-                obsTheoDoiTrangThaiDat && obsTheoDoiTrangThaiDat.disconnect()
+                obsDisconnect()
                 connection.stop()
                 add_logs("Tài khoản đã đăng nhập từ trình duyệt khác, bạn sẽ bị đăng xuất.")
                 setTimeout(server_logout, 1000)
@@ -921,19 +964,16 @@ window.addEventListener('load', async () => {
 
         connection.on("AdminSignal", function (message) {
             if (botAutoOrder.is(":checked")) {
-                capNhatSoHopDong()
                 if (message == "CANCEL_ALL") {
                     add_logs("Admin: Hủy tất cả lệnh" )
                     huyLenhThuong()
                     huyLenhDieuKien()
-                    obs && obs.disconnect()
-                    obsTheoDoiTrangThaiDat && obsTheoDoiTrangThaiDat.disconnect()
+                    obsDisconnect()
                 }
                 else if (message == "CANCEL_VITHE") {
                     add_logs("Admin: Hủy vị thế hiện tại")
                     huyViTheHienTai()
-                    obs && obs.disconnect()
-                    obsTheoDoiTrangThaiDat && obsTheoDoiTrangThaiDat.disconnect()
+                    obsDisconnect()
                 }
                 else if(message.includes("STOP_ORDER_ONLY")){
                     const arr = message.split("\n").map(line => line.trim())
@@ -989,9 +1029,9 @@ window.addEventListener('load', async () => {
         add_logs("Hệ thống sẳn sàng")
     }
 
-
-    if (getCurrentUser() && getCookie("USER")) {
-        loggingAndBot()
+    const autobotps_user = getCurrentUser()
+    if (autobotps_user && getCookie("USER")) {
+        loggingAndBot(false, autobotps_user.userId)
     }
     else {
         $('#cb_showPassword').on('change', function () {
@@ -1024,7 +1064,7 @@ window.addEventListener('load', async () => {
                         setCookie("auth_token", data.access_token, 5);
                         delete data.access_token
                         setCookie("bot_data", JSON.stringify(data), 1 * 24 * 60)
-                        loggingAndBot("login")
+                        loggingAndBot(true, data.userId)
                     } else $statusElement.text(data.error).removeClass('alert-info').addClass('alert-danger')
                 }).fail((e, error) => {
                     error === 'timeout'

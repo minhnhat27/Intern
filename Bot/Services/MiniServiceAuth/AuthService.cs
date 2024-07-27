@@ -107,8 +107,8 @@ namespace Bot.Services.MiniServiceAuth
                         };
                     }
 
-                    var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
-                    var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddDays(1), true);
+                    var access_token = CreateJwt(user, roles, DateTime.Now.AddMinutes(6), false);
+                    var refresh_token = CreateJwt(user, roles, DateTime.Now.AddDays(1), true);
 
                     if (isExtension)
                     {
@@ -151,8 +151,8 @@ namespace Bot.Services.MiniServiceAuth
                 }
 
                 var roles = await _userManager.GetRolesAsync(user);
-                var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(6), false);
-                var refresh_token = CreateJwt(user, roles, DateTime.UtcNow.AddHours(4), true);
+                var access_token = CreateJwt(user, roles, DateTime.Now.AddMinutes(6), false);
+                var refresh_token = CreateJwt(user, roles, DateTime.Now.AddHours(4), true);
 
                 _cachingService.Remove("Admin Login " + userId);
                 return new JwtResponse
@@ -178,7 +178,8 @@ namespace Bot.Services.MiniServiceAuth
                 ValidateLifetime = validateLifetime,
                 ValidAudience = _config["JWT:Audience"],
                 ValidIssuer = _config["JWT:Issuer"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["JWT:Key"] ?? ""))
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_config["JWT:Key"] ?? "")),
+                ClockSkew = TimeSpan.Zero,
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var principal = tokenHandler.ValidateToken(token, parameters, out SecurityToken securityToken);
@@ -218,7 +219,7 @@ namespace Bot.Services.MiniServiceAuth
             }
 
             var roles = await _userManager.GetRolesAsync(user);
-            var access_token = CreateJwt(user, roles, DateTime.UtcNow.AddMinutes(5), false);
+            var access_token = CreateJwt(user, roles, DateTime.Now.AddMinutes(5), false);
 
             return new TokenModel
             {

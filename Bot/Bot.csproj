@@ -26,12 +26,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include="wwwroot\**\*.js" />
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Response\**\*.js" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
   <ItemGroup>
-    <None Remove="wwwroot\script.js" />
+    <Content Remove="wwwroot\script.js" />
   </ItemGroup>
 </Project>
