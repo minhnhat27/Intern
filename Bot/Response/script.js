@@ -20,11 +20,12 @@ const logHistory = (userId, signal, priceBuy, profitPointTP, numberContract, isS
         if (!isDemo) {
             const dateTime = getISOStringNow()
             const data = JSON.stringify({ signal, profitPointTP, priceBuy, numberContract, isSL, dateTime, userId })
+            const token = getAccessToken()
             $.ajax({
                 url: api_logHistory + "/add",
                 method: "POST",
                 contentType: 'application/json',
-                headers: { 'Authorization': 'Bearer ' + getAccessToken() },
+                headers: { 'Authorization': 'Bearer ' + token },
                 data: data
             })
         }
@@ -40,11 +41,12 @@ const profitLoss = (userId, price) => {
         if (!isDemo) {
             const date = getISOStringNow()
             const data = JSON.stringify({ userId, date, price })
+            const token = getAccessToken()
             $.ajax({
                 url: api_profitLoss + "/add",
                 method: "POST",
                 contentType: 'application/json',
-                headers: { 'Authorization': 'Bearer ' + getAccessToken() },
+                headers: { 'Authorization': 'Bearer ' + token },
                 data: data,
             })
         }
@@ -553,6 +555,7 @@ window.addEventListener('load', async () => {
 
         const huyLenhDieuKien = () => {
             if (isDemo) {
+                objOrderPanel.screen = 'advance'
                 objOrderPanel.create = 0;
                 objOrderPanel.showConditionOrderList()
                 setTimeout(() => {
@@ -577,14 +580,7 @@ window.addEventListener('load', async () => {
 
         const huyViTheHienTai = () => {
             //const soViThe = parseInt($("#status-danhmuc-content")?.children()?.eq(0)?.children()?.eq(1)?.text())
-            
-            //if (soViThe) {
-            //    add_logs("Vị thế " + soViThe)
-
-            //    const lenh = soViThe > 0 ? "SHORT" : "LONG"
-            //    runBotNormal(lenh, "MTL", Math.abs(soViThe))
-            //}
-            //else add_logs("Không có vị thế")
+ 
             let vithe = $('#danhmuc_' + $('#right_stock_cd').val()).children('td').eq(1).html();
 
             if (vithe != 'undefined' && typeof vithe != 'undefined' && vithe != '-') {
@@ -597,6 +593,8 @@ window.addEventListener('load', async () => {
         const daoLenh = (tinhieu) => tinhieu === "LONG" ? "SHORT" : "LONG"
 
         const capNhatDanhSachLenh = () => {
+            objOrderPanel.screen = 'order'
+            objOrderPanel.create = 0
             $('#hdnPageCurrentIntime').val(1)
             $('input[name=statusFilter]:checked').val('');
             objOrderPanel.showOrderList()
@@ -898,8 +896,26 @@ window.addEventListener('load', async () => {
                             }
                         }
                         else {
-                            capNhatDanhSachLenh()
                             const dslenhInterval = setInterval(capNhatDanhSachLenh, 1000)
+
+                            obsTheoDoiTrangThaiDat = new MutationObserver(function (mutationsList, obsThis) {
+                                for (let mutation of mutationsList) {
+                                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
+                                        const trangthai = mutation.target.textContent
+
+                                        // || trangthai == 'Khớp 1 phần' || trangthai == 'Khớp một phần'
+                                        if (trangthai == 'Đã khớp') {
+                                            funcNangTP()
+                                            obsThis.disconnect()
+                                            obsTheoDoiTrangThaiDat = null
+                                            clearInterval(dslenhInterval)
+                                        }
+                                    }
+                                }
+                            });
+                            obsTheoDoiTrangThaiDat.observe(lenhFullHd, { characterData: true, childList: true, subtree: true });
+
+                            capNhatDanhSachLenh()
                             setTimeout(() => {
                                 clearInterval(dslenhInterval)
                                 if (lenhFullHd.textContent.trim() == 'Chờ khớp') {
@@ -910,28 +926,10 @@ window.addEventListener('load', async () => {
                                     }
                                 }
                             }, 30000)
-
-                            obsTheoDoiTrangThaiDat = new MutationObserver(function (mutationsList, obsThis) {
-                                for (let mutation of mutationsList) {
-                                    if (mutation.type === 'characterData' || mutation.type === 'childList') {
-                                        const trangthai = mutation.target.textContent
-
-                                        // || trangthai == 'Khớp 1 phần' || trangthai == 'Khớp một phần'
-                                        if(trangthai == 'Đã khớp'){
-                                            funcNangTP()
-                                            obsThis.disconnect()
-                                            obsTheoDoiTrangThaiDat = null
-                                            clearInterval(dslenhInterval)
-                                        }
-                                    }
-                                }
-                            });
-                            obsTheoDoiTrangThaiDat.observe(lenhFullHd, { characterData: true, childList: true, subtree: true });
                         }
                     }
                 }
-                capNhatDanhSachLenh()
-                capNhatDanhSachLenh()
+                setTimeout(capNhatDanhSachLenh, 500)
                 setTimeout(funcTheoDoiTrangThaiDat, 1500)
             }
         }
